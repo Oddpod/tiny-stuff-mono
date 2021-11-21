@@ -32,20 +32,20 @@ function fetchChampionMastery(summonerId: string) {
 //#endregion
 
 async function handler(req: any): Promise<Response> {
-  if (req.query.name || req.summonerId) {
-    const summonerId = await fetchSummonerId(
-      req.body.summonerId,
-      req.query.name,
-    );
+  // if (req.query.name || req.summonerId) {
+  //   const summonerId = await fetchSummonerId(
+  //     req.body.summonerId,
+  //     req.query.name,
+  //   );
 
-    const response = await fetchChampionMastery(summonerId).then((response) =>
-      response.json()
-    );
-    return new Response(
-      `{ "championMastery": ${response}, ${summonerId} }`,
-      { status: 200, headers: { "content-type": "application/json" }}
-    );
-  }
+  //   const response = await fetchChampionMastery(summonerId).then((response) =>
+  //     response.json()
+  //   );
+  //   return new Response(
+  //     `{ "championMastery": ${response}, ${summonerId} }`,
+  //     { status: 200, headers: { "content-type": "application/json" }}
+  //   );
+  // }
   return new Response("Error: Include either a summerName or summonerId", {
     status: 400,
     headers: { "content-type": "application/json" }
