@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 const RIOT_API_ROOT_LOL = Deno.env.get("RIOT_API_ROOT_LOL") as string;
 const API_KEY_TOKEN = Deno.env.get("RIOT_API_KEY") as string;
 console.log(API_KEY_TOKEN);
+console.log(RIOT_API_ROOT_LOL)
 
 function fetchData(url: string) {
   return fetch(url, {
