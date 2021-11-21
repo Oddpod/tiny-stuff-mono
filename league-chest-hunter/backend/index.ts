@@ -2,9 +2,8 @@ import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
 const RIOT_API_ROOT_LOL = Deno.env.get("RIOT_API_ROOT_LOL") as string;
 const API_KEY_TOKEN = Deno.env.get("RIOT_API_KEY") as string;
-// console.log(API_KEY_TOKEN);
-// console.log(RIOT_API_ROOT_LOL)
 
+//#region helper functions
 function fetchData(url: string) {
   return fetch(url, {
     headers: new Headers({ "X-Riot-Token": API_KEY_TOKEN }),
@@ -30,9 +29,9 @@ function fetchChampionMastery(summonerId: string) {
     `${RIOT_API_ROOT_LOL}champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`,
   );
 }
+//#endregion
 
 async function handler(req: any): Promise<Response> {
-  return new Promise(() => new Response(JSON.stringify(req)))
   if (req.query.name || req.summonerId) {
     const summonerId = await fetchSummonerId(
       req.body.summonerId,
@@ -42,16 +41,16 @@ async function handler(req: any): Promise<Response> {
     const response = await fetchChampionMastery(summonerId).then((response) =>
       response.json()
     );
-    return new Promise(() =>
-      new Response(`{ "championMastery": ${response}, ${summonerId} }`)
+    return new Response(
+      `{ "championMastery": ${response}, ${summonerId} }`,
+      { status: 200, headers: { "content-type": "application/json" }}
     );
   }
-  return new Promise(() =>
-    new Response("Error: Include either a summerName or summonerId", {
-      status: 400,
-    })
-  );
+  return new Response("Error: Include either a summerName or summonerId", {
+    status: 400,
+    headers: { "content-type": "application/json" }
+  });
 }
 
-console.log("Listening on http://localhost:8000");
+console.log("Listening on http://localhost:8080");
 await serve(handler);
