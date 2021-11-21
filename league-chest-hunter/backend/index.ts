@@ -1,8 +1,7 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
-import { config } from "https://deno.land/x/dotenv/mod.ts";
 
-const RIOT_API_ROOT_LOL = config().RIOT_API_ROOT_LOL;
-const API_KEY_TOKEN = config().RIOT_API_KEY;
+const RIOT_API_ROOT_LOL = (Deno.env as any).RIOT_API_ROOT_LOL;
+const API_KEY_TOKEN = (Deno.env as any).RIOT_API_KEY;
 console.log(API_KEY_TOKEN);
 
 async function fetchSummonerId(
@@ -12,7 +11,7 @@ async function fetchSummonerId(
   if (summonerId) {
     return summonerId;
   }
-  return await fetch(
+  const id = await fetch(
     `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`,
     {
       headers: {
@@ -22,6 +21,7 @@ async function fetchSummonerId(
   )
     .then((response) => (response.json()))
     .then((res: { id: string }) => res.id);
+  return id;
 }
 
 function fetchChampionMastery(summonerId: string) {
