@@ -17,7 +17,8 @@ async function fetchSummonerId(
     return summonerId;
   }
   const id = await fetchData(
-    `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`)
+    `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`,
+  )
     .then((response) => (response.json()))
     .then((res: { id: string }) => res.id);
   return id;
@@ -25,10 +26,11 @@ async function fetchSummonerId(
 
 function fetchChampionMastery(summonerId: string) {
   return fetchData(
-    `${RIOT_API_ROOT_LOL}champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`);
+    `${RIOT_API_ROOT_LOL}champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`,
+  );
 }
 
-async function handler(req: any) {
+async function handler(req: any): Promise<Response> {
   if (req.query.name || req.summonerId) {
     const summonerId = await fetchSummonerId(
       req.body.summonerId,
@@ -38,11 +40,15 @@ async function handler(req: any) {
     const response = await fetchChampionMastery(summonerId).then((response) =>
       response.json()
     );
-    return new Response(`{ "championMastery": ${response}, ${summonerId} }`);
+    return new Promise(() =>
+      new Response(`{ "championMastery": ${response}, ${summonerId} }`)
+    );
   }
-  return new Response("Error: Include either a summerName or summonerId", {
-    status: 400,
-  });
+  return new Promise(() =>
+    new Response("Error: Include either a summerName or summonerId", {
+      status: 400,
+    })
+  );
 }
 
 console.log("Listening on http://localhost:8000");
