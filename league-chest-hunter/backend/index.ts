@@ -2,8 +2,8 @@ import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
 const RIOT_API_ROOT_LOL = Deno.env.get("RIOT_API_ROOT_LOL") as string;
 const API_KEY_TOKEN = Deno.env.get("RIOT_API_KEY") as string;
-console.log(API_KEY_TOKEN);
-console.log(RIOT_API_ROOT_LOL)
+// console.log(API_KEY_TOKEN);
+// console.log(RIOT_API_ROOT_LOL)
 
 function fetchData(url: string) {
   return fetch(url, {
@@ -32,6 +32,7 @@ function fetchChampionMastery(summonerId: string) {
 }
 
 async function handler(req: any): Promise<Response> {
+  return new Promise(() => new Response(JSON.stringify(req)))
   if (req.query.name || req.summonerId) {
     const summonerId = await fetchSummonerId(
       req.body.summonerId,
