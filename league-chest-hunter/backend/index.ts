@@ -1,9 +1,14 @@
 import { serve } from "https://deno.land/std@0.114.0/http/server.ts";
 
-const RIOT_API_ROOT_LOL = (Deno.env as any).RIOT_API_ROOT_LOL;
-const API_KEY_TOKEN = (Deno.env as any).RIOT_API_KEY;
+const RIOT_API_ROOT_LOL = Deno.env.get("RIOT_API_ROOT_LOL") as string;
+const API_KEY_TOKEN = Deno.env.get("RIOT_API_KEY") as string;
 console.log(API_KEY_TOKEN);
 
+function fetchData(url: string) {
+  return fetch(url, {
+    headers: new Headers({ "X-Riot-Token": API_KEY_TOKEN }),
+  });
+}
 async function fetchSummonerId(
   summonerName: string,
   summonerId: string | undefined = undefined,
@@ -11,28 +16,16 @@ async function fetchSummonerId(
   if (summonerId) {
     return summonerId;
   }
-  const id = await fetch(
-    `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`,
-    {
-      headers: {
-        "X-Riot-Token": API_KEY_TOKEN,
-      },
-    },
-  )
+  const id = await fetchData(
+    `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`)
     .then((response) => (response.json()))
     .then((res: { id: string }) => res.id);
   return id;
 }
 
 function fetchChampionMastery(summonerId: string) {
-  return fetch(
-    `${RIOT_API_ROOT_LOL}champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`,
-    {
-      headers: {
-        "X-Riot-Token": API_KEY_TOKEN,
-      },
-    },
-  );
+  return fetchData(
+    `${RIOT_API_ROOT_LOL}champion-mastery/v4/champion-masteries/by-summoner/${summonerId}`);
 }
 
 async function handler(req: any) {
