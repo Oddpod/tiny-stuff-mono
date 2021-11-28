@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>League Chest Hunter</title>
+    <script src="https://unpkg.com/petite-vue"></script>
+</head>
+
+<body>
+    <div v-scope="TestComp()"></div>
+</body>
+
+<script type="module">
+    import { createApp } from 'https://unpkg.com/petite-vue?module'
+    import { fetchSummonerId, fetchChampionMastery } from './index.js'
+    createApp({
+        TestComp
+    }).mount()
+
+    function TestComp(props) {
+        return {
+            $template: '#counter-template',
+            summonerName: '',
+            response: '',
+            async test() {
+                const response = await fetch(`/.netlify/functions/getChampMastery?name=${this.summonerName}`)
+                    .then(res => res.json())
+                this.response = response
+            }
+        }
+    }
+    async function test() {
+        const summonerId = await fetchSummonerId(
+            this.summonerName
+        );
+
+        const response = await fetchChampionMastery(summonerId).then((response) =>
+            response.json()
+        );
+        console.log(response)
+    }
+</script>
+
+<template id="counter-template">
+    <h3>Hello There</h3>
+    <input v-model="summonerName"/>
+    <button @click="test">Fetch</button>
+    <div>
+        Summoner data {{ response }}
+    </div>
+</template>
+
+</html>

@@ -1,0 +1,37 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 debug pnpm:package-manifest": {
+    "initial": {},
+    "prefix": "C:\\Users\\oddha\\Projects\\tiny-stuff-mono"
+  },
+  "2 debug pnpm:context": {
+    "currentLockfileExists": false,
+    "storeDir": "C:\\Users\\oddha\\.pnpm-store\\v3",
+    "virtualStoreDir": "C:\\Users\\oddha\\Projects\\tiny-stuff-mono\\node_modules\\.pnpm"
+  },
+  "3 debug pnpm:stage": {
+    "prefix": "C:\\Users\\oddha\\Projects\\tiny-stuff-mono",
+    "stage": "resolution_started"
+  },
+  "4 error pnpm": {
+    "code": "ERR_PNPM_FETCH_404",
+    "hint": "@netlify/funtioncs is not in the npm registry, or you have no permission to fetch it.\n\nNo authorization header was set for the request.",
+    "request": {
+      "url": "https://registry.npmjs.org/@netlify%2Ffuntioncs"
+    },
+    "response": {
+      "size": 0,
+      "timeout": 60000
+    },
+    "pkgName": "@netlify/funtioncs",
+    "pkgsStack": [],
+    "err": {
+      "name": "Error",
+      "message": "GET https://registry.npmjs.org/@netlify%2Ffuntioncs: Not Found - 404",
+      "code": "ERR_PNPM_FETCH_404",
+      "stack": "Error: GET https://registry.npmjs.org/@netlify%2Ffuntioncs: Not Found - 404\n    at RetryOperation._fn (C:\\Users\\oddha\\AppData\\Roaming\\npm\\node_modules\\pnpm\\dist\\pnpm.cjs:86260:18)\n    at processTicksAndRejections (internal/process/task_queues.js:97:5)"
+    }
+  }
+}
