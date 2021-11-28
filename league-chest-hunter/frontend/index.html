@@ -15,7 +15,6 @@
 
 <script type="module">
     import { createApp } from 'https://unpkg.com/petite-vue?module'
-    import { fetchSummonerId, fetchChampionMastery } from './index.js'
     createApp({
         TestComp
     }).mount()
@@ -31,16 +30,6 @@
                 this.response = response
             }
         }
-    }
-    async function test() {
-        const summonerId = await fetchSummonerId(
-            this.summonerName
-        );
-
-        const response = await fetchChampionMastery(summonerId).then((response) =>
-            response.json()
-        );
-        console.log(response)
     }
 </script>
 
