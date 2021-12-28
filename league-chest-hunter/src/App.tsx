@@ -19,6 +19,9 @@ const App: Component = () => {
   onMount(() => fetchChampMasteries());
   return (
     <div class={styles.App}>
+      <header>
+        <h1>League Chest Hunter</h1>
+      </header>
       <input
         placeholder="Summoner name"
         value={summonerName()}
