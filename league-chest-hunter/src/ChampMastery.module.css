@@ -1,0 +1,24 @@
+.ChampMastery {
+  height: 100%;
+  padding: 0 0.5rem;
+}
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit:cover;
+}
+
+.champImage {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.chestAvailable {
+  border-radius: 1rem;
+  border: .25rem solid green;
+}
+
+.chestGranted {
+  opacity: 0.5;
+}

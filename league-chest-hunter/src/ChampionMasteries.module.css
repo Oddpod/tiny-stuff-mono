@@ -1,0 +1,17 @@
+.ChampionMasteries {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ChampionMasteries > * {
+  width: 20%;
+}
+
+@media screen and (min-width: 600px){
+  .ChampionMasteries > * {
+    width: 10%;
+  }
+}
