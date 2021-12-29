@@ -28,17 +28,11 @@ function fetchData(url: string) {
     },
   }).then((res) => res.json());
 }
-async function fetchSummonerId(
-  summonerName: string,
-  summonerId: string | undefined = undefined
-) {
-  if (summonerId) {
-    return summonerId;
-  }
+async function fetchSummoner(summonerName: string) {
   const res = (await fetchData(
     `${RIOT_API_ROOT_LOL}summoner/v4/summoners/by-name/${summonerName}`
   )) as SummonerResponse;
-  return res.id;
+  return res;
 }
 
 function fetchChampionMastery(summonerId: string) {
@@ -49,13 +43,13 @@ function fetchChampionMastery(summonerId: string) {
 //#endregion
 
 const handler: Handler = async (event, context) => {
-  const { name: summonerName = undefined, id = undefined } =
+  const { name: summonerName = undefined } =
     event.queryStringParameters as FetchChampionMasteryQuery;
-  if (summonerName || id) {
-    const summonerId = await fetchSummonerId(summonerName!, id);
+  if (summonerName) {
+    const summoner = await fetchSummoner(summonerName!);
 
-    const response = await fetchChampionMastery(summonerId);
-    const body = { championMastery: response, summonerId }
+    const response = await fetchChampionMastery(summoner.id);
+    const body = { championMastery: response, summoner };
     return {
       statusCode: 200,
       body: JSON.stringify(body),

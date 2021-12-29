@@ -4,8 +4,8 @@ import type { Component } from "solid-js";
 import { For } from "solid-js";
 import styles from "./ChampionMasteries.module.css";
 import championsById from "./assets/champion/championsById.json";
-import { ChampionMastery } from "./types";
-
+import { ChampionMastery, SummonerResponse } from "./types";
+import Summoner from "./Summoner";
 const includeChampNames = (mastery: ChampionMastery) => ({
   ...mastery,
   championName: (championsById as { [key: string]: string })[
@@ -13,14 +13,18 @@ const includeChampNames = (mastery: ChampionMastery) => ({
   ],
 });
 
-const ChampMasteries: Component<{ masteries: ChampionMastery[] }> = (props) => {
+const ChampMasteries: Component<{
+  masteries: ChampionMastery[];
+}> = (props) => {
   return (
     <div class={styles.ChampionMasteries}>
       <For
         each={props.masteries.map(includeChampNames)}
         fallback={<div>Loading...</div>}
       >
-        {(mastery: ChampionMasteryWithName) => <ChampMastery mastery={mastery} />}
+        {(mastery: ChampionMasteryWithName) => (
+          <ChampMastery mastery={mastery} />
+        )}
       </For>
     </div>
   );

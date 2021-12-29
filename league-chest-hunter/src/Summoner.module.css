@@ -1,0 +1,18 @@
+.SummonerContainer {
+  height: 5rem;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: center;
+  width: 15rem;
+}
+
+.SummonerContainer > * {
+  flex: 1;
+}
+
+.SummonerContainer img {
+  height: 100%;
+  object-fit: contain;
+}

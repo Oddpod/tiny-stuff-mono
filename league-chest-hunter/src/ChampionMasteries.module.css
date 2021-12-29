@@ -4,14 +4,18 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+  overflow: auto;
+  text-align: center;
 }
 
 .ChampionMasteries > * {
   width: 20%;
+  margin: 0.5rem;
 }
 
 @media screen and (min-width: 600px){
   .ChampionMasteries > * {
     width: 10%;
+    margin: 0.5rem;
   }
 }

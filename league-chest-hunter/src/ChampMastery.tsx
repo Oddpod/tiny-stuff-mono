@@ -12,7 +12,6 @@ const ChampMastery: Component<{ mastery: ChampionMasteryWithName }> = (
 ) => {
   return (
     <div class={styles.ChampMastery}>
-      {/* {props.mastery.chestGranted ? "✔🧰" : "❌🧰"} */}
       {props.mastery.chestGranted ? (
         <AquiredChest class={styles.chestIcon} />
       ) : (
