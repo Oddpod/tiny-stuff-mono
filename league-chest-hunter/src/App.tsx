@@ -4,7 +4,6 @@ import styles from "./App.module.css";
 import ChampMasteries from "./components/ChampionMasteries";
 import { SummonerResponse } from "./types";
 import Summoner from "./components/Summoner";
-import testData from '../_testData.json'
 import SummonerSearch, { SearchResponse } from "./components/SummonerSearch";
 import { includeChampNames } from "./util/champ";
 import { ChampionMasteryWithName } from "./components/ChampMastery";
@@ -15,10 +14,8 @@ enum FILTER_TYPE {
 }
 
 const App: Component = () => {
-  const [profile, setProfile] = createSignal<SummonerResponse>(testData.profile);
-  const [champMasteries, setChampMasteries] = createSignal<ChampionMasteryWithName[]>(
-    testData.championMastery.map(includeChampNames)
-  );
+  const [profile, setProfile] = createSignal<SummonerResponse | null>();
+  const [champMasteries, setChampMasteries] = createSignal<ChampionMasteryWithName[] | null>(null);
   const [filter, setFilter] = createSignal<FILTER_TYPE>(
     FILTER_TYPE.CHEST_AVAILABLE
   );
@@ -35,7 +32,10 @@ const App: Component = () => {
   };
 
   const filteredMasteries = createMemo(() => {
-    return champMasteries()
+    if(champMasteries() === null){
+      return [];
+    }
+    return champMasteries()!
       .filter(mastery => filter() !== FILTER_TYPE.CHEST_AVAILABLE || !mastery.chestGranted)
       .filter(mastery => !nameFilter() || mastery.championName.includes(nameFilter()))
   });
@@ -48,7 +48,7 @@ const App: Component = () => {
       <SummonerSearch onSearchResponse={(response) => onSearchResponse(response)} />
       <article>
         <section class={styles.SummonerInfo}>
-          <Summoner profile={profile()} />
+          {!!profile() && <Summoner profile={profile()!} />}
           <input
             type="text"
             class={styles.filterChamps}
@@ -82,7 +82,7 @@ const App: Component = () => {
           />
           <label for="filterChests">Filter out chest granted</label>
         </section>
-        <ChampMasteries masteries={filteredMasteries()} isFiltering={!!nameFilter()} />
+        {champMasteries() !== null && <ChampMasteries masteries={filteredMasteries()} isFiltering={!!nameFilter()} />}
       </article>
     </div>
   );
