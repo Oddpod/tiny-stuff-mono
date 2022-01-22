@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import { ChampionMastery } from "./types";
+import { ChampionMastery } from "../types";
 import styles from "./ChampMastery.module.css";
 import { AquiredChest, Chest } from "./Icons";
 

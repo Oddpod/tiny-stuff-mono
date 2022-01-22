@@ -3,24 +3,16 @@ import ChampMastery from "./ChampMastery";
 import type { Component } from "solid-js";
 import { For } from "solid-js";
 import styles from "./ChampionMasteries.module.css";
-import championsById from "./assets/champion/championsById.json";
-import { ChampionMastery, SummonerResponse } from "./types";
-import Summoner from "./Summoner";
-const includeChampNames = (mastery: ChampionMastery) => ({
-  ...mastery,
-  championName: (championsById as { [key: string]: string })[
-    mastery.championId
-  ],
-});
 
 const ChampMasteries: Component<{
-  masteries: ChampionMastery[];
+  masteries: ChampionMasteryWithName[];
+  isFiltering: boolean
 }> = (props) => {
   return (
     <div class={styles.ChampionMasteries}>
       <For
-        each={props.masteries.map(includeChampNames)}
-        fallback={<div>Loading...</div>}
+        each={props.masteries}
+        fallback={props.isFiltering ? <></> : <div>Loading...</div>}
       >
         {(mastery: ChampionMasteryWithName) => (
           <ChampMastery mastery={mastery} />

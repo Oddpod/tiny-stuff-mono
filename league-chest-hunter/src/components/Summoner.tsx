@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import type { SummonerResponse } from "./types";
+import type { SummonerResponse } from "../types";
 import styles from "./Summoner.module.css";
 
 const Summoner: Component<{ profile: SummonerResponse }> = (props) => (

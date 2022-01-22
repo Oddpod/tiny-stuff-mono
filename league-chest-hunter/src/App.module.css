@@ -14,12 +14,40 @@
   overflow: hidden;
 }
 
+.SummonerInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1.5rem 2.5rem;
+}
+
+.SummonerInfo > label {
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-right: .5rem;
+}
+
+.SummonerInfo > input[type="checkbox"] {
+  display: none;
+}
+
+.filterChamps {
+  margin: 0 0.5rem;
+  font-size: 1.2rem;
+  padding: 0.5rem;
+}
+
+.SummonerInfo > .ChestIcon {
+  height: 2rem;
+  width: 2.5rem;
+  cursor: pointer;
+}
+
 article {
   flex: 1;
   overflow: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
 }
 
@@ -32,7 +60,7 @@ header {
   padding-top: 1rem;
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, label {
   color: goldenrod;
   margin: 0;
   padding: 0;
@@ -64,12 +92,6 @@ button:hover {
     rgba(9, 43, 57, 1) 35%,
     rgba(17, 85, 119, 1) 100%
   );
-}
-
-button,
-input {
-  font-size: 1.5rem;
-  padding: 0.7rem;
 }
 
 button {

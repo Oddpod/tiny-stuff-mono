@@ -1,65 +1,89 @@
 import { Component, createMemo } from "solid-js";
-import { createSignal, onMount } from "solid-js";
+import { createSignal } from "solid-js";
 import styles from "./App.module.css";
-import testResponse from "./testResponse";
-import ChampMasteries from "./ChampionMasteries";
-import { ChampionMastery, SummonerResponse } from "./types";
-import Summoner from "./Summoner";
+import ChampMasteries from "./components/ChampionMasteries";
+import { SummonerResponse } from "./types";
+import Summoner from "./components/Summoner";
+import testData from '../_testData.json'
+import SummonerSearch, { SearchResponse } from "./components/SummonerSearch";
+import { includeChampNames } from "./util/champ";
+import { ChampionMasteryWithName } from "./components/ChampMastery";
 
 enum FILTER_TYPE {
+  NONE = "NONE",
   CHEST_AVAILABLE = "CHEST_AVAILABLE",
 }
 
 const App: Component = () => {
-  const [summonerName, setSummonerName] = createSignal("");
-  const [profile, setProfile] = createSignal<SummonerResponse>({
-    "id": "7LyvKM5Bwepavtv_nFGtUQNesl55cT8AvS5zNy2Gw5pW1Eg",
-    "accountId": "Qj9OZKmMyi9OcmKAWHQka4athvjle8VoET5Q9J2cxWIHNR0",
-    "puuid": "5BejTVi6a8Tt38TF9zedFDmR9UvG-apBrM-kYDzAbf7C-3-u0YIx6WqYZcXEcZK4LTs-TXN-N5WXUQ",
-    "name": "Knightalot",
-    "profileIconId": 763,
-    "revisionDate": 1638571226000,
-    "summonerLevel": 66
-});
-  const [champMasteries, setChampMasteries] = createSignal<ChampionMastery[]>(
-    testResponse.championMastery
+  const [profile, setProfile] = createSignal<SummonerResponse>(testData.profile);
+  const [champMasteries, setChampMasteries] = createSignal<ChampionMasteryWithName[]>(
+    testData.championMastery.map(includeChampNames)
   );
   const [filter, setFilter] = createSignal<FILTER_TYPE>(
     FILTER_TYPE.CHEST_AVAILABLE
   );
+  const [nameFilter, setNameFilter] = createSignal<string>(
+    ''
+  )
+  const toggleFilter = () => {
+    setFilter(filter() === FILTER_TYPE.CHEST_AVAILABLE ? FILTER_TYPE.NONE : FILTER_TYPE.CHEST_AVAILABLE)
+  }
 
-  const fetchChampMasteries = async () => {
-    const response = await fetch(
-      `/.netlify/functions/getChampMastery?name=${summonerName()}`
-    ).then((res) => res.json());
+  const onSearchResponse = (response: SearchResponse) => {
     setProfile(response.summoner);
-    setChampMasteries(response.championMastery);
+    setChampMasteries(response.championMastery.map(includeChampNames));
   };
 
   const filteredMasteries = createMemo(() => {
-    if (filter() === FILTER_TYPE.CHEST_AVAILABLE) {
-      return champMasteries()?.filter(mastery => !mastery.chestGranted);
-    }
-    return champMasteries();
+    return champMasteries()
+      .filter(mastery => filter() !== FILTER_TYPE.CHEST_AVAILABLE || !mastery.chestGranted)
+      .filter(mastery => !nameFilter() || mastery.championName.includes(nameFilter()))
   });
+
   return (
     <div class={styles.App}>
       <header>
         <h1>League Chest Hunter</h1>
       </header>
-      <div>
-        <input
-          placeholder="Summoner name"
-          value={summonerName()}
-          onChange={(event) => setSummonerName(event.currentTarget.value)}
-        />
-        <button onClick={() => fetchChampMasteries()}>Fetch</button>
-      </div>
+      <SummonerSearch onSearchResponse={(response) => onSearchResponse(response)} />
       <article>
-        <Summoner profile={profile()} />
-        <ChampMasteries masteries={filteredMasteries()} />
+        <section class={styles.SummonerInfo}>
+          <Summoner profile={profile()} />
+          <input
+            type="text"
+            class={styles.filterChamps}
+            placeholder="Filter by champ name"
+            value={nameFilter()}
+            name="filterChamps"
+            id="filterChamps"
+            onInput={(event) => setNameFilter(event.currentTarget.value)}
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            class={styles.ChestIcon}
+            color={filter() === FILTER_TYPE.CHEST_AVAILABLE ? 'goldenrod' : 'grey'}
+            aria-hidden="true"
+            role="checkbox"
+            width="100%"
+            onClick={() => toggleFilter()}
+            height="100%"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 24 24">
+            <path d="M5 4h14a3 3 0 0 1 3 3v4h-7v-1H9v1H2V7a3 3 0 0 1 3-3m6 7h2v2h-2v-2m-9 1h7v1l2 2h2l2-2v-1h7v8H2v-8z" fill="currentColor">
+            </path>
+          </svg>
+          <input type="checkbox"
+            value={filter() === FILTER_TYPE.CHEST_AVAILABLE ? 1 : 0}
+            id="filterChests"
+            name="filterChests"
+            checked
+            onClick={() => toggleFilter()}
+          />
+          <label for="filterChests">Filter out chest granted</label>
+        </section>
+        <ChampMasteries masteries={filteredMasteries()} isFiltering={!!nameFilter()} />
       </article>
-      {/* <ChampMasteries masteries={testResponse.championMastery} /> */}
     </div>
   );
 };

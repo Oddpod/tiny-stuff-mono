@@ -1,4 +1,5 @@
 .env
+_testData.json
 # Local Netlify folder
 .netlify
 node_modules
