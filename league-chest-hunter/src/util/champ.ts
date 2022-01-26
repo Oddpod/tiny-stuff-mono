@@ -1,5 +1,5 @@
 import type { ChampionMastery } from "../types";
-import championsById from "../assets/champion/championsById.json";
+import championsById from "./championsById.json";
 
 export const includeChampNames = (mastery: ChampionMastery) => ({
     ...mastery,
