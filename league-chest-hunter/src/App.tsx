@@ -1,4 +1,4 @@
-import { Component, createMemo } from "solid-js";
+import { Component, createEffect, createMemo } from "solid-js";
 import { createSignal } from "solid-js";
 import styles from "./App.module.css";
 import ChampMasteries from "./components/ChampionMasteries";
@@ -20,12 +20,19 @@ const App: Component = () => {
   const [filter, setFilter] = createSignal<FILTER_TYPE>(
     FILTER_TYPE.CHEST_AVAILABLE
   );
-  const [nameFilter, setNameFilter] = createSignal<string>(
-    ''
-  )
   const toggleFilter = () => {
     setFilter(filter() === FILTER_TYPE.CHEST_AVAILABLE ? FILTER_TYPE.NONE : FILTER_TYPE.CHEST_AVAILABLE)
   }
+  const [nameFilter, setNameFilter] = createSignal<string>(
+    ''
+  )
+
+  const fetchChampMasteries = async (summonerName: string) => {
+    const response = await fetch(
+      `/.netlify/functions/getChampMastery?name=${summonerName}`
+    ).then((res) => res.json());
+    onSearchResponse(response)
+  };
 
   const onSearchResponse = (response: SearchResponse) => {
     setProfile(response.summoner);
@@ -41,12 +48,20 @@ const App: Component = () => {
       .filter(mastery => !nameFilter() || mastery.championName.toLowerCase().includes(nameFilter().toLowerCase()))
   });
 
+  createEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const name = params.get("summoner");
+    if(name){
+      fetchChampMasteries(name)
+    }
+  })
+
   return (
     <div class={styles.App}>
       <header>
         <h1>League Chest Hunter</h1>
       </header>
-      <SummonerSearch onSearchResponse={(response) => onSearchResponse(response)} />
+      <SummonerSearch onSearch={fetchChampMasteries} />
       <article>
         <section class={styles.SummonerInfo}>
           {!!profile() && <Summoner profile={profile()!} />}

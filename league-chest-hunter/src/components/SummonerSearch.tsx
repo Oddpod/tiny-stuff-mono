@@ -8,20 +8,13 @@ export type SearchResponse = {
   championMastery: ChampionMastery[]
 }
 const SummonerSearch: Component<{
-  onSearchResponse: (response: SearchResponse) => void
+  onSearch: (summonerName: string) => void
 }> = (props) => {
   const [summonerName, setSummonerName] = createSignal("");
 
-  const fetchChampMasteries = async () => {
-    const response = await fetch(
-      `/.netlify/functions/getChampMastery?name=${summonerName()}`
-    ).then((res) => res.json());
-    props.onSearchResponse(response)
-  };
-
   const onKeyDown = (event: KeyboardEvent) => {
     if(event.key === "Enter"){
-      fetchChampMasteries();
+      props.onSearch(summonerName());
     }
   }
 
@@ -33,7 +26,7 @@ const SummonerSearch: Component<{
         onKeyUp={(event) => onKeyDown(event)}
         onChange={(event) => setSummonerName(event.currentTarget.value)}
       />
-      <button onClick={() => fetchChampMasteries()}>Fetch</button>
+      <button onClick={() => props.onSearch(summonerName())}>Fetch</button>
     </div>
   )
 }
