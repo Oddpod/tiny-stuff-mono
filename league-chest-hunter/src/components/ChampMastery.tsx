@@ -25,6 +25,7 @@ const ChampMastery: Component<{ mastery: ChampionMasteryWithName }> = (
             ? styles.chestGranted
             : styles.chestAvailable
         }`}
+        loading="lazy"
         src={`/champion/tiles/${props.mastery.championName}_0.jpg`}
       />
     </div>
