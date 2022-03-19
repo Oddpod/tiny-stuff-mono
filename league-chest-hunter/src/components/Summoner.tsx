@@ -4,7 +4,7 @@ import styles from "./Summoner.module.css";
 
 const Summoner: Component<{ profile: SummonerResponse }> = (props) => (
   <div class={styles.SummonerContainer}>
-    <img class={styles.summonerIcon} src={`/profileicon/${props.profile?.profileIconId}.png`} />
+    <img class={styles.summonerIcon} src={`/profileicon/${props.profile?.profileIconId}.webp`} />
     <h2>{props.profile.name} </h2>
   </div>
 );

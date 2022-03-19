@@ -26,7 +26,7 @@ const ChampMastery: Component<{ mastery: ChampionMasteryWithName }> = (
             : styles.chestAvailable
         }`}
         loading="lazy"
-        src={`/champion/tiles/${props.mastery.championName}_0.jpg`}
+        src={`/champion/tiles/${props.mastery.championName}_0.webp`}
       />
     </div>
   );
