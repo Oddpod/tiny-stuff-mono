@@ -7,7 +7,8 @@ import Summoner from "./components/Summoner";
 import SummonerSearch, { SearchResponse } from "./components/SummonerSearch";
 import { includeChampNames } from "./util/champ";
 import { ChampionMasteryWithName } from "./components/ChampMastery";
-import yasuoMaster from './yasuoMaster.json'
+import yasuoMaster from "./yasuoMaster.json";
+import Loader from "./components/Loader";
 
 enum FILTER_TYPE {
   NONE = "NONE",
@@ -15,23 +16,33 @@ enum FILTER_TYPE {
 }
 
 const App: Component = () => {
-  const [profile, setProfile] = createSignal<SummonerResponse | null>(yasuoMaster.profile);
-  const [champMasteries, setChampMasteries] = createSignal<ChampionMasteryWithName[] | null>(yasuoMaster.championMastery.map(includeChampNames));
+  const [profile, setProfile] = createSignal<SummonerResponse | null>(
+    yasuoMaster.profile
+  );
+  const [champMasteries, setChampMasteries] = createSignal<
+    ChampionMasteryWithName[] | null
+  >(yasuoMaster.championMastery.map(includeChampNames));
   const [filter, setFilter] = createSignal<FILTER_TYPE>(
     FILTER_TYPE.CHEST_AVAILABLE
   );
+  const [loading, setLoading] = createSignal<boolean>(false);
   const toggleFilter = () => {
-    setFilter(filter() === FILTER_TYPE.CHEST_AVAILABLE ? FILTER_TYPE.NONE : FILTER_TYPE.CHEST_AVAILABLE)
-  }
-  const [nameFilter, setNameFilter] = createSignal<string>(
-    ''
-  )
+    setFilter(
+      filter() === FILTER_TYPE.CHEST_AVAILABLE
+        ? FILTER_TYPE.NONE
+        : FILTER_TYPE.CHEST_AVAILABLE
+    );
+  };
+  const [nameFilter, setNameFilter] = createSignal<string>("");
 
   const fetchChampMasteries = async (summonerName: string) => {
+    setLoading(true)
     const response = await fetch(
       `/.netlify/functions/getChampMastery?name=${summonerName}`
-    ).then((res) => res.json());
-    onSearchResponse(response)
+    ).then((res) => res.json())
+    .catch(e => setLoading(false));
+    onSearchResponse(response);
+    setLoading(false)
   };
 
   const onSearchResponse = (response: SearchResponse) => {
@@ -40,21 +51,30 @@ const App: Component = () => {
   };
 
   const filteredMasteries = createMemo(() => {
-    if(champMasteries() === null){
+    if (champMasteries() === null) {
       return [];
     }
     return champMasteries()!
-      .filter(mastery => filter() !== FILTER_TYPE.CHEST_AVAILABLE || !mastery.chestGranted)
-      .filter(mastery => !nameFilter() || mastery.championName.toLowerCase().includes(nameFilter().toLowerCase()))
+      .filter(
+        (mastery) =>
+          filter() !== FILTER_TYPE.CHEST_AVAILABLE || !mastery.chestGranted
+      )
+      .filter(
+        (mastery) =>
+          !nameFilter() ||
+          mastery.championName
+            .toLowerCase()
+            .includes(nameFilter().toLowerCase())
+      );
   });
 
   createEffect(() => {
-    const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(window.location.search);
     const name = params.get("summoner");
-    if(name){
-      fetchChampMasteries(name)
+    if (name) {
+      fetchChampMasteries(name);
     }
-  })
+  });
 
   return (
     <div class={styles.App}>
@@ -78,18 +98,24 @@ const App: Component = () => {
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
             class={styles.ChestIcon}
-            color={filter() === FILTER_TYPE.CHEST_AVAILABLE ? 'goldenrod' : 'grey'}
+            color={
+              filter() === FILTER_TYPE.CHEST_AVAILABLE ? "goldenrod" : "grey"
+            }
             aria-hidden="true"
             role="checkbox"
             width="100%"
             onClick={() => toggleFilter()}
             height="100%"
             preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 24 24">
-            <path d="M5 4h14a3 3 0 0 1 3 3v4h-7v-1H9v1H2V7a3 3 0 0 1 3-3m6 7h2v2h-2v-2m-9 1h7v1l2 2h2l2-2v-1h7v8H2v-8z" fill="currentColor">
-            </path>
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M5 4h14a3 3 0 0 1 3 3v4h-7v-1H9v1H2V7a3 3 0 0 1 3-3m6 7h2v2h-2v-2m-9 1h7v1l2 2h2l2-2v-1h7v8H2v-8z"
+              fill="currentColor"
+            ></path>
           </svg>
-          <input type="checkbox"
+          <input
+            type="checkbox"
             value={filter() === FILTER_TYPE.CHEST_AVAILABLE ? 1 : 0}
             id="filterChests"
             name="filterChests"
@@ -98,7 +124,16 @@ const App: Component = () => {
           />
           <label for="filterChests">Filter out chest granted</label>
         </section>
-        {champMasteries() !== null && <ChampMasteries masteries={filteredMasteries()} isFiltering={!!nameFilter()} />}
+        {loading() ? (
+          <Loader />
+        ) : (
+          champMasteries() !== null && (
+            <ChampMasteries
+              masteries={filteredMasteries()}
+              isFiltering={!!nameFilter()}
+            />
+          )
+        )}
       </article>
     </div>
   );

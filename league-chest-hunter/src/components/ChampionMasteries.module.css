@@ -6,6 +6,23 @@
   justify-content: center;
   overflow: auto;
   width: 100%;
+
+  scrollbar-width: thin;
+  scrollbar-color: 
+   #c79944 rgb(9, 43, 57);
+}
+
+.ChampionMasteries::-webkit-scrollbar-thumb {
+  background-color: #c79944;    /* color of the scroll thumb */
+  border-radius: .5rem;       /* roundness of the scroll thumb */
+  border: 3px solid rgb(2, 0, 36);  /* creates padding around scroll thumb */
+}
+.ChampionMasteries::-webkit-scrollbar-track {
+  background: rgb(9, 43, 57);        /* color of the tracking area */
+}
+
+.ChampionMasteries::-webkit-scrollbar {
+  background-color: rgb(9, 43, 57); 
 }
 
 .ChampionMasteries > * {
