@@ -17,6 +17,8 @@
 .SummonerInfo {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   margin: 1.5rem 2.5rem;
 }
@@ -107,5 +109,11 @@ button {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  label[for="filterChests"]{
+    display: none;
   }
 }
