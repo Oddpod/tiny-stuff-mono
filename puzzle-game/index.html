@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,8 +9,12 @@
   <body>
     <div id="app">
       <canvas id="canvas"></canvas>
-      <img id="image" src="public/splash/Lux_0.jpg">
-      <img id="destination" height="200" src="splash/Ahri_17.jpg" />
+      <div class="helpers" width="400">
+        <img id="image" height="300" src="/splash/Lux_1.jpg" />
+        <canvas id="canvasForCropping" width="300" height="200"></canvas>
+        <div id="firstDiv" draggable="true" class="piece"></div>
+        <!-- <div id="secondDiv" draggable="true" class="piece"></div> -->
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

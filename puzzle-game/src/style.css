@@ -20,9 +20,27 @@
 
 #image {
   width: 25rem;
-  height: 100%;
+  object-fit: contain;
 }
 
 #canvas {
   scale: 1;
+}
+
+.helpers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#destination {
+  scale: 2;
+}
+
+.piece {
+  position: absolute;
+  top: 100px;
+  background-color: red;
+  height: 50px;
+  width: 65px;
 }

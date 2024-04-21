@@ -2,7 +2,7 @@ export const cornerPiece =
 	"M -25 -25 H 25 V -10 C 5 -15 5 15 25 10 V 25 H 10 C 15 45 -15 45 -10 25 H -25 Z";
 
 export const cornerPiece_90deg =
-	"M 25 -25 V 25 H 10 C 15 5 -15 5 -10 25 H -25 V 10 C -45 15 -45 -15 -25 -10 V -25 Z";
+	"M -25 -25 H 25 V 25 H 10 C 15 5 -15 5 -10 25 H -25 V 10 C -45 15 -45 -15 -25 -10 V -25 Z";
 export const cornerPiece_270deg =
 	"M -25 25 V -25 H -10 C -15 -5 15 -5 10 -25 H 25 V -10 C 45 -15 45 15 25 10 V 25 Z";
 
