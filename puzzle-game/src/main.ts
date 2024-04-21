@@ -69,7 +69,6 @@ canvas.addEventListener("click", (e: MouseEvent) => {
 		);
 		const croppedImageDataUrl = canvasForCropping.toDataURL();
 
-		console.log({ croppedImageDataUrl });
 		const croppedImage = new Image();
 		croppedImage.src = croppedImageDataUrl;
 

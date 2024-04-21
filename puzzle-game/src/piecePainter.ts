@@ -2,7 +2,6 @@ import {
 	centerPiece1,
 	centerPiece1Eared_180deg,
 	centerPiece1_90deg,
-	centerPiece2,
 	centerPiece3Eared,
 	cornerPiece,
 	sidePiece1,
@@ -11,14 +10,12 @@ import {
 	sidePiece2Eared,
 	sidePiece3,
 	sidePiece4,
-	sidePiece4_180deg,
 	sidePiece5,
-	sidePiece3Eared,
 	cornerPiece_270deg,
 	sidePiece2Eared_270deg,
-	sidePiece3Holed,
 	cornerPiece2Eared,
 	sidePiece2Holed,
+	cornerPiece_90deg,
 } from "./pieces";
 
 interface FillRowWithPiecesParams {
@@ -51,8 +48,9 @@ export function fillRowWithPieces({
 	const piecesPlaced: PieceEntity[] = [
 		{
 			boundingBox: [
-				[0, 0],
-				[50, 50],
+				// TODO: account for scaleFactor
+				[0, rowIndex * 50],
+				[50, (rowIndex + 1) * 50],
 			],
 			piece: startPiece,
 		},
@@ -75,20 +73,28 @@ export function fillRowWithPieces({
 
 export function fillFirstRow({
 	ctx,
-	...params
+	numMiddlePieces,
 }: Pick<FillRowWithPiecesParams, "ctx" | "numMiddlePieces">) {
 	const { piecesPlaced } = fillRowWithPieces({
 		ctx,
-		...params,
+		numMiddlePieces,
 		rowIndex: 0,
 		startPiece: cornerPiece,
 		middlePieces: [sidePiece4, sidePiece1],
 	});
-	const endPiecePath = new Path2D(cornerPiece);
+	const endPiecePath = new Path2D(cornerPiece_90deg);
 	ctx.translate(50 + pieceGap, 0);
-	ctx.rotate((90 * Math.PI) / 180);
+	// ctx.rotate((90 * Math.PI) / 180);
 	ctx.fill(endPiecePath);
 	ctx.resetTransform();
+	piecesPlaced.push({
+		boundingBox: [
+			// TODO: account for scalefactor
+			[(numMiddlePieces + 1) * 50, 0],
+			[(numMiddlePieces + 2) * 50, 50],
+		],
+		piece: cornerPiece_90deg,
+	});
 	return piecesPlaced;
 }
 
