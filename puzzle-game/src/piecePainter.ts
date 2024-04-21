@@ -7,11 +7,18 @@ import {
 	cornerPiece,
 	sidePiece1,
 	sidePiece2,
-	sidePiece2Eard_180deg,
+	sidePiece2Eared_180deg,
 	sidePiece2Eared,
 	sidePiece3,
 	sidePiece4,
+	sidePiece4_180deg,
 	sidePiece5,
+	sidePiece3Eared,
+	cornerPiece_270deg,
+	sidePiece2Eared_270deg,
+	sidePiece3Holed,
+	cornerPiece2Eared,
+	sidePiece2Holed,
 } from "./pieces";
 
 interface FillRowWithPiecesParams {
@@ -23,7 +30,12 @@ interface FillRowWithPiecesParams {
 }
 
 const pieceSize = 50;
-const pieceGap = 0.01;
+const pieceGap = 0.0;
+
+export interface PieceEntity {
+	boundingBox: [[number, number], [number, number]];
+	piece: string;
+}
 
 export function fillRowWithPieces({
 	ctx,
@@ -36,20 +48,36 @@ export function fillRowWithPieces({
 	ctx.translate(25, 25 + 50 * rowIndex + pieceGap);
 	ctx.fill(cornerPiecePath);
 
+	const piecesPlaced: PieceEntity[] = [
+		{
+			boundingBox: [
+				[0, 0],
+				[50, 50],
+			],
+			piece: startPiece,
+		},
+	];
 	for (let i = 0; i < numMiddlePieces; i++) {
 		const piece = middlePieces[i % middlePieces.length];
 		const piecePath = new Path2D(piece);
 		ctx.translate(50 + pieceGap, 0);
+		piecesPlaced.push({
+			boundingBox: [
+				[50 * (i + 1), rowIndex * 50],
+				[50 * (i + 2), (rowIndex + 1) * 50],
+			],
+			piece,
+		});
 		ctx.fill(piecePath);
 	}
-	return { piecesPlaced: numMiddlePieces };
+	return { piecesPlaced };
 }
 
 export function fillFirstRow({
 	ctx,
 	...params
 }: Pick<FillRowWithPiecesParams, "ctx" | "numMiddlePieces">) {
-	fillRowWithPieces({
+	const { piecesPlaced } = fillRowWithPieces({
 		ctx,
 		...params,
 		rowIndex: 0,
@@ -61,6 +89,7 @@ export function fillFirstRow({
 	ctx.rotate((90 * Math.PI) / 180);
 	ctx.fill(endPiecePath);
 	ctx.resetTransform();
+	return piecesPlaced;
 }
 
 function getMiddlePieceNumber(length: number) {
@@ -68,7 +97,8 @@ function getMiddlePieceNumber(length: number) {
 
 	const numWholePieces = Math.floor(length / pieceSize);
 	const rest = numPiecesHeight - numWholePieces;
-	const scaleToFitLengthFactor = 1 + (rest - pieceGap) / 24;
+	const scaleToFitLengthFactor =
+		1 + rest / numWholePieces - pieceGap / (numWholePieces - 4);
 	const numMiddlePieces = Math.floor(length / pieceSize) - 2;
 	return { scaleToFitLengthFactor, numMiddlePieces };
 }
@@ -87,14 +117,16 @@ export function fillBoardWithPieces({
 		widthDimenions.scaleToFitLengthFactor,
 		heightDimensions.scaleToFitLengthFactor,
 	);
-
-	fillFirstRow({ numMiddlePieces: widthDimenions.numMiddlePieces, ctx });
-    ctx.scale(
+	const allPiecesPlaced = fillFirstRow({
+		numMiddlePieces: widthDimenions.numMiddlePieces,
+		ctx,
+	});
+	ctx.scale(
 		widthDimenions.scaleToFitLengthFactor,
 		heightDimensions.scaleToFitLengthFactor,
 	);
 
-    const numRows = heightDimensions.numMiddlePieces;
+	const numRows = heightDimensions.numMiddlePieces;
 	const rowPieces = [
 		{
 			startPiece: sidePiece2,
@@ -109,93 +141,82 @@ export function fillBoardWithPieces({
 		{
 			startPiece: sidePiece2Eared,
 			middlePieces: [centerPiece1_90deg, centerPiece1],
-			endPiece: sidePiece2Eard_180deg,
-		},
-	];
-
-	for (let i = 0; i < numRows -1; i++) {
-		const { endPiece, middlePieces, startPiece } =
-			rowPieces[i % rowPieces.length];
-		fillMiddleRow({
-			ctx,
-			endPiece,
-			numMiddlePieces: widthDimenions.numMiddlePieces,
-			middlePieces,
-			startPiece,
-			rowIndex: i + 1,
-		});
-        ctx.scale(
-            widthDimenions.scaleToFitLengthFactor,
-            heightDimensions.scaleToFitLengthFactor,
-        );
-	}
-
-    fillRowWithPieces({
-		ctx,
-        numMiddlePieces: widthDimenions.numMiddlePieces,
-		rowIndex: numRows + 1,
-		startPiece: cornerPiece,
-		middlePieces: [sidePiece4, sidePiece1],
-	});
-	const endPiecePath = new Path2D(cornerPiece);
-	ctx.translate(50 + pieceGap, 0);
-	ctx.rotate((90 * Math.PI) / 180);
-	ctx.fill(endPiecePath);
-	ctx.resetTransform();
-}
-
-export function fillMiddleRow({
-	ctx,
-	endPiece,
-	...params
-}: FillRowWithPiecesParams & { endPiece: string }) {
-	const { piecesPlaced } = fillRowWithPieces({
-		ctx,
-		...params,
-	});
-
-	const endPiecePath = new Path2D(endPiece);
-	ctx.translate(50, 0);
-	ctx.fill(endPiecePath);
-	ctx.resetTransform();
-}
-
-export function fillMiddleRows({
-	ctx,
-	numRows,
-	numCols,
-}: Pick<FillRowWithPiecesParams, "ctx"> & {
-	numRows: number;
-	numCols: number;
-}) {
-	const rowPieces = [
-		{
-			startPiece: sidePiece2,
-			middlePieces: [centerPiece1, centerPiece1_90deg],
-			endPiece: sidePiece3,
-		},
-		{
-			startPiece: sidePiece5,
-			middlePieces: [centerPiece1Eared_180deg, centerPiece3Eared],
-			endPiece: sidePiece3,
-		},
-		{
-			startPiece: sidePiece2Eared,
-			middlePieces: [centerPiece1_90deg, centerPiece1],
-			endPiece: sidePiece2Eard_180deg,
+			endPiece: sidePiece2Eared_180deg,
 		},
 	];
 
 	for (let i = 0; i < numRows; i++) {
 		const { endPiece, middlePieces, startPiece } =
 			rowPieces[i % rowPieces.length];
-		fillMiddleRow({
+
+		const { piecesPlaced } = fillRowWithPieces({
 			ctx,
-			endPiece,
-			numMiddlePieces: numCols,
+			numMiddlePieces: widthDimenions.numMiddlePieces,
 			middlePieces,
 			startPiece,
 			rowIndex: i + 1,
 		});
+
+		const endPiecePath = new Path2D(endPiece);
+		ctx.translate(50, 0);
+		ctx.fill(endPiecePath);
+		ctx.resetTransform();
+		ctx.scale(
+			widthDimenions.scaleToFitLengthFactor,
+			heightDimensions.scaleToFitLengthFactor,
+		);
+
+		allPiecesPlaced.push(...piecesPlaced);
+		allPiecesPlaced.push({
+			boundingBox: [
+				[(widthDimenions.numMiddlePieces + 1) * 50, i * 50],
+				[(widthDimenions.numMiddlePieces + 2) * 50, (i + 1) * 50],
+			],
+			piece: endPiece,
+		});
 	}
+
+	const { piecesPlaced } = fillRowWithPieces({
+		ctx,
+		numMiddlePieces: widthDimenions.numMiddlePieces,
+		rowIndex: numRows + 1,
+		startPiece: cornerPiece_270deg,
+		middlePieces: [
+			sidePiece2Eared_270deg,
+			// sidePiece3Holed,
+			sidePiece2Holed,
+			// sidePiece3Holed,
+			// sidePiece4_180deg,
+		],
+	});
+	const endPiecePath = new Path2D(cornerPiece2Eared);
+	ctx.translate(50 + pieceGap, 0);
+	ctx.rotate((-90 * Math.PI) / 180);
+	ctx.fill(endPiecePath);
+	ctx.resetTransform();
+
+	allPiecesPlaced.push(...piecesPlaced);
+	allPiecesPlaced.push({
+		boundingBox: [
+			[
+				(widthDimenions.numMiddlePieces + 1) *
+					50 *
+					widthDimenions.scaleToFitLengthFactor,
+				(widthDimenions.numMiddlePieces + 1) *
+					50 *
+					heightDimensions.scaleToFitLengthFactor,
+			],
+			[
+				(widthDimenions.numMiddlePieces + 2) *
+					50 *
+					widthDimenions.scaleToFitLengthFactor,
+				(widthDimenions.numMiddlePieces + 2) *
+					50 *
+					heightDimensions.scaleToFitLengthFactor,
+			],
+		],
+		piece: cornerPiece2Eared,
+	});
+
+	return allPiecesPlaced;
 }
