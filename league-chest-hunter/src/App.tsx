@@ -11,6 +11,7 @@ import { includeChampNames } from "./util/champ";
 import type { ChampionMasteryWithName } from "./components/ChampMastery";
 import yasuoMaster from "./yasuoMaster.json";
 import Loader from "./components/Loader";
+import projectPackage from "../package.json";
 
 enum FILTER_TYPE {
 	NONE = "NONE",
@@ -39,9 +40,9 @@ const App: Component = () => {
 
 	const fetchChampMasteries = async (summonerName: string) => {
 		setLoading(true);
-    const params = new URLSearchParams({
-      name: summonerName
-    })
+		const params = new URLSearchParams({
+			name: summonerName,
+		});
 		try {
 			const response = await fetch(
 				`/.netlify/functions/getChampMastery?${params}`,
@@ -143,6 +144,26 @@ const App: Component = () => {
 					)
 				)}
 			</article>
+			<footer>
+				<p>
+					League Chest Hunter was created under Riot Games'{" "}
+					<a href="https://www.riotgames.com/en/legal">"Legal Jibber Jabber"</a>{" "}
+					policy using assets owned by Riot Games. Riot Games does not endorse
+					or sponsor this project.
+				</p>
+				<p>
+					League Chest Hunter v{projectPackage.version}
+					<br />
+					Built by{" "}
+					<a href="https://github.com/Oddpod" target="_blank" rel="noreferrer">
+						@Oddpod
+					</a>
+					.{" "}
+					<a href="https://github.com/Oddpod/tiny-stuff-mono/tree/main/league-chest-hunter">
+						View source on Github
+					</a>
+				</p>
+			</footer>
 		</div>
 	);
 };

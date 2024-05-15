@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import type { Component } from "solid-js";
-import { ChampionMastery, SummonerResponse } from "../types";
+import type { ChampionMastery, SummonerResponse } from "../types";
 import styles from './SummonerSearch.module.css'
 
 export type SearchResponse = {
@@ -21,12 +21,12 @@ const SummonerSearch: Component<{
   return (
     <div class={styles.SummonerSearch}>
       <input
-        placeholder="Summoner name"
+        placeholder="gameName#tagLine"
         value={summonerName()}
         onKeyUp={(event) => onKeyDown(event)}
         onChange={(event) => setSummonerName(event.currentTarget.value)}
       />
-      <button onClick={() => props.onSearch(summonerName())}>Fetch</button>
+      <button type="button" onClick={() => props.onSearch(summonerName())}>Fetch</button>
     </div>
   )
 }

@@ -60,9 +60,6 @@ async function fetchSummoner(gameNameAndTagLine: string) {
 }
 
 function fetchChampionMastery(puuid: string) {
-	console.log({
-		url: `${RIOT_API_ROOT_LOL}lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}`,
-	});
 	return fetchData(
 		`${RIOT_API_ROOT_LOL}lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}`,
 	);
