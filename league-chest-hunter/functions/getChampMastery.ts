@@ -3,6 +3,14 @@ import fetch from "node-fetch";
 
 const { RIOT_API_ROOT_LOL, API_KEY_TOKEN } = process.env;
 
+if(!RIOT_API_ROOT_LOL){
+  console.error(`Missing environment variable: ${Object.keys({RIOT_API_ROOT_LOL})[0]} is not defined`)
+}
+
+if(!API_KEY_TOKEN){
+  console.error(`Missing environment variable: ${Object.keys({API_KEY_TOKEN})[0]} is not defined`)
+}
+
 type FetchChampionMasteryQuery = {
   name: string | undefined;
   id: string | undefined;
@@ -24,7 +32,8 @@ function fetchData(url: string) {
     method: "get",
     headers: {
       "Content-Type": "application/json",
-      "X-Riot-Token": API_KEY_TOKEN,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      "X-Riot-Token": API_KEY_TOKEN!,
     },
   }).then((res) => res.json());
 }
@@ -46,7 +55,7 @@ const handler: Handler = async (event, context) => {
   const { name: summonerName = undefined } =
     event.queryStringParameters as FetchChampionMasteryQuery;
   if (summonerName) {
-    const summoner = await fetchSummoner(summonerName!);
+    const summoner = await fetchSummoner(summonerName);
 
     const response = await fetchChampionMastery(summoner.id);
     const body = { championMastery: response, summoner };
