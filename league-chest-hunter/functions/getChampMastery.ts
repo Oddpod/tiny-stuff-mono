@@ -1,4 +1,4 @@
-import { Handler } from "@netlify/functions";
+import type { Handler } from "@netlify/functions";
 import fetch from "node-fetch";
 
 const { RIOT_API_ROOT_LOL, API_KEY_TOKEN } = process.env;

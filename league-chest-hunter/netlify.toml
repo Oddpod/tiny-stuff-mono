@@ -1,6 +1,6 @@
 # example netlify.toml
 [build]
-  command = "yarn run build"
+  command = "bun run build"
   functions = "functions"
   publish = "dist"
 
@@ -14,8 +14,9 @@
   # (optional) Settings for Netlify Dev
   # https://github.com/netlify/cli/blob/main/docs/netlify-dev.md#project-detection
   [dev]
-   command = "pnpm dev" # Command to start your dev server
-   port = 3333 # Port that the dev server will be listening on
+   command = "bun dev" # Command to start your dev server
+   port = 5174 # Port that the dev server will be listening on
+   targetPort = 5173
    publish = "dist" # Folder with the static content for _redirect file
 
   ## more info on configuring this file: https://www.netlify.com/docs/netlify-toml-reference/
