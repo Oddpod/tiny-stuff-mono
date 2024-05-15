@@ -14,7 +14,7 @@
   # (optional) Settings for Netlify Dev
   # https://github.com/netlify/cli/blob/main/docs/netlify-dev.md#project-detection
   [dev]
-   command = "bun dev" # Command to start your dev server
+   command = "bun run dev" # Command to start your dev server
    port = 5174 # Port that the dev server will be listening on
    targetPort = 5173
    publish = "dist" # Folder with the static content for _redirect file

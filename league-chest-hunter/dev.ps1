@@ -1,0 +1,1 @@
+$BROWSER = none & netlify dev
