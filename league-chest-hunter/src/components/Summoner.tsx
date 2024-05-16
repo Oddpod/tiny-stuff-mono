@@ -7,7 +7,7 @@ const Summoner: Component<{ profile: SummonerResponse }> = (props) => (
 		<img
 			alt="profile icon"
 			class={styles.summonerIcon}
-			src={`/profileicon/${props.profile?.profileIconId}.webp`}
+			src={`https://cdn.communitydragon.org/latest/profile-icon/${props.profile?.profileIconId}`}
 		/>
 		<h2>
 			{props.profile.gameName}#{props.profile.tagLine}{" "}

@@ -27,7 +27,7 @@ const ChampMastery: Component<{ mastery: ChampionMasteryWithName }> = (
 				}`}
 				loading="lazy"
 				alt={`champ icon for ${props.mastery.championName}`}
-				src={`/champion/tiles/${props.mastery.championName}_0.webp`}
+				src={`https://cdn.communitydragon.org/latest/champion/${props.mastery.championId}/square`}
 			/>
 		</div>
 	);

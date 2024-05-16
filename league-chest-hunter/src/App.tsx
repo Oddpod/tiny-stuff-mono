@@ -24,7 +24,7 @@ export interface ProfileData {
 }
 
 function loadInitData(): ProfileData {
-	const saved = localStorage.getItem("lastSearchResult");
+	const saved = localStorage.getItem("lastProfileData");
 	try {
 		if (saved) {
 			return JSON.parse(saved) as ProfileData;
@@ -33,6 +33,10 @@ function loadInitData(): ProfileData {
 		return yasuoMaster;
 	}
 	return yasuoMaster;
+}
+
+function saveProfileData(profile: ProfileData) {
+	localStorage.setItem("lastProfileData", JSON.stringify(profile));
 }
 
 const App: Component = () => {
@@ -75,6 +79,10 @@ const App: Component = () => {
 			summoner: response.summoner,
 			champMasteries: response.championMastery.map(includeChampNames),
 		}));
+		saveProfileData({
+			summoner: response.summoner,
+			champMasteries: response.championMastery.map(includeChampNames),
+		});
 	};
 
 	const filteredMasteries = createMemo(() => {
@@ -164,6 +172,10 @@ const App: Component = () => {
 				)}
 			</article>
 			<footer>
+				<p>
+					Assets provided by{" "}
+					<a href="https://www.communitydragon.org/">CommunityDragon</a>
+				</p>
 				<p>
 					League Chest Hunter was created under Riot Games'{" "}
 					<a href="https://www.riotgames.com/en/legal">"Legal Jibber Jabber"</a>{" "}
