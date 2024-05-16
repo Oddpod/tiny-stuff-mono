@@ -1,21 +1,15 @@
-export interface ChampionMastery {
-  championId: number;
-  championLevel: number;
-  championPoints: number;
-  lastPlayTime: number;
-  championPointsSinceLastLevel: number;
-  championPointsUntilNextLevel: number;
-  chestGranted: boolean;
-  tokensEarned: number;
-  summonerId: string;
-}
+import type {
+	Account,
+	ChampionMasteryInternal,
+} from "../functions/getChampMastery";
 
-export interface SummonerResponse {
-  id: string;
-  accountId: string;
-  puuid: string;
-  name: string;
-  profileIconId: number;
-  revisionDate: number;
-  summonerLevel: number;
+export interface ChampionMastery
+	extends Pick<
+		ChampionMasteryInternal,
+		"chestGranted" | "championId" | "championLevel" | "championPoints"
+	> {}
+
+export interface SummonerResponse
+	extends Pick<Account, "gameName" | "tagLine"> {
+	profileIconId: number;
 }

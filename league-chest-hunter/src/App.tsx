@@ -1,4 +1,4 @@
-import { type Component, createEffect, createMemo } from "solid-js";
+import { type Component, createMemo } from "solid-js";
 import { createSignal } from "solid-js";
 import styles from "./App.module.css";
 import ChampMasteries from "./components/ChampionMasteries";
@@ -9,7 +9,7 @@ import SummonerSearch, {
 } from "./components/SummonerSearch";
 import { includeChampNames } from "./util/champ";
 import type { ChampionMasteryWithName } from "./components/ChampMastery";
-import yasuoMaster from "./yasuoMaster.json";
+import yasuoMaster from "./yasuoMaster";
 import Loader from "./components/Loader";
 import projectPackage from "../package.json";
 
@@ -18,20 +18,33 @@ enum FILTER_TYPE {
 	CHEST_AVAILABLE = "CHEST_AVAILABLE",
 }
 
+export interface ProfileData {
+	summoner: SummonerResponse;
+	champMasteries: ChampionMasteryWithName[];
+}
+
+function loadInitData(): ProfileData {
+	const saved = localStorage.getItem("lastSearchResult");
+	try {
+		if (saved) {
+			return JSON.parse(saved) as ProfileData;
+		}
+	} catch {
+		return yasuoMaster;
+	}
+	return yasuoMaster;
+}
+
 const App: Component = () => {
-	const [profile, setProfile] = createSignal<SummonerResponse | null>(
-		yasuoMaster.profile,
-	);
-	const [champMasteries, setChampMasteries] = createSignal<
-		ChampionMasteryWithName[] | null
-	>(yasuoMaster.championMastery.map(includeChampNames));
-	const [filter, setFilter] = createSignal<FILTER_TYPE>(
+	const [profile, setProfile] = createSignal(loadInitData());
+
+	const [champFilter, setChampFilter] = createSignal<FILTER_TYPE>(
 		FILTER_TYPE.CHEST_AVAILABLE,
 	);
 	const [loading, setLoading] = createSignal<boolean>(false);
 	const toggleFilter = () => {
-		setFilter(
-			filter() === FILTER_TYPE.CHEST_AVAILABLE
+		setChampFilter(
+			champFilter() === FILTER_TYPE.CHEST_AVAILABLE
 				? FILTER_TYPE.NONE
 				: FILTER_TYPE.CHEST_AVAILABLE,
 		);
@@ -46,46 +59,50 @@ const App: Component = () => {
 		try {
 			const response = await fetch(
 				`/.netlify/functions/getChampMastery?${params}`,
-			).then((res) => res.json());
-			onSearchResponse(response);
+			);
+			if (response.ok) {
+				const body = await response.json();
+				onSearchResponse(body);
+			}
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const onSearchResponse = (response: SearchResponse) => {
-		setProfile(response.summoner);
-		setChampMasteries(response.championMastery.map(includeChampNames));
+		setProfile((p) => ({
+			...p,
+			summoner: response.summoner,
+			champMasteries: response.championMastery.map(includeChampNames),
+		}));
 	};
 
 	const filteredMasteries = createMemo(() => {
-		const masteries = champMasteries();
+		const masteries = profile().champMasteries;
 		if (masteries === null) {
 			return [];
 		}
 		return masteries
 			.filter(
 				(mastery) =>
-					filter() !== FILTER_TYPE.CHEST_AVAILABLE || !mastery.chestGranted,
+					champFilter() !== FILTER_TYPE.CHEST_AVAILABLE ||
+					!mastery.chestGranted,
 			)
 			.filter(
 				(mastery) =>
 					!nameFilter() ||
-					mastery.championName
+					(mastery.championName ?? "")
 						.toLowerCase()
 						.includes(nameFilter().toLowerCase()),
 			);
 	});
 
-	createEffect(() => {
-		const params = new URLSearchParams(window.location.search);
-		const name = params.get("summoner");
-		if (name) {
-			fetchChampMasteries(name);
-		}
-	});
+	const params = new URLSearchParams(window.location.search);
+	const name = params.get("summoner");
+	if (name) {
+		fetchChampMasteries(name);
+	}
 
-	const profileData = profile();
 	return (
 		<div class={styles.App}>
 			<header>
@@ -94,7 +111,7 @@ const App: Component = () => {
 			<SummonerSearch onSearch={fetchChampMasteries} />
 			<article>
 				<section class={styles.SummonerInfo}>
-					{!!profileData && <Summoner profile={profileData} />}
+					{!!profile() && <Summoner profile={profile().summoner} />}
 					<input
 						type="text"
 						class={styles.filterChamps}
@@ -102,13 +119,15 @@ const App: Component = () => {
 						value={nameFilter()}
 						name="filterChamps"
 						id="filterChamps"
-						onInput={(event) => setNameFilter(event.currentTarget.value)}
+						onInput={(event) => setNameFilter(event.target.value)}
 					/>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						class={styles.ChestIcon}
 						color={
-							filter() === FILTER_TYPE.CHEST_AVAILABLE ? "goldenrod" : "grey"
+							champFilter() === FILTER_TYPE.CHEST_AVAILABLE
+								? "goldenrod"
+								: "grey"
 						}
 						aria-hidden="true"
 						width="100%"
@@ -125,7 +144,7 @@ const App: Component = () => {
 					</svg>
 					<input
 						type="checkbox"
-						value={filter() === FILTER_TYPE.CHEST_AVAILABLE ? 1 : 0}
+						value={champFilter() === FILTER_TYPE.CHEST_AVAILABLE ? 1 : 0}
 						id="filterChests"
 						name="filterChests"
 						checked
@@ -136,7 +155,7 @@ const App: Component = () => {
 				{loading() ? (
 					<Loader />
 				) : (
-					champMasteries() !== null && (
+					profile().champMasteries !== null && (
 						<ChampMasteries
 							masteries={filteredMasteries()}
 							isFiltering={!!nameFilter()}

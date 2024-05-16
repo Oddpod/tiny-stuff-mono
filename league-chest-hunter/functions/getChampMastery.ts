@@ -1,5 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import fetch from "node-fetch";
+import type { SummonerResponse, ChampionMastery } from "../src/types";
 
 const { RIOT_API_ROOT, API_KEY_TOKEN, RIOT_API_ROOT_LOL } = process.env;
 
@@ -31,17 +32,27 @@ type FetchChampionMasteryQuery = {
 	id: string | undefined;
 };
 
+export interface ChampionMasteryInternal {
+	puuid: string;
+	championId: number;
+	championLevel: number;
+	championPoints: number;
+	lastPlayTime: number;
+	championPointsSinceLastLevel: number;
+	championPointsUntilNextLevel: number;
+	chestGranted: boolean;
+	tokensEarned: number;
+	summonerId: string;
+}
+
 export interface Account {
 	puuid: string;
 	gameName: string;
 	tagLine: string;
-	profileIconID: number;
-	revisionDate: number;
-	summonerLevel: number;
 }
 
 //#region helper functions
-function fetchData(url: string) {
+function fetchData<T>(url: string) {
 	return fetch(url, {
 		method: "get",
 		headers: {
@@ -49,9 +60,9 @@ function fetchData(url: string) {
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
 			"X-Riot-Token": API_KEY_TOKEN!,
 		},
-	}).then((res) => res.json());
+	}).then((res) => res.json() as Promise<T>);
 }
-async function fetchSummoner(gameNameAndTagLine: string) {
+async function fetchAccount(gameNameAndTagLine: string) {
 	const [gameName, tagLine] = gameNameAndTagLine.split("#");
 	const res = (await fetchData(
 		`${RIOT_API_ROOT}riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}`,
@@ -60,8 +71,23 @@ async function fetchSummoner(gameNameAndTagLine: string) {
 }
 
 function fetchChampionMastery(puuid: string) {
-	return fetchData(
+	return fetchData<ChampionMasteryInternal[]>(
 		`${RIOT_API_ROOT_LOL}lol/champion-mastery/v4/champion-masteries/by-puuid/${puuid}`,
+	);
+}
+
+interface SummonerInternal {
+	id: string;
+	accountId: string;
+	profileIconId: number;
+	revisionDate: number;
+	summonerLevel: number;
+	puuid: string;
+}
+
+function fetchSummoner(puuid: string) {
+	return fetchData<SummonerInternal>(
+		`${RIOT_API_ROOT_LOL}lol/summoner/v4/summoners/by-puuid/${puuid}`,
 	);
 }
 //#endregion
@@ -70,10 +96,20 @@ const handler: Handler = async (event, context) => {
 	const { name: summonerName = undefined } =
 		event.queryStringParameters as FetchChampionMasteryQuery;
 	if (summonerName) {
-		const { puuid, gameName, tagLine } = await fetchSummoner(summonerName);
+		const { puuid, gameName, tagLine } = await fetchAccount(summonerName);
 
+		const { profileIconId } = await fetchSummoner(puuid);
 		const response = await fetchChampionMastery(puuid);
-		const body = { championMastery: response, summoner: { gameName, tagLine } };
+		const body = {
+			championMastery: response.map(
+				({ chestGranted, championId }) =>
+					({
+						championId,
+						chestGranted,
+					}) satisfies ChampionMastery,
+			),
+			summoner: { gameName, tagLine, profileIconId } satisfies SummonerResponse,
+		};
 		return {
 			statusCode: 200,
 			body: JSON.stringify(body),
