@@ -30,8 +30,8 @@ const pieceSize = 50;
 const pieceGap = 0.0;
 
 export interface PieceEntity {
-	boundingBox: [[number, number], [number, number]];
-	piece: string;
+	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
+	path: string;
 }
 
 export function fillRowWithPieces({
@@ -49,10 +49,10 @@ export function fillRowWithPieces({
 		{
 			boundingBox: [
 				// TODO: account for scaleFactor
-				[0, rowIndex * 50],
-				[50, (rowIndex + 1) * 50],
+				{ x: 0, y: rowIndex * 50 },
+				{ x: 50, y: (rowIndex + 1) * 50 },
 			],
-			piece: startPiece,
+			path: startPiece,
 		},
 	];
 	for (let i = 0; i < numMiddlePieces; i++) {
@@ -64,7 +64,7 @@ export function fillRowWithPieces({
 				[50 * (i + 1), rowIndex * 50],
 				[50 * (i + 2), (rowIndex + 1) * 50],
 			],
-			piece,
+			path: piece,
 		});
 		ctx.fill(piecePath);
 	}
@@ -93,12 +93,12 @@ export function fillFirstRow({
 			[(numMiddlePieces + 1) * 50, 0],
 			[(numMiddlePieces + 2) * 50, 50],
 		],
-		piece: cornerPiece_90deg,
+		path: cornerPiece_90deg,
 	});
 	return piecesPlaced;
 }
 
-function getMiddlePieceNumber(length: number) {
+export function getFitBoardDimensions(length: number, pieceSize: number) {
 	const numPiecesHeight = length / pieceSize;
 
 	const numWholePieces = Math.floor(length / pieceSize);
@@ -116,8 +116,8 @@ export function fillBoardWithPieces({
 	canvasHeight: number;
 	canvasWidth: number;
 }) {
-	const widthDimenions = getMiddlePieceNumber(canvasWidth);
-	const heightDimensions = getMiddlePieceNumber(canvasHeight);
+	const widthDimenions = getFitBoardDimensions(canvasWidth, pieceSize);
+	const heightDimensions = getFitBoardDimensions(canvasHeight, pieceSize);
 
 	ctx.scale(
 		widthDimenions.scaleToFitLengthFactor,
@@ -178,7 +178,7 @@ export function fillBoardWithPieces({
 				[(widthDimenions.numMiddlePieces + 1) * 50, i * 50],
 				[(widthDimenions.numMiddlePieces + 2) * 50, (i + 1) * 50],
 			],
-			piece: endPiece,
+			path: endPiece,
 		});
 	}
 
@@ -221,7 +221,7 @@ export function fillBoardWithPieces({
 					heightDimensions.scaleToFitLengthFactor,
 			],
 		],
-		piece: cornerPiece2Eared,
+		path: cornerPiece2Eared,
 	});
 
 	return allPiecesPlaced;

@@ -11,11 +11,26 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --board-width: 500px;
+  --board-height: 300px;
 }
 
 #app {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
+}
+
+#board {
+  position: relative;
+  background-color: gray;
+  width: var(--board-width);
+  height: var(--board-height);
+}
+
+#board > * {
+  position: absolute;
+  cursor: pointer;
 }
 
 #image {
@@ -43,4 +58,5 @@
   background-color: red;
   height: 50px;
   width: 65px;
+  cursor: pointer;
 }
