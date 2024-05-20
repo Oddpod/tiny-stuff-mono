@@ -1,48 +1,49 @@
-import { getFitBoardDimensions, type PieceEntity } from "./piecePainter";
-import {
-	centerPiece1,
-	centerPiece1Eared_180deg,
-	centerPiece1_90deg,
-	centerPiece3Eared,
-	cornerPiece,
-	cornerPiece2Eared,
-	cornerPiece_270deg,
-	cornerPiece_90deg,
-	sidePiece1,
-	sidePiece2,
-	sidePiece2Eared,
-	sidePiece2Eared_180deg,
-	sidePiece2Eared_270deg,
-	sidePiece2Holed,
-	sidePiece3,
-	sidePiece4,
-	sidePiece5,
-} from "./pieces";
+import { getFitBoardDimensions } from "./piecePainter";
+import { pieceDefinitions } from "./divPieces";
 
+type PieceDefition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 interface CreateRowWithPiecesParams {
-	startPiece: string;
-	middlePieces: string[];
+	startPiece: PieceDefition;
+	middlePieces: PieceDefition[];
 	numMiddlePieces: number;
 	rowIndex: number;
+}
+
+export interface PieceEntity {
+	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
+	definition: PieceDefition;
 }
 
 interface PieceCreatorParams {
 	canvasWidth: number;
 	canvasHeight: number;
 	pieceSize: number;
+	pieceGap?: number;
 }
 
 export class PieceCreator {
 	widthDimensions: { scaleToFitLengthFactor: number; numMiddlePieces: number };
 	heightDimensions: { scaleToFitLengthFactor: number; numMiddlePieces: number };
 	pieceSize: number;
-	constructor({ canvasWidth, canvasHeight, pieceSize }: PieceCreatorParams) {
+	pieceGap: number;
+	constructor({
+		canvasWidth,
+		canvasHeight,
+		pieceSize,
+		pieceGap = 0.0,
+	}: PieceCreatorParams) {
 		this.pieceSize = pieceSize;
-		const pieceGap = 0.0;
-		this.widthDimensions = getFitBoardDimensions(canvasWidth, this.pieceSize);
-		this.heightDimensions = getFitBoardDimensions(canvasHeight, this.pieceSize);
-		console.log(this.widthDimensions);
-		console.log(this.heightDimensions);
+		this.pieceGap = pieceGap;
+		this.widthDimensions = getFitBoardDimensions({
+			length: canvasWidth,
+			pieceSize,
+			pieceGap,
+		});
+		this.heightDimensions = getFitBoardDimensions({
+			length: canvasHeight,
+			pieceSize,
+			pieceGap,
+		});
 	}
 	createRowWithPieces = ({
 		startPiece,
@@ -68,17 +69,23 @@ export class PieceCreator {
 							this.heightDimensions.scaleToFitLengthFactor,
 					},
 				],
-				path: startPiece,
+				definition: startPiece,
 			},
 		];
 		for (let i = 0; i < numMiddlePieces; i++) {
 			const piece = middlePieces[i % middlePieces.length];
 			piecesPlaced.push({
 				boundingBox: [
-					{ x: this.pieceSize * (i + 1), y: rowIndex * this.pieceSize },
-					{ x: this.pieceSize * (i + 2), y: (rowIndex + 1) * this.pieceSize },
+					{
+						x: this.pieceSize * (i + 1) + this.pieceGap,
+						y: rowIndex * this.pieceSize,
+					},
+					{
+						x: this.pieceSize * (i + 2) + this.pieceGap,
+						y: (rowIndex + 1) * this.pieceSize + this.pieceGap,
+					},
 				],
-				path: piece,
+				definition: piece,
 			});
 		}
 		return { piecesPlaced };
@@ -90,28 +97,26 @@ export class PieceCreator {
 		const { piecesPlaced } = this.createRowWithPieces({
 			numMiddlePieces,
 			rowIndex: 0,
-			startPiece: cornerPiece,
-			middlePieces: [sidePiece4, sidePiece1],
+			startPiece: pieceDefinitions.cornerPiece,
+			middlePieces: [pieceDefinitions.sidePiece4, pieceDefinitions.sidePiece1],
 		});
 		piecesPlaced.push({
 			boundingBox: [
-				// TODO: account for scalefactor
 				{
 					x:
 						(numMiddlePieces + 1) *
-						this.pieceSize *
-						this.widthDimensions.scaleToFitLengthFactor,
+							this.pieceSize *
+							this.widthDimensions.scaleToFitLengthFactor +
+						this.pieceGap,
 					y: 0,
 				},
 				{
 					x:
-						(numMiddlePieces + 2) *
-						this.pieceSize *
-						this.widthDimensions.scaleToFitLengthFactor,
+						(numMiddlePieces + 2) * this.widthDimensions.scaleToFitLengthFactor,
 					y: this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			path: cornerPiece_90deg,
+			definition: pieceDefinitions.cornerPiece_90deg,
 		});
 		return piecesPlaced;
 	};
@@ -122,19 +127,28 @@ export class PieceCreator {
 		const numRows = this.heightDimensions.numMiddlePieces;
 		const rowPieces = [
 			{
-				startPiece: sidePiece2,
-				middlePieces: [centerPiece1, centerPiece1_90deg],
-				endPiece: sidePiece3,
+				startPiece: pieceDefinitions.sidePiece2,
+				middlePieces: [
+					pieceDefinitions.centerPiece1,
+					pieceDefinitions.centerPiece1_90deg,
+				],
+				endPiece: pieceDefinitions.sidePiece3,
 			},
 			{
-				startPiece: sidePiece5,
-				middlePieces: [centerPiece1Eared_180deg, centerPiece3Eared],
-				endPiece: sidePiece3,
+				startPiece: pieceDefinitions.sidePiece3Eared,
+				middlePieces: [
+					pieceDefinitions.centerPiece1Eared_180deg,
+					pieceDefinitions.centerPiece3Eared,
+				],
+				endPiece: pieceDefinitions.sidePiece3,
 			},
 			{
-				startPiece: sidePiece2Eared,
-				middlePieces: [centerPiece1_90deg, centerPiece1],
-				endPiece: sidePiece2Eared_180deg,
+				startPiece: pieceDefinitions.sidePiece2Eared,
+				middlePieces: [
+					pieceDefinitions.centerPiece1_90deg,
+					pieceDefinitions.centerPiece1,
+				],
+				endPiece: pieceDefinitions.sidePiece2Eared_180deg,
 			},
 		];
 
@@ -165,18 +179,18 @@ export class PieceCreator {
 		// 				(i + 1) * this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
 		// 			],
 		// 		],
-		// 		path: endPiece,
+		// 		piece: endPiece,
 		// 	});
 		// }
 
 		const { piecesPlaced } = this.createRowWithPieces({
 			numMiddlePieces: this.widthDimensions.numMiddlePieces,
 			rowIndex: numRows + 1,
-			startPiece: cornerPiece_270deg,
+			startPiece: pieceDefinitions.cornerPiece_270deg,
 			middlePieces: [
-				sidePiece2Eared_270deg,
+				pieceDefinitions.sidePiece2Eared_270deg,
 				// sidePiece3Holed,
-				sidePiece2Holed,
+				pieceDefinitions.sidePiece2Holed,
 				// sidePiece3Holed,
 				// sidePiece4_180deg,
 			],
@@ -206,7 +220,7 @@ export class PieceCreator {
 						this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			path: cornerPiece2Eared,
+			definition: pieceDefinitions.cornerPiece2Eared,
 		});
 
 		return allPieces;

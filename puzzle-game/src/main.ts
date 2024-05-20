@@ -1,5 +1,6 @@
-import { PieceCreator } from "./pieceCreator";
-import type { PieceEntity } from "./piecePainter";
+import { cutPieceFromImage } from "./cutPieceFromImage";
+import { makePieceDraggable } from "./makePieceDraggable";
+import { PieceCreator, type PieceEntity } from "./pieceCreator";
 import "./style.css";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -45,7 +46,8 @@ const boardElement = document.getElementById("board") as HTMLDivElement;
 if (!boardElement) {
 	throw Error("No board div element");
 }
-const pieceSize = 50;
+const PIECE_SIZE = Object.freeze(50 as const);
+const PIECE_GAP = Object.freeze(10 as const);
 const img1 = new Image();
 img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
 //drawing of the test image - img1
@@ -62,84 +64,17 @@ img1.onload = () => {
 	allPieces = new PieceCreator({
 		canvasHeight: boardElement.clientHeight,
 		canvasWidth: boardElement.clientHeight,
-		pieceSize,
+		pieceSize: PIECE_SIZE,
+		pieceGap: PIECE_GAP,
 	}).create();
 
-	for (let i = 0; i < allPieces.length; i++) {
+	for (let i = 0; i < 3; i++) {
 		const piece = allPieces[i];
 
-		console.log({ piece });
-		cutPieceFromImage(piece);
+		// console.dir(piece.boundingBox);
+		cutAndPlacePiece(piece);
 	}
 };
-
-const firstDivElement = document.getElementById("firstDiv")!;
-
-firstDivElement.onmousedown = (event) => {
-	firstDivElement.style.position = "absolute";
-	firstDivElement.style.zIndex = "1000";
-
-	// move it out of any current parents directly into body
-	// to make it positioned relative to the body
-	document.body.append(firstDivElement);
-
-	// centers the ball at (pageX, pageY) coordinates
-	function moveAt(pageX: number, pageY: number) {
-		firstDivElement.style.left = `${pageX - firstDivElement.offsetWidth / 2}px`;
-		firstDivElement.style.top = `${pageY - firstDivElement.offsetHeight / 2}px`;
-	}
-
-	// move our absolutely positioned ball under the pointer
-	moveAt(event.pageX, event.pageY);
-
-	function onMouseMove(event: MouseEvent) {
-		moveAt(event.pageX, event.pageY);
-	}
-
-	// (2) move the ball on mousemove
-	document.addEventListener("mousemove", onMouseMove);
-
-	// (3) drop the ball, remove unneeded handlers
-	firstDivElement.onmouseup = () => {
-		document.removeEventListener("mousemove", onMouseMove);
-		firstDivElement.onmouseup = null;
-	};
-};
-
-const makePieceDraggable = (divElement: HTMLDivElement) => {
-	divElement.ondragstart = () => false;
-	divElement.onmousedown = (event: MouseEvent) => {
-		divElement.style.zIndex = "1000";
-
-		// move it out of any current parents directly into body
-		// to make it positioned relative to the body
-		// document.body.append(divElement);
-
-		// centers the ball at (pageX, pageY) coordinates
-		function moveAt(pageX: number, pageY: number) {
-			divElement.style.left = `${pageX - divElement.offsetWidth / 2}px`;
-			divElement.style.top = `${pageY - divElement.offsetHeight / 2}px`;
-		}
-
-		// move our absolutely positioned ball under the pointer
-		moveAt(event.pageX, event.pageY);
-
-		function onMouseMove(event: MouseEvent) {
-			moveAt(event.pageX, event.pageY);
-		}
-
-		// (2) move the ball on mousemove
-		document.addEventListener("mousemove", onMouseMove);
-
-		// (3) drop the ball, remove unneeded handlers
-		divElement.onmouseup = () => {
-			document.removeEventListener("mousemove", onMouseMove);
-			divElement.onmouseup = null;
-		};
-	};
-};
-
-firstDivElement.ondragstart = () => false;
 
 // canvas.addEventListener("click", (e: MouseEvent) => {
 // 	const xPos = e.offsetX;
@@ -161,56 +96,8 @@ firstDivElement.ondragstart = () => false;
 // 	cutPieceFromImage(clickedPiece);
 // });
 
-function cutPieceFromImage(piece: PieceEntity) {
-	const img1 = new Image();
-	img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
-
-	const canvasForCropping = document.getElementById(
-		"canvasForCropping",
-	)! as HTMLCanvasElement;
-
-	const croppingContext = canvasForCropping.getContext("2d")!;
-
-	img1.onload = () => {
-		croppingContext.drawImage(
-			img1,
-			piece.boundingBox[0].x,
-			piece.boundingBox[0].y,
-			pieceSize + 15,
-			pieceSize,
-			0,
-			0,
-			pieceSize + 15,
-			pieceSize,
-		);
-		const croppedImageDataUrl = canvasForCropping.toDataURL();
-
-		const croppedImage = new Image();
-		croppedImage.src = croppedImageDataUrl;
-
-		croppedImage.onload = () => {
-			const style = `
-				background-image: url(${croppedImageDataUrl});
-				background-image: center;
-				clip-path: path("${piece.path}");
-				top: ${piece.boundingBox[0].y}px;
-				left: ${piece.boundingBox[0].x}px;
-				width: ${piece.boundingBox[1].x - piece.boundingBox[0].x}px;
-				height: ${piece.boundingBox[1].y - piece.boundingBox[0].y}px;
-			`;
-			document.getElementById("firstDiv")?.setAttribute(
-				"style",
-				`
-					background-image: url(${croppedImageDataUrl});
-					clip-path: path("${piece.path}");
-						`,
-			);
-
-			const newPiece = document.createElement("div");
-			newPiece.setAttribute("style", style);
-			newPiece.setAttribute("draggable", "");
-			makePieceDraggable(newPiece);
-			boardElement.appendChild(newPiece);
-		};
-	};
+async function cutAndPlacePiece(piece: PieceEntity) {
+	const newPiece = await cutPieceFromImage(piece, PIECE_SIZE);
+	makePieceDraggable(newPiece);
+	boardElement.appendChild(newPiece);
 }

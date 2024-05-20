@@ -98,7 +98,11 @@ export function fillFirstRow({
 	return piecesPlaced;
 }
 
-export function getFitBoardDimensions(length: number, pieceSize: number) {
+export function getFitBoardDimensions({
+	length,
+	pieceSize,
+	pieceGap,
+}: { pieceGap: number; length: number; pieceSize: number }) {
 	const numPiecesHeight = length / pieceSize;
 
 	const numWholePieces = Math.floor(length / pieceSize);
