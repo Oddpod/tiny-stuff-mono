@@ -47,7 +47,7 @@ if (!boardElement) {
 	throw Error("No board div element");
 }
 const PIECE_SIZE = Object.freeze(50 as const);
-const PIECE_GAP = Object.freeze(10 as const);
+const PIECE_GAP = Object.freeze(0 as const);
 const img1 = new Image();
 img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
 //drawing of the test image - img1
@@ -63,12 +63,12 @@ img1.onload = () => {
 
 	allPieces = new PieceCreator({
 		canvasHeight: boardElement.clientHeight,
-		canvasWidth: boardElement.clientHeight,
+		canvasWidth: boardElement.clientWidth,
 		pieceSize: PIECE_SIZE,
 		pieceGap: PIECE_GAP,
 	}).create();
 
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < allPieces.length; i++) {
 		const piece = allPieces[i];
 
 		// console.dir(piece.boundingBox);

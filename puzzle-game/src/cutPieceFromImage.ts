@@ -10,11 +10,15 @@ export function cutPieceFromImage(piece: PieceEntity, pieceSize: number) {
 		)! as HTMLCanvasElement;
 
 		const croppingContext = canvasForCropping.getContext("2d")!;
+		const shiftedLeftX =
+			Math.max(0, piece.boundingBox[0].x - (piece.definition.width !== pieceSize ? 15 : 0));
+		const shiftedTopY =
+			Math.max(0, piece.boundingBox[0].y - (piece.definition.height !== pieceSize ? 15 : 0));
 		img1.onload = () => {
 			croppingContext.drawImage(
 				img1,
-				piece.boundingBox[0].x,
-				piece.boundingBox[0].y,
+				shiftedLeftX,
+				shiftedTopY,
 				piece.definition.width,
 				piece.definition.height,
 				0,
@@ -28,23 +32,12 @@ export function cutPieceFromImage(piece: PieceEntity, pieceSize: number) {
 			croppedImage.src = croppedImageDataUrl;
 
 			croppedImage.onload = () => {
-				const left = Math.max(
-					0,
-					piece.boundingBox[0].x -
-						(piece.definition.width !== pieceSize ? 15 : 0),
-				);
-				const top = Math.max(
-					0,
-					piece.boundingBox[0].y -
-						(piece.definition.height !== pieceSize ? 15 : 0),
-				);
-				console.dir({ left, top, box: piece.boundingBox });
 				const style = `
 				background-image: url(${croppedImageDataUrl});
 				background-image: center;
 				clip-path: path("${piece.definition.path}");
-				top: ${top}px;
-				left: ${left}px;
+				top: ${shiftedTopY}px;
+				left: ${shiftedLeftX}px;
 				width: ${piece.definition.width}px;
 				height: ${piece.definition.height}px;
 			`;

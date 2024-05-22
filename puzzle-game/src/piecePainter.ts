@@ -103,13 +103,13 @@ export function getFitBoardDimensions({
 	pieceSize,
 	pieceGap,
 }: { pieceGap: number; length: number; pieceSize: number }) {
-	const numPiecesHeight = length / pieceSize;
+	const numPiecesHeight = length / (pieceSize + pieceGap);
 
-	const numWholePieces = Math.floor(length / pieceSize);
+	const numWholePieces = Math.floor(numPiecesHeight);
 	const rest = numPiecesHeight - numWholePieces;
 	const scaleToFitLengthFactor =
 		1 + rest / numWholePieces - pieceGap / (numWholePieces - 4);
-	const numMiddlePieces = Math.floor(length / pieceSize) - 2;
+	const numMiddlePieces = Math.floor(numPiecesHeight) - 2;
 	return { scaleToFitLengthFactor, numMiddlePieces };
 }
 export function fillBoardWithPieces({
