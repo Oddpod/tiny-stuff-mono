@@ -32,7 +32,7 @@ function getFitBoardDimensions({
 	const scaleToFitLengthFactor = 1 + (rest - pieceGap) / numWholePieces;
 	const numMiddlePieces = numWholePieces - 2;
 
-	return { scaleToFitLengthFactor, numMiddlePieces };
+	return { scaleToFitLengthFactor: 1, numMiddlePieces };
 }
 
 export class PieceCreator {
@@ -94,11 +94,17 @@ export class PieceCreator {
 			piecesPlaced.push({
 				boundingBox: [
 					{
-						x: (this.pieceSize + this.pieceGap) * (i + 1) * this.widthDimensions.scaleToFitLengthFactor,
+						x:
+							(this.pieceSize + this.pieceGap) *
+							(i + 1) *
+							this.widthDimensions.scaleToFitLengthFactor,
 						y: rowIndex * (this.pieceSize + this.pieceGap),
 					},
 					{
-						x: (this.pieceSize + this.pieceGap) * (i + 2) * this.widthDimensions.scaleToFitLengthFactor,
+						x:
+							(this.pieceSize + this.pieceGap) *
+							(i + 2) *
+							this.widthDimensions.scaleToFitLengthFactor,
 						y: (rowIndex + 1) * (this.pieceSize + this.pieceGap),
 					},
 				],
@@ -143,7 +149,52 @@ export class PieceCreator {
 	create() {
 		const allPieces = this.createFirstRow(this.widthDimensions.numMiddlePieces);
 
-		console.dir(this.widthDimensions);
+		const numRows = this.createMiddleRows(allPieces);
+
+		this.createLastRow(numRows, allPieces);
+
+		return allPieces;
+	}
+
+	private createLastRow(numRows: number, allPieces: PieceEntity[]) {
+		const { piecesPlaced } = this.createRowWithPieces({
+			numMiddlePieces: this.widthDimensions.numMiddlePieces,
+			rowIndex: numRows + 1,
+			startPiece: pieceDefinitions.cornerPiece_270deg,
+			middlePieces: [
+				pieceDefinitions.sidePiece2Eared_270deg,
+				// sidePiece3Holed,
+				pieceDefinitions.sidePiece2Holed,
+				// sidePiece3Holed,
+				// sidePiece4_180deg,
+			],
+		});
+
+		allPieces.push(...piecesPlaced);
+		allPieces.push({
+			boundingBox: [
+				{
+					x: (this.widthDimensions.numMiddlePieces + 1) *
+						this.pieceSize *
+						this.widthDimensions.scaleToFitLengthFactor,
+					y: (this.heightDimensions.numMiddlePieces + 1) *
+						this.pieceSize *
+						this.heightDimensions.scaleToFitLengthFactor,
+				},
+				{
+					x: (this.widthDimensions.numMiddlePieces + 2) *
+						this.pieceSize *
+						this.widthDimensions.scaleToFitLengthFactor,
+					y: (this.heightDimensions.numMiddlePieces + 2) *
+						this.pieceSize *
+						this.heightDimensions.scaleToFitLengthFactor,
+				},
+			],
+			definition: pieceDefinitions.sidePiece3Right,
+		});
+	}
+
+	private createMiddleRows(allPieces: PieceEntity[]) {
 		const numRows = this.heightDimensions.numMiddlePieces;
 		const rowPieces = [
 			{
@@ -155,7 +206,7 @@ export class PieceCreator {
 				endPiece: pieceDefinitions.sidePiece3,
 			},
 			{
-				startPiece: pieceDefinitions.sidePiece3Eared,
+				startPiece: pieceDefinitions.sidePiece1Eared,
 				middlePieces: [
 					pieceDefinitions.centerPiece1Eared_180deg,
 					pieceDefinitions.centerPiece3Eared,
@@ -163,7 +214,7 @@ export class PieceCreator {
 				endPiece: pieceDefinitions.sidePiece3,
 			},
 			{
-				startPiece: pieceDefinitions.sidePiece2Eared,
+				startPiece: pieceDefinitions.sidePiece2EaredLeft,
 				middlePieces: [
 					pieceDefinitions.centerPiece1_90deg,
 					pieceDefinitions.centerPiece1,
@@ -172,77 +223,37 @@ export class PieceCreator {
 			},
 		];
 
-		// for (let i = 0; i < numRows; i++) {
-		// 	const { endPiece, middlePieces, startPiece } =
-		// 		rowPieces[i % rowPieces.length];
+		for (let i = 0; i < numRows; i++) {
+			const { endPiece, middlePieces, startPiece } = rowPieces[i % rowPieces.length];
 
-		// 	const { piecesPlaced } = this.createRowWithPieces({
-		// 		numMiddlePieces: this.widthDimensions.numMiddlePieces,
-		// 		middlePieces,
-		// 		startPiece,
-		// 		rowIndex: i + 1,
-		// 	});
+			const { piecesPlaced } = this.createRowWithPieces({
+				numMiddlePieces: this.widthDimensions.numMiddlePieces,
+				middlePieces,
+				startPiece,
+				rowIndex: i + 1,
+			});
 
-		// 	allPieces.push(...piecesPlaced);
-		// 	allPieces.push({
-		// 		boundingBox: [
-		// 			[
-		// 				(this.widthDimensions.numMiddlePieces + 1) *
-		// 					this.pieceSize *
-		// 					this.widthDimensions.scaleToFitLengthFactor,
-		// 				i * this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
-		// 			],
-		// 			[
-		// 				(this.widthDimensions.numMiddlePieces + 2) *
-		// 					this.pieceSize *
-		// 					this.widthDimensions.scaleToFitLengthFactor,
-		// 				(i + 1) * this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
-		// 			],
-		// 		],
-		// 		piece: endPiece,
-		// 	});
-		// }
-
-		// const { piecesPlaced } = this.createRowWithPieces({
-		// 	numMiddlePieces: this.widthDimensions.numMiddlePieces,
-		// 	rowIndex: numRows + 1,
-		// 	startPiece: pieceDefinitions.cornerPiece_270deg,
-		// 	middlePieces: [
-		// 		pieceDefinitions.sidePiece2Eared_270deg,
-		// 		// sidePiece3Holed,
-		// 		pieceDefinitions.sidePiece2Holed,
-		// 		// sidePiece3Holed,
-		// 		// sidePiece4_180deg,
-		// 	],
-		// });
-
-		// allPieces.push(...piecesPlaced);
-		// allPieces.push({
-		// 	boundingBox: [
-		// 		{
-		// 			x:
-		// 				(this.widthDimensions.numMiddlePieces + 1) *
-		// 				this.pieceSize *
-		// 				this.widthDimensions.scaleToFitLengthFactor,
-		// 			y:
-		// 				(this.heightDimensions.numMiddlePieces + 1) *
-		// 				this.pieceSize *
-		// 				this.heightDimensions.scaleToFitLengthFactor,
-		// 		},
-		// 		{
-		// 			x:
-		// 				(this.widthDimensions.numMiddlePieces + 2) *
-		// 				this.pieceSize *
-		// 				this.widthDimensions.scaleToFitLengthFactor,
-		// 			y:
-		// 				(this.heightDimensions.numMiddlePieces + 2) *
-		// 				this.pieceSize *
-		// 				this.heightDimensions.scaleToFitLengthFactor,
-		// 		},
-		// 	],
-		// 	definition: pieceDefinitions.cornerPiece2Eared,
-		// });
-
-		return allPieces;
+			allPieces.push(...piecesPlaced);
+			allPieces.push({
+				boundingBox: [
+					{
+						x: (this.widthDimensions.numMiddlePieces + 1) *
+							this.pieceSize *
+							this.widthDimensions.scaleToFitLengthFactor,
+						y: (i + 1) * this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
+					},
+					{
+						x: (this.widthDimensions.numMiddlePieces + 2) *
+							this.pieceSize *
+							this.widthDimensions.scaleToFitLengthFactor,
+						y: (i + 2) *
+							this.pieceSize *
+							this.heightDimensions.scaleToFitLengthFactor,
+					},
+				],
+				definition: endPiece,
+			});
+		}
+		return numRows;
 	}
 }

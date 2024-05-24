@@ -52,27 +52,33 @@ const img1 = new Image();
 img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
 //drawing of the test image - img1
 img1.onload = () => {
+	const boardWidth = img1.width - (img1.width % PIECE_SIZE);
+	const boardHeight = img1.height - (img1.height % PIECE_SIZE);
 	document.documentElement.style.setProperty(
 		"--board-width",
-		`${img1.width.toString()}px`,
+		`${boardWidth.toString()}px`,
 	);
 	document.documentElement.style.setProperty(
 		"--board-height",
-		`${img1.height.toString()}px`,
+		`${boardHeight.toString()}px`,
 	);
 
-	allPieces = new PieceCreator({
+	const pieceCreator = new PieceCreator({
 		canvasHeight: boardElement.clientHeight,
 		canvasWidth: boardElement.clientWidth,
 		pieceSize: PIECE_SIZE,
 		pieceGap: PIECE_GAP,
-	}).create();
+	});
+	allPieces = pieceCreator.create();
 
 	for (let i = 0; i < allPieces.length; i++) {
 		const piece = allPieces[i];
 
-		// console.dir(piece.boundingBox);
-		cutAndPlacePiece(piece);
+		cutAndPlacePiece(
+			piece,
+			pieceCreator.widthDimensions.scaleToFitLengthFactor,
+			pieceCreator.heightDimensions.scaleToFitLengthFactor,
+		);
 	}
 };
 
@@ -96,8 +102,17 @@ img1.onload = () => {
 // 	cutPieceFromImage(clickedPiece);
 // });
 
-async function cutAndPlacePiece(piece: PieceEntity) {
-	const newPiece = await cutPieceFromImage(piece, PIECE_SIZE);
+async function cutAndPlacePiece(
+	piece: PieceEntity,
+	scaleFactorX: number,
+	scaleFactorY: number,
+) {
+	const newPiece = await cutPieceFromImage({
+		piece,
+		pieceSize: PIECE_SIZE,
+		scaleFactorX,
+		scaleFactorY,
+	});
 	makePieceDraggable(newPiece);
 	boardElement.appendChild(newPiece);
 }

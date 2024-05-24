@@ -1,6 +1,17 @@
 import type { PieceEntity } from "./pieceCreator";
 
-export function cutPieceFromImage(piece: PieceEntity, pieceSize: number) {
+interface CutPieceFromImageParams {
+	piece: PieceEntity;
+	pieceSize: number;
+	scaleFactorX: number;
+	scaleFactorY: number;
+}
+export function cutPieceFromImage({
+	piece,
+	pieceSize,
+	scaleFactorX,
+	scaleFactorY,
+}: CutPieceFromImageParams) {
 	return new Promise<HTMLDivElement>((res) => {
 		const img1 = new Image();
 		img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
@@ -10,10 +21,14 @@ export function cutPieceFromImage(piece: PieceEntity, pieceSize: number) {
 		)! as HTMLCanvasElement;
 
 		const croppingContext = canvasForCropping.getContext("2d")!;
-		const shiftedLeftX =
-			Math.max(0, piece.boundingBox[0].x - (piece.definition.width !== pieceSize ? 15 : 0));
-		const shiftedTopY =
-			Math.max(0, piece.boundingBox[0].y - (piece.definition.height !== pieceSize ? 15 : 0));
+		const shiftLeftBy = piece.definition.sidesWithEars.includes("left")
+			? 15 * scaleFactorX
+			: 0;
+		const shiftTopBy = piece.definition.sidesWithEars.includes("top")
+			? 15 * scaleFactorY
+			: 0;
+		const shiftedLeftX = Math.max(0, piece.boundingBox[0].x - shiftLeftBy);
+		const shiftedTopY = Math.max(0, piece.boundingBox[0].y - shiftTopBy);
 		img1.onload = () => {
 			croppingContext.drawImage(
 				img1,
@@ -41,17 +56,10 @@ export function cutPieceFromImage(piece: PieceEntity, pieceSize: number) {
 				width: ${piece.definition.width}px;
 				height: ${piece.definition.height}px;
 			`;
-				document.getElementById("firstDiv")?.setAttribute(
-					"style",
-					`
-					background-image: url(${croppedImageDataUrl});
-					clip-path: path("${piece.definition.path}");
-						`,
-				);
-
 				const newPiece = document.createElement("div");
 				newPiece.setAttribute("style", style);
 				newPiece.setAttribute("draggable", "");
+				newPiece.setAttribute("data-piece-name", piece.definition.path);
 
 				return res(newPiece);
 			};
