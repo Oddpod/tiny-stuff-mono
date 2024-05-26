@@ -124,8 +124,8 @@ export class PieceCreator {
 		const { piecesPlaced } = this.createRowWithPieces({
 			numMiddlePieces,
 			rowIndex: 0,
-			startPiece: pieceDefinitions.cornerPiece,
-			middlePieces: [pieceDefinitions.sidePiece4, pieceDefinitions.sidePiece1],
+			startPiece: pieceDefinitions.cornerPieceLeftTop1,
+			middlePieces: [pieceDefinitions.sidePieceTop4, pieceDefinitions.sidePieceTop1],
 		});
 		piecesPlaced.push({
 			boundingBox: [
@@ -141,7 +141,7 @@ export class PieceCreator {
 					y: this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			definition: pieceDefinitions.cornerPiece_90deg,
+			definition: pieceDefinitions.cornerPieceRightTop1,
 		});
 		return piecesPlaced;
 	};
@@ -160,11 +160,11 @@ export class PieceCreator {
 		const { piecesPlaced } = this.createRowWithPieces({
 			numMiddlePieces: this.widthDimensions.numMiddlePieces,
 			rowIndex: numRows + 1,
-			startPiece: pieceDefinitions.cornerPiece_270deg,
+			startPiece: pieceDefinitions.cornerPieceLeftBottom1,
 			middlePieces: [
-				pieceDefinitions.sidePiece2Eared_270deg,
+				pieceDefinitions.sidePieceBottom2,
 				// sidePiece3Holed,
-				pieceDefinitions.sidePiece2Holed,
+				pieceDefinitions.sidePieceBottom,
 				// sidePiece3Holed,
 				// sidePiece4_180deg,
 			],
@@ -194,7 +194,7 @@ export class PieceCreator {
 						this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			definition: pieceDefinitions.sidePiece3Right,
+			definition: pieceDefinitions.cornerPieceBottomRight1,
 		});
 	}
 
@@ -202,28 +202,28 @@ export class PieceCreator {
 		const numRows = this.heightDimensions.numMiddlePieces;
 		const rowPieces = [
 			{
-				startPiece: pieceDefinitions.sidePiece2,
+				startPiece: pieceDefinitions.sidePieceLeft2,
 				middlePieces: [
 					pieceDefinitions.centerPiece1,
-					pieceDefinitions.centerPiece1_90deg,
+					pieceDefinitions.centerPiece8,
 				],
-				endPiece: pieceDefinitions.sidePiece3,
+				endPiece: pieceDefinitions.sidePieceRight3,
 			},
 			{
-				startPiece: pieceDefinitions.sidePiece1Eared,
+				startPiece: pieceDefinitions.sidePieceLeft1,
 				middlePieces: [
-					pieceDefinitions.centerPiece1Eared_180deg,
-					pieceDefinitions.centerPiece3Eared,
+					pieceDefinitions.centerPiece7,
+					pieceDefinitions.centerPiece10,
 				],
-				endPiece: pieceDefinitions.sidePiece3,
+				endPiece: pieceDefinitions.sidePieceRight3,
 			},
 			{
-				startPiece: pieceDefinitions.sidePiece2EaredLeft,
+				startPiece: pieceDefinitions.sidePieceLeft6,
 				middlePieces: [
-					pieceDefinitions.centerPiece1_90deg,
+					pieceDefinitions.centerPiece8,
 					pieceDefinitions.centerPiece1,
 				],
-				endPiece: pieceDefinitions.sidePiece2Eared_180deg,
+				endPiece: pieceDefinitions.sidePieceRight4,
 			},
 		];
 

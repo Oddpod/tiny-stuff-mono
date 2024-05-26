@@ -23,12 +23,14 @@ export function cutPieceFromImage({
 		)! as HTMLCanvasElement;
 
 		const croppingContext = canvasForCropping.getContext("2d")!;
-		const shiftLeftBy = piece.definition.sidesWithEars.includes("left")
-			? (15 * scaleFactorX * pieceSize) / PIECE_DIMENSIONS
-			: 0;
-		const shiftTopBy = piece.definition.sidesWithEars.includes("top")
-			? (15 * scaleFactorY * pieceSize) / PIECE_DIMENSIONS
-			: 0;
+		const shiftLeftBy =
+			piece.definition.sides.left === "ear"
+				? (15 * scaleFactorX * pieceSize) / PIECE_DIMENSIONS
+				: 0;
+		const shiftTopBy =
+			piece.definition.sides.top === "ear"
+				? (15 * scaleFactorY * pieceSize) / PIECE_DIMENSIONS
+				: 0;
 		const shiftedLeftX = Math.max(0, piece.boundingBox[0].x - shiftLeftBy);
 		const shiftedTopY = Math.max(0, piece.boundingBox[0].y - shiftTopBy);
 

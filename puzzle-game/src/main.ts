@@ -49,26 +49,6 @@ img1.onload = () => {
 	}
 };
 
-// canvas.addEventListener("click", (e: MouseEvent) => {
-// 	const xPos = e.offsetX;
-// 	const yPos = e.offsetY;
-
-// 	console.log({ xPos, yPos });
-// 	const clickedPiece = allPieces.find(
-// 		(pieceEntity) =>
-// 			pieceEntity.boundingBox[0][0] < xPos &&
-// 			pieceEntity.boundingBox[1][0] > xPos &&
-// 			pieceEntity.boundingBox[0][1] < yPos &&
-// 			pieceEntity.boundingBox[1][1] > yPos,
-// 	);
-
-// 	if (!clickedPiece) {
-// 		return;
-// 	}
-
-// 	cutPieceFromImage(clickedPiece);
-// });
-
 async function cutAndPlacePiece(
 	piece: PieceEntity,
 	scaleFactorX: number,
