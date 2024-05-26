@@ -1,4 +1,4 @@
-import { pieceDefinitions } from "./divPieces";
+import { PIECE_DIMENSIONS, pieceDefinitions } from "./divPieces";
 
 type PieceDefition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 interface CreateRowWithPiecesParams {
@@ -59,7 +59,14 @@ export class PieceCreator {
 			pieceGap,
 		});
 	}
-	createRowWithPieces = ({
+
+	private scaleToFitWidth() {
+		return (
+			(this.pieceSize + this.pieceGap) *
+			this.widthDimensions.scaleToFitLengthFactor
+		);
+	}
+	private createRowWithPieces = ({
 		startPiece,
 		middlePieces,
 		numMiddlePieces,
@@ -94,10 +101,7 @@ export class PieceCreator {
 			piecesPlaced.push({
 				boundingBox: [
 					{
-						x:
-							(this.pieceSize + this.pieceGap) *
-							(i + 1) *
-							this.widthDimensions.scaleToFitLengthFactor,
+						x: (i + 1) * this.scaleToFitWidth(),
 						y: rowIndex * (this.pieceSize + this.pieceGap),
 					},
 					{
@@ -126,11 +130,7 @@ export class PieceCreator {
 		piecesPlaced.push({
 			boundingBox: [
 				{
-					x:
-						(numMiddlePieces + 1) *
-							this.pieceSize *
-							this.widthDimensions.scaleToFitLengthFactor +
-						this.pieceGap,
+					x: (numMiddlePieces + 1) * this.scaleToFitWidth() + this.pieceGap,
 					y: 0,
 				},
 				{
@@ -151,7 +151,7 @@ export class PieceCreator {
 
 		const numRows = this.createMiddleRows(allPieces);
 
-		this.createLastRow(numRows, allPieces);
+		// this.createLastRow(numRows, allPieces);
 
 		return allPieces;
 	}
@@ -174,18 +174,22 @@ export class PieceCreator {
 		allPieces.push({
 			boundingBox: [
 				{
-					x: (this.widthDimensions.numMiddlePieces + 1) *
+					x:
+						(this.widthDimensions.numMiddlePieces + 1) *
 						this.pieceSize *
 						this.widthDimensions.scaleToFitLengthFactor,
-					y: (this.heightDimensions.numMiddlePieces + 1) *
+					y:
+						(this.heightDimensions.numMiddlePieces + 1) *
 						this.pieceSize *
 						this.heightDimensions.scaleToFitLengthFactor,
 				},
 				{
-					x: (this.widthDimensions.numMiddlePieces + 2) *
+					x:
+						(this.widthDimensions.numMiddlePieces + 2) *
 						this.pieceSize *
 						this.widthDimensions.scaleToFitLengthFactor,
-					y: (this.heightDimensions.numMiddlePieces + 2) *
+					y:
+						(this.heightDimensions.numMiddlePieces + 2) *
 						this.pieceSize *
 						this.heightDimensions.scaleToFitLengthFactor,
 				},
@@ -224,7 +228,8 @@ export class PieceCreator {
 		];
 
 		for (let i = 0; i < numRows; i++) {
-			const { endPiece, middlePieces, startPiece } = rowPieces[i % rowPieces.length];
+			const { endPiece, middlePieces, startPiece } =
+				rowPieces[i % rowPieces.length];
 
 			const { piecesPlaced } = this.createRowWithPieces({
 				numMiddlePieces: this.widthDimensions.numMiddlePieces,
@@ -237,16 +242,22 @@ export class PieceCreator {
 			allPieces.push({
 				boundingBox: [
 					{
-						x: (this.widthDimensions.numMiddlePieces + 1) *
+						x:
+							(this.widthDimensions.numMiddlePieces + 1) *
 							this.pieceSize *
 							this.widthDimensions.scaleToFitLengthFactor,
-						y: (i + 1) * this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
+						y:
+							(i + 1) *
+							this.pieceSize *
+							this.heightDimensions.scaleToFitLengthFactor,
 					},
 					{
-						x: (this.widthDimensions.numMiddlePieces + 2) *
+						x:
+							(this.widthDimensions.numMiddlePieces + 2) *
 							this.pieceSize *
 							this.widthDimensions.scaleToFitLengthFactor,
-						y: (i + 2) *
+						y:
+							(i + 2) *
 							this.pieceSize *
 							this.heightDimensions.scaleToFitLengthFactor,
 					},

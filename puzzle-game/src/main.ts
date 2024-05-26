@@ -6,47 +6,14 @@ import "./style.css";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 let allPieces: PieceEntity[] = [];
-// const canvas = app.querySelector("canvas")!;
-// if (canvas.getContext) {
-// 	const ctx = canvas.getContext("2d")!;
-// 	//Loading of the home test image - img1
-// 	const img1 = new Image();
-// 	img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
-// 	//drawing of the test image - img1
-// 	img1.onload = () => {
-// 		canvas.height = img1.height;
-// 		canvas.width = img1.width;
-// 		ctx.fillStyle = "gray";
-// 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-// 		//draw background image
-// 		// ctx.drawImage(img1, 0, 0);
-
-// 		ctx.fillStyle = "gray";
-
-// 		allPieces = new PieceCreator({
-// 			canvasHeight: canvas.height,
-// 			canvasWidth: canvas.width,
-// 		}).create();
-
-// 		for (let i = 0; i < allPieces.length; i++) {
-// 			const piece = allPieces[i];
-
-// 			cutPieceFromImage(piece);
-// 		}
-// 		// allPiecesPlaced = fillBoardWithPieces({
-// 		// 	canvasWidth: canvas.width,
-// 		// 	ctx,
-// 		// 	canvasHeight: canvas.height,
-// 		// });
-// 	};
-// }
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
 
 if (!boardElement) {
 	throw Error("No board div element");
 }
-const PIECE_SIZE = Object.freeze(50 as const);
+// TODO: Use this to scale pieces in pieceCreator?
+const PIECE_SIZE = Object.freeze(200 as const);
 const PIECE_GAP = Object.freeze(0 as const);
 const img1 = new Image();
 img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
@@ -114,5 +81,15 @@ async function cutAndPlacePiece(
 		scaleFactorY,
 	});
 	makePieceDraggable(newPiece);
+	// newPiece.style.top = `${(
+	// 	Math.random() *
+	// 	(boardElement.clientHeight - PIECE_DIMENSIONS * 2)
+	// ).toString()}px`;
+	// newPiece.style.left = `${(
+	// 	Math.random() *
+	// 	(boardElement.clientWidth - PIECE_DIMENSIONS * 2)
+	// ).toString()}px`;
+	// newPiece.style.top = `${piece.boundingBox[0].y.toString()}px`;
+	// newPiece.style.left = `${piece.boundingBox[0].x.toString()}px`;
 	boardElement.appendChild(newPiece);
 }

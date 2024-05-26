@@ -1,4 +1,5 @@
 export const PIECE_EAR_SIZE = Object.freeze(15);
+export const PIECE_DIMENSIONS = Object.freeze(50);
 
 export const pieceDefinitions = {
 	cornerPiece: {
