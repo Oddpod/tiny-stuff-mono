@@ -6,7 +6,7 @@ import "./style.css";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
-let allPieces: PieceEntity[] = [];
+let board: PieceEntity[][] = [];
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
 const fileUpload = document.getElementById("file-upload") as HTMLInputElement;
@@ -30,11 +30,11 @@ function createPuzzle() {
 		pieceSize: PIECE_SIZE,
 		pieceGap: PIECE_GAP,
 	});
-	allPieces = pieceCreator.create();
+	board = pieceCreator.createRandom();
 
-	console.log({ allPieces });
+	console.log({ allPieces: board });
 	cutAndPlacePieces({
-		pieces: allPieces,
+		board,
 		scaleFactorX: pieceCreator.widthDimensions.scaleToFitLengthFactor,
 		scaleFactorY: pieceCreator.heightDimensions.scaleToFitLengthFactor,
 		imageSrc: previewImageElement.src,
@@ -43,7 +43,7 @@ function createPuzzle() {
 
 let loadedImage = null;
 interface CutAndPlacePiecesParams {
-	pieces: PieceEntity[];
+	board: PieceEntity[][];
 	scaleFactorX: number;
 	scaleFactorY: number;
 	imageSrc: string;
@@ -52,13 +52,15 @@ interface CutAndPlacePiecesParams {
 async function cutAndPlacePieces({
 	scaleFactorY,
 	scaleFactorX,
-	pieces,
+	board,
 	imageSrc,
 }: CutAndPlacePiecesParams) {
 	const img1 = new Image();
 	img1.src = imageSrc;
 	img1.onload = async () => {
+		// const boardWidth = Math.min(img1.width - (img1.width % PIECE_SIZE), 500);
 		const boardWidth = img1.width - (img1.width % PIECE_SIZE);
+		// const boardHeight = Math.min(img1.height - (img1.height % PIECE_SIZE), 300);
 		const boardHeight = img1.height - (img1.height % PIECE_SIZE);
 		document.documentElement.style.setProperty(
 			"--board-width",
@@ -69,7 +71,7 @@ async function cutAndPlacePieces({
 			`${boardHeight.toString()}px`,
 		);
 
-		shuffle(allPieces);
+		shuffle(board);
 
 		const pieceCutter = new PieceCutter({
 			imageElement: img1,
@@ -77,48 +79,52 @@ async function cutAndPlacePieces({
 			scaleFactorX,
 			scaleFactorY,
 		});
-		for (let i = 0; i < pieces.length; i++) {
-			const piece = pieces[i];
-
-			const newPiece = await pieceCutter.cutPieceFromImage(piece);
-			makePieceDraggable(newPiece, () => saveBoardState());
-			boardElement.appendChild(newPiece);
+		for (let i = 0; i < board.length; i++) {
+			const row = board[i];
+			for (let j = 0; j < row.length; j++) {
+				const piece = row[j];
+				const newPiece = await pieceCutter.cutPieceFromImage(piece);
+				makePieceDraggable(newPiece, () => saveBoardState());
+				boardElement.appendChild(newPiece);
+			}
 		}
 	};
 }
 
 async function loadSavedState() {
 	previewFile(async () => {
-		const savedBoardStateMeta = localStorage.getItem("saved-board-state-meta");
-		if (!savedBoardStateMeta) return;
-		const { numPieces, scaleFactorX, scaleFactorY } =
-			JSON.parse(savedBoardStateMeta);
-		const pieces = [];
-		for (let i = 0; i < numPieces; i++) {
-			pieces.push(
-				JSON.parse(localStorage.getItem(`saved-board-state-piece-${i}`)!),
-			);
-		}
-		await cutAndPlacePieces({
-			pieces,
-			scaleFactorX,
-			scaleFactorY,
-			imageSrc: previewImageElement.src,
-		});
+		createPuzzle();
+		// const savedBoardStateMeta = localStorage.getItem("saved-board-state-meta");
+		// if (!savedBoardStateMeta) return;
+		// const { numPieces, scaleFactorX, scaleFactorY } =
+		// 	JSON.parse(savedBoardStateMeta);
+		// const pieces = [];
+		// for (let i = 0; i < numPieces; i++) {
+		// 	pieces.push(
+		// 		JSON.parse(localStorage.getItem(`saved-board-state-piece-${i}`)!),
+		// 	);
+		// }
+		// console.log({ pieces });
+		// await cutAndPlacePieces({
+		// 	pieces,
+		// 	scaleFactorX,
+		// 	scaleFactorY,
+		// 	imageSrc: previewImageElement.src,
+		// });
 	});
 }
 
 function saveBoardState() {
-	localStorage.setItem('saved-image', previewImageElement.src)
+	localStorage.setItem("saved-image", previewImageElement.src);
 	localStorage.setItem(
 		"saved-board-state-meta",
 		JSON.stringify({
-			numPieces: allPieces.length,
+			numPieces: board.length,
 			scaleFactorX: pieceCreator?.widthDimensions.scaleToFitLengthFactor,
 			scaleFactorY: pieceCreator?.heightDimensions.scaleToFitLengthFactor,
 		}),
 	);
-	allPieces.forEach((piece, index) => {
+	board.forEach((piece, index) => {
 		localStorage.setItem(
 			`saved-board-state-piece-${index}`,
 			JSON.stringify(piece),

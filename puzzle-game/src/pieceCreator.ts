@@ -1,4 +1,5 @@
-import { PIECE_DIMENSIONS, pieceDefinitions } from "./divPieces";
+import { pieceDefinitions } from "./divPieces";
+import { findFittingPiece } from "./piecePicker";
 
 type PieceDefinition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 interface CreateRowWithPiecesParams {
@@ -118,14 +119,17 @@ export class PieceCreator {
 		return { piecesPlaced };
 	};
 
-	createFirstRow = (
+	private createFirstRow = (
 		numMiddlePieces: CreateRowWithPiecesParams["numMiddlePieces"],
 	) => {
 		const { piecesPlaced } = this.createRowWithPieces({
 			numMiddlePieces,
 			rowIndex: 0,
 			startPiece: pieceDefinitions.cornerPieceLeftTop1,
-			middlePieces: [pieceDefinitions.sidePieceTop4, pieceDefinitions.sidePieceTop1],
+			middlePieces: [
+				pieceDefinitions.sidePieceTop4,
+				pieceDefinitions.sidePieceTop1,
+			],
 		});
 		piecesPlaced.push({
 			boundingBox: [
@@ -141,11 +145,61 @@ export class PieceCreator {
 					y: this.pieceSize * this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			definition: pieceDefinitions.cornerPieceRightTop1,
+			definition: pieceDefinitions.cornerPieceTopRight1,
 		});
 		return piecesPlaced;
 	};
 
+	createRandom() {
+		const pieces: ReturnType<typeof this.create>[] = [];
+		for (let j = 0; j < this.heightDimensions.numMiddlePieces + 2; j++) {
+			// for (let j = 0; j < 5; j++) {
+			const row: PieceEntity[] = [];
+			let toTheLeft = undefined;
+			let toTheTop = undefined;
+			const isLastRow = j === this.heightDimensions.numMiddlePieces + 1;
+			for (let i = 0; i < this.widthDimensions.numMiddlePieces + 2; i++) {
+				toTheTop = pieces[j - 1]?.[i]?.definition.sides.bottom;
+				const pieceDef = findFittingPiece({
+					toTheLeft,
+					toTheTop,
+					lastInRow: i === this.widthDimensions.numMiddlePieces + 1,
+					isLastRow,
+				});
+				if(!pieceDef){
+					console.log({ i, j, pieceDef });
+				}
+				row.push({
+					boundingBox: [
+						{
+							x:
+								i *
+								this.pieceSize *
+								this.widthDimensions.scaleToFitLengthFactor,
+							y:
+								j *
+								this.pieceSize *
+								this.heightDimensions.scaleToFitLengthFactor,
+						},
+						{
+							x:
+								(i + 1) *
+								this.pieceSize *
+								this.widthDimensions.scaleToFitLengthFactor,
+							y:
+								(j + 1) *
+								this.pieceSize *
+								this.heightDimensions.scaleToFitLengthFactor,
+						},
+					],
+					definition: pieceDef,
+				});
+				toTheLeft = pieceDef.sides.right;
+			}
+			pieces.push(row);
+		}
+		return pieces;
+	}
 	create() {
 		const allPieces = this.createFirstRow(this.widthDimensions.numMiddlePieces);
 
@@ -164,7 +218,7 @@ export class PieceCreator {
 			middlePieces: [
 				pieceDefinitions.sidePieceBottom2,
 				// sidePiece3Holed,
-				pieceDefinitions.sidePieceBottom,
+				pieceDefinitions.sidePieceBottom1,
 				// sidePiece3Holed,
 				// sidePiece4_180deg,
 			],
@@ -194,7 +248,7 @@ export class PieceCreator {
 						this.heightDimensions.scaleToFitLengthFactor,
 				},
 			],
-			definition: pieceDefinitions.cornerPieceBottomRight1,
+			definition: pieceDefinitions.cornerPieceRightBottom1,
 		});
 	}
 
@@ -227,7 +281,7 @@ export class PieceCreator {
 			},
 		];
 
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < rowPieces.length; i++) {
 			const { endPiece, middlePieces, startPiece } =
 				rowPieces[i % rowPieces.length];
 

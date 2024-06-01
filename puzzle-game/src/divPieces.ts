@@ -2,7 +2,7 @@ export const PIECE_EAR_SIZE = Object.freeze(15);
 export const PIECE_DIMENSIONS = Object.freeze(50);
 
 type Side = "ear" | "hole" | "flat";
-interface PieceDefinition {
+interface Piece {
 	width: number;
 	height: number;
 	sides: {
@@ -14,9 +14,13 @@ interface PieceDefinition {
 	path: string;
 }
 
-interface PieceDefinitions {
-	[key: string]: PieceDefinition;
+interface PiecesLookup {
+	[key: string]: Piece;
 }
+
+export type PieceDefinition =
+	(typeof pieceDefinitions)[keyof typeof pieceDefinitions];
+
 export const pieceDefinitions = {
 	centerPiece1: {
 		height: 80,
@@ -33,7 +37,7 @@ export const pieceDefinitions = {
 		height: 65,
 		path: "M 15 15 H 30 C 25 -5 55 -5 50 15 H 65 V 30 C 45 25 45 55 65 50 V 65 H 50 C 55 85 25 85 30 65 H 15 V 50 C -5 55 -5 25 15 30 Z",
 		sides: {
-			bottom: "ear",
+			bottom: "flat",
 			left: "ear",
 			right: "hole",
 			top: "ear",
@@ -85,15 +89,15 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	centerPiece7: {
-		height: 65,
+		height: 80,
 		path: "M 15 15 H 30 C 25 -5 55 -5 50 15 H 65 V 30 C 85 25 85 55 65 50 V 65 H 50 C 55 85 25 85 30 65 H 15 V 50 C -5 55 -5 25 15 30 Z",
 		sides: {
 			bottom: "ear",
-			left: "hole",
-			right: "hole",
-			top: "hole",
+			left: "ear",
+			right: "ear",
+			top: "ear",
 		},
-		width: 50,
+		width: 80,
 	},
 	centerPiece8: {
 		height: 50,
@@ -129,7 +133,7 @@ export const pieceDefinitions = {
 		width: 80,
 	},
 	centerPiece11: {
-		height: 65,
+		height: 80,
 		path: "M 65 15 V 30 C 45 25 45 55 65 50 V 65 H 50 C 55 85 25 85 30 65 H 15 V 50 C -5 55 -5 25 15 30 V 15 H 30 C 25 -5 55 -5 50 15 Z",
 		sides: {
 			bottom: "ear",
@@ -148,9 +152,9 @@ export const pieceDefinitions = {
 			right: "ear",
 			top: "hole",
 		},
-		width: 65,
+		width: 80,
 	},
-	cornerPieceBottomRight1: {
+	cornerPieceRightBottom1: {
 		height: 65,
 		path: "M 50 15 V 65 H 0 V 50 C 20 55 20 25 0 30 V 15 H 15 C 10 -5 40 -5 35 15 Z",
 		sides: {
@@ -158,6 +162,39 @@ export const pieceDefinitions = {
 			left: "hole",
 			right: "flat",
 			top: "ear",
+		},
+		width: 50,
+	},
+	cornerPieceRightBottom2: {
+		height: 65,
+		path: "M 65 15 V 65 H 15 V 50 C -5 55 -5 25 15 30 V 15 H 30 C 25 -5 55 -5 50 15 Z",
+		sides: {
+			bottom: "flat",
+			left: "ear",
+			right: "flat",
+			top: "ear",
+		},
+		width: 65,
+	},
+	cornerPieceRightBottom3: {
+		height: 50,
+		path: "M 65 0 V 50 H 15 V 35 C -5 40 -5 10 15 15 V 0 H 30 C 25 20 55 20 50 0 Z",
+		sides: {
+			bottom: "flat",
+			left: "ear",
+			right: "flat",
+			top: "hole",
+		},
+		width: 65,
+	},
+	cornerPieceRightBottom4: {
+		height: 50,
+		path: "M 50 0 V 50 H 0 V 35 C 20 40 20 10 0 15 V 0 H 15 C 10 20 40 20 35 0 Z",
+		sides: {
+			bottom: "flat",
+			left: "hole",
+			right: "flat",
+			top: "hole",
 		},
 		width: 50,
 	},
@@ -249,7 +286,7 @@ export const pieceDefinitions = {
 		},
 		width: 50,
 	},
-	cornerPieceRightTop1: {
+	cornerPieceTopRight1: {
 		height: 50,
 		path: "M 15 0 H 65 V 50 H 50 C 55 30 25 30 30 50 H 15 V 35 C -5 40 -5 10 15 15 V 0 Z",
 		sides: {
@@ -260,7 +297,7 @@ export const pieceDefinitions = {
 		},
 		width: 65,
 	},
-	cornerPieceRightTop2: {
+	cornerPieceTopRight2: {
 		height: 65,
 		path: "M 0 0 H 50 V 50 H 35 C 40 70 10 70 15 50 H 0 V 35 C 20 40 20 10 0 15 V 0 Z",
 		sides: {
@@ -271,7 +308,7 @@ export const pieceDefinitions = {
 		},
 		width: 50,
 	},
-	cornerPieceRightTop3: {
+	cornerPieceTopRight3: {
 		height: 50,
 		path: "M 0 0 H 50 V 50 H 35 C 40 30 10 30 15 50 H 0 V 35 C 20 40 20 10 0 15 V 0 Z",
 		sides: {
@@ -282,7 +319,7 @@ export const pieceDefinitions = {
 		},
 		width: 50,
 	},
-	cornerPieceRightTop4: {
+	cornerPieceTopRight4: {
 		height: 65,
 		path: "M 15 0 H 65 V 50 H 50 C 55 70 25 70 30 50 H 15 V 35 C -5 40 -5 10 15 15 V 0 Z",
 		sides: {
@@ -293,7 +330,7 @@ export const pieceDefinitions = {
 		},
 		width: 65,
 	},
-	sidePieceBottom: {
+	sidePieceBottom1: {
 		height: 50,
 		path: "M 50 50 H 0 V 35 C 20 40 20 10 0 15 V 0 H 15 C 10 20 40 20 35 0 H 50 V 15 C 70 10 70 40 50 35 Z",
 		sides: {
@@ -335,7 +372,7 @@ export const pieceDefinitions = {
 			right: "ear",
 			top: "hole",
 		},
-		width: 65,
+		width: 80,
 	},
 	sidePieceBottom5: {
 		height: 65,
@@ -382,15 +419,15 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	sidePieceLeft3: {
-		height: 65,
-		path: "M 0 65 V 15 H 15 C 10 35 40 35 35 15 H 50 V 30 C 30 25 30 55 50 50 V 65 H 35 C 40 45 10 45 15 65 Z",
+		height: 50,
+		path: "M 0 50 V 0 H 15 C 10 20 40 20 35 0 H 50 V 15 C 30 10 30 40 50 35 V 50 H 35 C 40 30 10 30 15 50 Z",
 		sides: {
 			bottom: "hole",
 			left: "flat",
 			right: "hole",
 			top: "hole",
 		},
-		width: 65,
+		width: 50,
 	},
 	sidePieceLeft4: {
 		height: 65,
@@ -428,7 +465,7 @@ export const pieceDefinitions = {
 	sidePieceRight1: {
 		width: 65,
 		height: 50,
-		path: "M 65 15 V 65 H 50 C 55 45 25 45 30 65 H 15 V 50 C -5 55 -5 25 15 30 V 15 H 30 C 25 35 55 35 50 15 Z",
+		path: "M 65 0 V 50 H 50 C 55 30 25 30 30 50 H 15 V 35 C -5 40 -5 10 15 15 V 0 H 30 C 25 20 55 20 50 0 Z",
 		sides: {
 			bottom: "hole",
 			left: "ear",
@@ -446,17 +483,6 @@ export const pieceDefinitions = {
 			top: "ear",
 		},
 		width: 65,
-	},
-	sidePieceRight3: {
-		height: 65,
-		path: "M 50 15 V 65 H 35 C 40 45 10 45 15 65 H 0 V 50 C 20 55 20 25 0 30 V 15 H 15 C 10 -5 40 -5 35 15 Z",
-		sides: {
-			bottom: "hole",
-			left: "hole",
-			right: "flat",
-			top: "ear",
-		},
-		width: 50,
 	},
 	sidePieceRight4: {
 		height: 65,
@@ -548,7 +574,7 @@ export const pieceDefinitions = {
 		width: 50,
 	},
 	sidePieceTop6: {
-		path: "M 15 0 H 65 V 15 C 45 10 45 40 65 35 V 50 H 50 C 55 70 25 70 30 50 H 15 V 35 C 35 40 35 10 15 15 Z",
+		path: "M 0 0 H 50 V 15 C 30 10 30 40 50 35 V 50 H 35 C 40 70 10 70 15 50 H 0 V 35 C 20 40 20 10 0 15 Z",
 		sides: {
 			top: "flat",
 			right: "hole",
@@ -558,4 +584,4 @@ export const pieceDefinitions = {
 		width: 50,
 		height: 65,
 	},
-} as const satisfies PieceDefinitions;
+} as const satisfies PiecesLookup;
