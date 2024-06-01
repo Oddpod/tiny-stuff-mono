@@ -1,16 +1,16 @@
 import { PIECE_DIMENSIONS, pieceDefinitions } from "./divPieces";
 
-type PieceDefition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
+type PieceDefinition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 interface CreateRowWithPiecesParams {
-	startPiece: PieceDefition;
-	middlePieces: PieceDefition[];
+	startPiece: PieceDefinition;
+	middlePieces: PieceDefinition[];
 	numMiddlePieces: number;
 	rowIndex: number;
 }
 
 export interface PieceEntity {
 	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
-	definition: PieceDefition;
+	definition: PieceDefinition;
 }
 
 interface PieceCreatorParams {
@@ -32,7 +32,7 @@ function getFitBoardDimensions({
 	const scaleToFitLengthFactor = 1 + (rest - pieceGap) / numWholePieces;
 	const numMiddlePieces = numWholePieces - 2;
 
-	return { scaleToFitLengthFactor: 1, numMiddlePieces };
+	return { scaleToFitLengthFactor, numMiddlePieces };
 }
 
 export class PieceCreator {
@@ -227,7 +227,7 @@ export class PieceCreator {
 			},
 		];
 
-		for (let i = 0; i < numRows; i++) {
+		for (let i = 0; i < 3; i++) {
 			const { endPiece, middlePieces, startPiece } =
 				rowPieces[i % rowPieces.length];
 

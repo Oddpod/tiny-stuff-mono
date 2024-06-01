@@ -1,6 +1,22 @@
 export const PIECE_EAR_SIZE = Object.freeze(15);
 export const PIECE_DIMENSIONS = Object.freeze(50);
 
+type Side = "ear" | "hole" | "flat";
+interface PieceDefinition {
+	width: number;
+	height: number;
+	sides: {
+		bottom: Side;
+		top: Side;
+		left: Side;
+		right: Side;
+	};
+	path: string;
+}
+
+interface PieceDefinitions {
+	[key: string]: PieceDefinition;
+}
 export const pieceDefinitions = {
 	centerPiece1: {
 		height: 80,
@@ -201,6 +217,8 @@ export const pieceDefinitions = {
 		path: "M 0 0 H 50 V 15 C 30 10 30 40 50 35 V 50 H 35 C 40 30 10 30 15 50 H 0 Z",
 	},
 	cornerPieceLeftTop3: {
+		width: 65,
+		height: 50,
 		path: "M 0 0 H 50 V 15 C 70 10 70 40 50 35 V 50 H 35 C 40 30 10 30 15 50 H 0 Z",
 		sides: {
 			top: "flat",
@@ -210,6 +228,8 @@ export const pieceDefinitions = {
 		},
 	},
 	cornerPieceLeftTop4: {
+		width: 65,
+		height: 65,
 		path: "M 0 0 H 50 V 15 C 70 10 70 40 50 35 V 50 H 35 C 40 70 10 70 15 50 H 0 Z",
 		sides: {
 			top: "flat",
@@ -329,6 +349,8 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	sidePieceBottom6: {
+		height: 65,
+		width: 50,
 		path: "M 50 65 H 0 V 50 C 20 55 20 25 0 30 V 15 H 15 C 10 -5 40 -5 35 15 H 50 V 30 C 30 25 30 55 50 50 Z",
 		sides: {
 			top: "ear",
@@ -493,6 +515,8 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	sidePieceTop3: {
+		width: 80,
+		height: 65,
 		path: "M 15 0 H 65 V 15 C 85 10 85 40 65 35 V 50 H 50 C 55 70 25 70 30 50 H 15 V 35 C -5 40 -5 10 15 15 Z",
 		sides: {
 			bottom: "ear",
@@ -534,4 +558,4 @@ export const pieceDefinitions = {
 		width: 50,
 		height: 65,
 	},
-} as const;
+} as const satisfies PieceDefinitions;

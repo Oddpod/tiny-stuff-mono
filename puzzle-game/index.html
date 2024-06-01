@@ -9,10 +9,17 @@
   <body>
     <div id="app">
       <!-- <canvas id="canvas"></canvas> -->
-      <div id="board"></div>
+      <div class="board-container">
+        <div id="board"></div>
+      </div>
       <div class="helpers" width="400">
-        <img id="image" height="300" src="/splash/Lux_1.jpg" />
-        <canvas id="canvasForCropping" width="300" height="200"></canvas>
+        <img id="image" height="300" />
+        <label
+          >Upload image
+          <input type="file" id="file-upload" />
+        </label>
+        <button id="load-button">Load</button>
+        <!-- <canvas id="canvasForCropping" width="300" height="200"></canvas> -->
         <!-- <div id="firstDiv" draggable="true" class="piece"></div> -->
         <!-- <div id="secondDiv" draggable="true" class="piece"></div> -->
       </div>
