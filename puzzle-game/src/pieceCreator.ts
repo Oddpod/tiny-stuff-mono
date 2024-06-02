@@ -1,8 +1,9 @@
-import type { pieceDefinitions } from "./divPieces";
+import type { pieceDefinitions } from "./pieceDefintions";
 import { findFittingPiece } from "./piecePicker";
 
 type PieceDefinition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 export interface PieceEntity {
+	id: number;
 	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
 	definition: PieceDefinition;
 }
@@ -14,7 +15,7 @@ interface PieceCreatorParams {
 	pieceGap?: number;
 }
 
-function getFitBoardDimensions({
+export function getFitBoardDimensions({
 	length,
 	pieceSize,
 	pieceGap,
@@ -35,6 +36,7 @@ export class PieceCreator {
 	heightDimensions: { scaleToFitLengthFactor: number; numMiddlePieces: number };
 	pieceSize: number;
 	pieceGap: number;
+	uniqueCounter: number;
 	constructor({
 		boardWidth,
 		boardHeight,
@@ -53,6 +55,7 @@ export class PieceCreator {
 			pieceSize,
 			pieceGap,
 		});
+		this.uniqueCounter = 0;
 	}
 
 	private scaleToFitWidth = () => {
@@ -81,6 +84,7 @@ export class PieceCreator {
 					isLastRow,
 				});
 				row.push({
+					id: this.uniqueCounter++,
 					boundingBox: [
 						{
 							x: i * this.scaleToFitWidth(),

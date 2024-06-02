@@ -1,4 +1,4 @@
-import { PIECE_DIMENSIONS } from "./divPieces";
+import { PIECE_DIMENSIONS } from "./pieceDefintions";
 import type { PieceEntity } from "./pieceCreator";
 
 interface PieceCutterParams {
@@ -75,8 +75,8 @@ export class PieceCutter {
 			// 		clip-path: path("${piece.definition.path}");
 			croppedImage.onload = () => {
 				const style = `
-					top: ${shiftedTopY}px;
-					left: ${shiftedLeftX}px;
+					// top: ${shiftedTopY}px;
+					// left: ${shiftedLeftX}px;
 					width: ${scaledUpWidth}px;
 					height: ${scaledUpHeight}px;
 				`;

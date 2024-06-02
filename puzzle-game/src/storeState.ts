@@ -1,10 +1,11 @@
 import { previewFile } from "./previewFile";
 import type { PieceEntity } from "./pieceCreator";
-import type { BoardCreator } from "./board";
+import type { BoardCreator, PiecePositionLookup } from "./board";
+import { deserialize, serialize } from "./serilizationUtils";
 
 type OnLoadedCallbackParams = Parameters<
-	ReturnType<typeof BoardCreator>["cutAndPlacePieces"]
->[0];
+	typeof BoardCreator.prototype.cutAndPlacePieces
+>[0] & { piecePositions: PiecePositionLookup; board: PieceEntity[][] };
 
 type SavedBoardMeta = {
 	rowNum: number;
@@ -20,15 +21,19 @@ export async function loadSavedState(
 				"saved-board-state-meta",
 			);
 			if (!savedBoardStateMeta) return;
-			const { rowNum, colNum, scaleFactorX, scaleFactorY } = JSON.parse(
-				savedBoardStateMeta,
-			) as SavedBoardMeta;
+			const { rowNum, colNum, scaleFactorX, scaleFactorY } =
+				deserialize<SavedBoardMeta>(savedBoardStateMeta);
+
+			const savedPiecePositions = localStorage.getItem("piece-positions");
+			if (!savedPiecePositions) return;
+			const piecePositions =
+				deserialize<PiecePositionLookup>(savedPiecePositions);
 			const board = [];
 			for (let i = 0; i < rowNum; i++) {
 				const row = [];
 				for (let j = 0; j < colNum; j++) {
 					row.push(
-						JSON.parse(
+						deserialize(
 							localStorage.getItem(`saved-board-state-piece-${i}-${j}`)!,
 						),
 					);
@@ -40,6 +45,7 @@ export async function loadSavedState(
 				scaleFactorX,
 				imageSrc,
 				scaleFactorY,
+				piecePositions,
 			});
 		},
 		(imageSrc) => onDefaultImageLoadedCallback(imageSrc),
@@ -51,19 +57,22 @@ interface SaveBoardStateParams {
 	board: PieceEntity[][];
 	scaleFactorX: number;
 	scaleFactorY: number;
+	piecePositions: PiecePositionLookup;
 }
 export function saveBoardState({
 	imageSrc,
 	scaleFactorX,
 	scaleFactorY,
 	board,
+	piecePositions,
 }: SaveBoardStateParams) {
+	console.log({ board });
 	localStorage.setItem("saved-image", imageSrc);
 	localStorage.setItem(
 		"saved-board-state-meta",
-		JSON.stringify({
+		serialize({
 			rowNum: board.length,
-			colNum: board[1].length,
+			colNum: board[0].length,
 			scaleFactorX,
 			scaleFactorY,
 		} satisfies SavedBoardMeta),
@@ -72,8 +81,9 @@ export function saveBoardState({
 		row.forEach((piece, colIndex) => {
 			localStorage.setItem(
 				`saved-board-state-piece-${rowIndex}-${colIndex}`,
-				JSON.stringify(piece),
+				serialize(piece),
 			);
 		});
 	});
+	localStorage.setItem("piece-positions", serialize(piecePositions));
 }

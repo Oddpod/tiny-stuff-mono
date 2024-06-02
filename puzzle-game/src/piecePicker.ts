@@ -1,4 +1,4 @@
-import { pieceDefinitions, type PieceDefinition } from "./divPieces";
+import { pieceDefinitions, type PieceDefinition } from "./pieceDefintions";
 import { getRandom } from "./utils";
 
 interface FindFittingPieceParams {
@@ -58,8 +58,7 @@ const centerPieces = [
 const rightSidePieces = [
 	pieceDefinitions.sidePieceRight1,
 	pieceDefinitions.sidePieceRight2,
-	// TODO: Add missing piece
-	// pieceDefinitions.sidePieceRight3,
+	pieceDefinitions.sidePieceRight3,
 	pieceDefinitions.sidePieceRight4,
 	pieceDefinitions.sidePieceRight5,
 	pieceDefinitions.sidePieceRight6,
