@@ -66,3 +66,13 @@
 figure > figcaption {
   text-align: center;
 }
+
+.row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.row > * {
+  margin-bottom: 0;
+}

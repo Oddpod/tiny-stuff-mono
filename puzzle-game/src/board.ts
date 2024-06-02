@@ -27,6 +27,9 @@ export function BoardCreator({
 	pieceGap,
 	pieceMovedCallback,
 }: BoardParams) {
+	function setPieceSize(newSize: number) {
+		pieceSize = newSize;
+	}
 	function createPuzzle(imageSrc: string) {
 		if (!imageSrc) return;
 		boardElement.innerHTML = "";
@@ -61,12 +64,8 @@ export function BoardCreator({
 				img1.width - (img1.width % pieceSize),
 				boardContainer.clientWidth,
 			);
-			// const boardWidth = img1.width - (img1.width % PIECE_SIZE);
-			// const boardHeight = Math.min(
-			// 	img1.height - (img1.height % PIECE_SIZE),
-			// 	boardContainer.clientHeight,
-			// );
-			const boardHeight = img1.height - (img1.height % pieceSize);
+			const aspectRatio = img1.height / img1.width;
+			const boardHeight = aspectRatio * boardWidth;
 			document.documentElement.style.setProperty(
 				"--board-width",
 				`${boardWidth.toString()}px`,
@@ -95,5 +94,5 @@ export function BoardCreator({
 			}
 		};
 	}
-	return { createPuzzle, cutAndPlacePieces };
+	return { createPuzzle, cutAndPlacePieces, setPieceSize };
 }

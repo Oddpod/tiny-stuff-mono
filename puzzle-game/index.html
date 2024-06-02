@@ -16,11 +16,21 @@
         <figure id="image-figure">
           <img id="image" height="300" />
         </figure>
-        <label
-          >Upload image
+        <label>
+          Upload and use your own image
           <input type="file" id="file-upload" />
         </label>
         <div>
+          <div class="row">
+            <label for="select-piece-size">Piece size: </label>
+            <select id="select-piece-size">
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="150">150</option>
+              <option value="200">200</option>
+            </select>
+          </div>
+
           <button id="reset-button">Reset</button>
           <button id="load-button">Load</button>
         </div>

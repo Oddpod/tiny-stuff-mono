@@ -2,6 +2,7 @@ import "./style.css";
 import { previewFile, resetToDefaultImage } from "./previewFile";
 import { loadSavedState, saveBoardState } from "./storeState";
 import { BoardCreator } from "./board";
+import { PIECE_EAR_SIZE } from "./divPieces";
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
 export const fileUpload = document.getElementById(
@@ -19,14 +20,22 @@ let createdPuzzle: ReturnType<
 	ReturnType<typeof BoardCreator>["createPuzzle"]
 > | null = null;
 // TODO: Use this to scale pieces in pieceCreator?
-const PIECE_SIZE = Object.freeze(100 as const);
 const PIECE_GAP = Object.freeze(0 as const);
+const DEFAULT_PIECE_SIZE = Object.freeze(200 as const);
+const pieceSizeSelector = document.getElementById(
+	"select-piece-size",
+)! as HTMLSelectElement;
 
 const boardCreator = BoardCreator({
 	boardElement,
 	pieceGap: PIECE_GAP,
-	pieceSize: PIECE_SIZE,
+	pieceSize: Number(pieceSizeSelector.value),
 	pieceMovedCallback,
+});
+
+pieceSizeSelector.addEventListener("change", (event) => {
+	const target = event.target as HTMLSelectElement;
+	boardCreator.setPieceSize(Number(target.value ?? DEFAULT_PIECE_SIZE));
 });
 
 function pieceMovedCallback() {
@@ -40,17 +49,23 @@ function pieceMovedCallback() {
 
 fileUpload?.addEventListener("change", () => previewFile());
 
-const loadButton = document.getElementById("load-button");
+const loadButton = document.getElementById("load-button") as HTMLButtonElement;
 loadButton?.addEventListener("click", () => {
 	createdPuzzle = boardCreator.createPuzzle(previewImageElement.src);
 });
 const resetButton = document.getElementById("reset-button")!;
 resetButton.addEventListener("click", () => {
-	localStorage.clear();
-	resetToDefaultImage();
-	boardCreator.createPuzzle(previewImageElement.src);
+	try {
+		loadButton.setAttribute("disabled", "");
+		localStorage.clear();
+		resetToDefaultImage();
+		boardCreator.createPuzzle(previewImageElement.src);
+	} finally {
+		setTimeout(() => loadButton.removeAttribute("disabled"), 500);
+	}
 });
 loadSavedState(
 	(params) => boardCreator.cutAndPlacePieces(params),
-	() => boardCreator.createPuzzle(previewImageElement.src),
+	() =>
+		console.log({ board: boardCreator.createPuzzle(previewImageElement.src) }),
 );
