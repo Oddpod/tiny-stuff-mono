@@ -15,8 +15,8 @@ export interface PieceEntity {
 }
 
 interface PieceCreatorParams {
-	canvasWidth: number;
-	canvasHeight: number;
+	boardWidth: number;
+	boardHeight: number;
 	pieceSize: number;
 	pieceGap?: number;
 }
@@ -33,6 +33,7 @@ function getFitBoardDimensions({
 	const scaleToFitLengthFactor = 1 + (rest - pieceGap) / numWholePieces;
 	const numMiddlePieces = numWholePieces - 2;
 
+	// TODO: Fix imprecise cuttong when using scalefactor != 1
 	return { scaleToFitLengthFactor, numMiddlePieces };
 }
 
@@ -42,20 +43,20 @@ export class PieceCreator {
 	pieceSize: number;
 	pieceGap: number;
 	constructor({
-		canvasWidth,
-		canvasHeight,
+		boardWidth,
+		boardHeight,
 		pieceSize,
 		pieceGap = 0.0,
 	}: PieceCreatorParams) {
 		this.pieceSize = pieceSize;
 		this.pieceGap = pieceGap;
 		this.widthDimensions = getFitBoardDimensions({
-			length: canvasWidth,
+			length: boardWidth,
 			pieceSize,
 			pieceGap,
 		});
 		this.heightDimensions = getFitBoardDimensions({
-			length: canvasHeight,
+			length: boardHeight,
 			pieceSize,
 			pieceGap,
 		});
@@ -166,9 +167,6 @@ export class PieceCreator {
 					lastInRow: i === this.widthDimensions.numMiddlePieces + 1,
 					isLastRow,
 				});
-				if(!pieceDef){
-					console.log({ i, j, pieceDef });
-				}
 				row.push({
 					boundingBox: [
 						{

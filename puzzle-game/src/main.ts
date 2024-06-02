@@ -1,160 +1,56 @@
-import { PieceCutter } from "./pieceCutter";
-import { makePieceDraggable } from "./makePieceDraggable";
-import { PieceCreator, type PieceEntity } from "./pieceCreator";
-import { shuffle } from "./shuffle";
 import "./style.css";
-
-const app = document.querySelector<HTMLDivElement>("#app")!;
-
-let board: PieceEntity[][] = [];
+import { previewFile, resetToDefaultImage } from "./previewFile";
+import { loadSavedState, saveBoardState } from "./storeState";
+import { BoardCreator } from "./board";
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
-const fileUpload = document.getElementById("file-upload") as HTMLInputElement;
-const previewImageElement = (document.getElementById(
+export const fileUpload = document.getElementById(
+	"file-upload",
+) as HTMLInputElement;
+export const previewImageElement = (document.getElementById(
 	"image",
 ) as HTMLImageElement)!;
 
 if (!boardElement) {
 	throw Error("No board div element");
 }
+
+let createdPuzzle: ReturnType<
+	ReturnType<typeof BoardCreator>["createPuzzle"]
+> | null = null;
 // TODO: Use this to scale pieces in pieceCreator?
-const PIECE_SIZE = Object.freeze(50 as const);
+const PIECE_SIZE = Object.freeze(100 as const);
 const PIECE_GAP = Object.freeze(0 as const);
-let pieceCreator: PieceCreator | null = null;
-function createPuzzle() {
-	boardElement.innerHTML = "";
 
-	pieceCreator = new PieceCreator({
-		canvasHeight: boardElement.clientHeight,
-		canvasWidth: boardElement.clientWidth,
-		pieceSize: PIECE_SIZE,
-		pieceGap: PIECE_GAP,
-	});
-	board = pieceCreator.createRandom();
+const boardCreator = BoardCreator({
+	boardElement,
+	pieceGap: PIECE_GAP,
+	pieceSize: PIECE_SIZE,
+	pieceMovedCallback,
+});
 
-	console.log({ allPieces: board });
-	cutAndPlacePieces({
-		board,
-		scaleFactorX: pieceCreator.widthDimensions.scaleToFitLengthFactor,
-		scaleFactorY: pieceCreator.heightDimensions.scaleToFitLengthFactor,
+function pieceMovedCallback() {
+	saveBoardState({
+		board: createdPuzzle!.board,
 		imageSrc: previewImageElement.src,
+		scaleFactorX: createdPuzzle!.meta.scaleFactorX,
+		scaleFactorY: createdPuzzle!.meta.scaleFactorY,
 	});
 }
 
-let loadedImage = null;
-interface CutAndPlacePiecesParams {
-	board: PieceEntity[][];
-	scaleFactorX: number;
-	scaleFactorY: number;
-	imageSrc: string;
-}
-
-async function cutAndPlacePieces({
-	scaleFactorY,
-	scaleFactorX,
-	board,
-	imageSrc,
-}: CutAndPlacePiecesParams) {
-	const img1 = new Image();
-	img1.src = imageSrc;
-	img1.onload = async () => {
-		// const boardWidth = Math.min(img1.width - (img1.width % PIECE_SIZE), 500);
-		const boardWidth = img1.width - (img1.width % PIECE_SIZE);
-		// const boardHeight = Math.min(img1.height - (img1.height % PIECE_SIZE), 300);
-		const boardHeight = img1.height - (img1.height % PIECE_SIZE);
-		document.documentElement.style.setProperty(
-			"--board-width",
-			`${boardWidth.toString()}px`,
-		);
-		document.documentElement.style.setProperty(
-			"--board-height",
-			`${boardHeight.toString()}px`,
-		);
-
-		shuffle(board);
-
-		const pieceCutter = new PieceCutter({
-			imageElement: img1,
-			pieceSize: PIECE_SIZE,
-			scaleFactorX,
-			scaleFactorY,
-		});
-		for (let i = 0; i < board.length; i++) {
-			const row = board[i];
-			for (let j = 0; j < row.length; j++) {
-				const piece = row[j];
-				const newPiece = await pieceCutter.cutPieceFromImage(piece);
-				makePieceDraggable(newPiece, () => saveBoardState());
-				boardElement.appendChild(newPiece);
-			}
-		}
-	};
-}
-
-async function loadSavedState() {
-	previewFile(async () => {
-		createPuzzle();
-		// const savedBoardStateMeta = localStorage.getItem("saved-board-state-meta");
-		// if (!savedBoardStateMeta) return;
-		// const { numPieces, scaleFactorX, scaleFactorY } =
-		// 	JSON.parse(savedBoardStateMeta);
-		// const pieces = [];
-		// for (let i = 0; i < numPieces; i++) {
-		// 	pieces.push(
-		// 		JSON.parse(localStorage.getItem(`saved-board-state-piece-${i}`)!),
-		// 	);
-		// }
-		// console.log({ pieces });
-		// await cutAndPlacePieces({
-		// 	pieces,
-		// 	scaleFactorX,
-		// 	scaleFactorY,
-		// 	imageSrc: previewImageElement.src,
-		// });
-	});
-}
-
-function saveBoardState() {
-	localStorage.setItem("saved-image", previewImageElement.src);
-	localStorage.setItem(
-		"saved-board-state-meta",
-		JSON.stringify({
-			numPieces: board.length,
-			scaleFactorX: pieceCreator?.widthDimensions.scaleToFitLengthFactor,
-			scaleFactorY: pieceCreator?.heightDimensions.scaleToFitLengthFactor,
-		}),
-	);
-	board.forEach((piece, index) => {
-		localStorage.setItem(
-			`saved-board-state-piece-${index}`,
-			JSON.stringify(piece),
-		);
-	});
-}
-
-function previewFile(onLoadedCallback = (_: string) => {}) {
-	const file = fileUpload.files?.[0];
-	if (!file) {
-		previewImageElement.src = "";
-		return;
-	}
-
-	if (!file?.type.includes("image")) {
-		return alert("Only images are allowed!");
-	}
-	const reader = new FileReader();
-
-	reader.onloadend = () => {
-		if (!reader.result) return;
-		loadedImage = reader.result as string;
-		previewImageElement.src = loadedImage;
-		onLoadedCallback?.(loadedImage);
-	};
-
-	reader.readAsDataURL(file);
-}
 fileUpload?.addEventListener("change", () => previewFile());
 
 const loadButton = document.getElementById("load-button");
-loadButton?.addEventListener("click", () => createPuzzle());
-loadSavedState();
+loadButton?.addEventListener("click", () => {
+	createdPuzzle = boardCreator.createPuzzle(previewImageElement.src);
+});
+const resetButton = document.getElementById("reset-button")!;
+resetButton.addEventListener("click", () => {
+	localStorage.clear();
+	resetToDefaultImage();
+	boardCreator.createPuzzle(previewImageElement.src);
+});
+loadSavedState(
+	(params) => boardCreator.cutAndPlacePieces(params),
+	() => boardCreator.createPuzzle(previewImageElement.src),
+);

@@ -5,21 +5,25 @@
     <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>A puzzle game</title>
-    <link rel="stylesheet" href="https://unpkg.com/mvp.css"> 
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
   </head>
   <body>
     <div id="app">
-      <!-- <canvas id="canvas"></canvas> -->
-      <div class="board-container">
+      <div id="board-container">
         <div id="board"></div>
       </div>
       <div class="helpers" width="400">
-        <img id="image" height="300" />
+        <figure id="image-figure">
+          <img id="image" height="300" />
+        </figure>
         <label
           >Upload image
           <input type="file" id="file-upload" />
         </label>
-        <button id="load-button">Load</button>
+        <div>
+          <button id="reset-button">Reset</button>
+          <button id="load-button">Load</button>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

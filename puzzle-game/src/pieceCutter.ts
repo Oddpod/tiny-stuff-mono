@@ -49,8 +49,6 @@ export class PieceCutter {
 			const shiftedLeftX = Math.max(0, piece.boundingBox[0].x - shiftLeftBy);
 			const shiftedTopY = Math.max(0, piece.boundingBox[0].y - shiftTopBy);
 
-			// console.log({ shiftLeftBy, shiftedLeftX });
-			// console.log(piece.boundingBox[0]);
 			const scaledUpWidth =
 				(piece.definition.width * this.pieceSize) / PIECE_DIMENSIONS;
 			const scaledUpHeight =
@@ -66,10 +64,6 @@ export class PieceCutter {
 				0,
 				Math.max(piece.definition.width, this.canvasForCropping.width),
 				Math.max(piece.definition.height, this.canvasForCropping.height),
-				// canvasForCropping.width,
-				// canvasForCropping.height,
-				// piece.definition.width,
-				// piece.definition.height,
 			);
 			const croppedImageDataUrl = this.canvasForCropping.toDataURL();
 
@@ -125,7 +119,7 @@ export class PieceCutter {
 				newPiece.appendChild(croppedImage);
 				newPiece.setAttribute("style", style);
 				newPiece.setAttribute("draggable", "");
-				newPiece.setAttribute("data-piece-name", piece.definition.path);
+				// newPiece.setAttribute("data-piece-name", piece.definition.path);
 
 				return res(newPiece);
 			};

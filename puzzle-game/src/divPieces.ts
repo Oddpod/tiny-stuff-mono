@@ -233,7 +233,7 @@ export const pieceDefinitions = {
 	},
 	cornerPieceLeftBottom4: {
 		height: 50,
-		path: "M 50 65 H 0 V 15 H 15 C 10 35 40 35 35 15 H 50 V 30 C 30 25 30 55 50 50 Z",
+		path: "M 50 50 H 0 V 0 H 15 C 10 20 40 20 35 0 H 50 V 15 C 30 10 30 40 50 35 Z",
 		sides: {
 			bottom: "flat",
 			left: "flat",
