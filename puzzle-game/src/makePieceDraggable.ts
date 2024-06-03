@@ -1,8 +1,11 @@
 export function PieceDragger(boardElement: HTMLElement) {
 	const makePieceDraggable = (
+		pieceId: number,
 		divElement: HTMLDivElement,
-		onMouseUpCallback = () => {},
+		onMouseUpCallback = (_: { x: number; y: number; pieceId: number }) => {},
 	) => {
+		let x: number;
+		let y: number;
 		divElement.ondragstart = () => false;
 		divElement.onmousedown = (event: MouseEvent) => {
 			divElement.style.zIndex = "1000";
@@ -12,6 +15,8 @@ export function PieceDragger(boardElement: HTMLElement) {
 			// document.body.append(divElement);
 			// centers the ball at (pageX, pageY) coordinates
 			function moveAt(pageX: number, pageY: number) {
+				x = pageX - divElement.offsetWidth / 2;
+				y = pageY - divElement.offsetHeight / 2;
 				divElement.style.left = `${pageX - divElement.offsetWidth / 2}px`;
 				divElement.style.top = `${pageY - divElement.offsetHeight / 2}px`;
 			}
@@ -30,7 +35,7 @@ export function PieceDragger(boardElement: HTMLElement) {
 			divElement.onmouseup = () => {
 				boardElement.removeEventListener("mousemove", onMouseMove);
 				divElement.onmouseup = null;
-				onMouseUpCallback();
+				onMouseUpCallback({ x, y, pieceId });
 			};
 		};
 	};

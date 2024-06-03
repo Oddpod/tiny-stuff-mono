@@ -25,7 +25,16 @@ const boardCreator = new BoardCreator({
 	boardElement,
 	pieceGap: PIECE_GAP,
 	pieceSize: Number(pieceSizeSelector.value),
-	pieceMovedCallback,
+	pieceMovedCallback: ({ pieceId, x, y }) => {
+		boardCreator.piecePositions.set(pieceId, { x, y });
+		saveBoardState({
+			board: boardCreator.board,
+			imageSrc: previewImageElement.src,
+			scaleFactorX: boardCreator.meta.scaleFactorX,
+			scaleFactorY: boardCreator.meta.scaleFactorY,
+			piecePositions: boardCreator.piecePositions,
+		});
+	},
 });
 
 pieceSizeSelector.addEventListener("change", (event) => {
@@ -33,20 +42,11 @@ pieceSizeSelector.addEventListener("change", (event) => {
 	boardCreator.setPieceSize(Number(target.value ?? DEFAULT_PIECE_SIZE));
 });
 
-function pieceMovedCallback() {
-	saveBoardState({
-		board: boardCreator.board,
-		imageSrc: previewImageElement.src,
-		scaleFactorX: boardCreator.meta.scaleFactorX,
-		scaleFactorY: boardCreator.meta.scaleFactorY,
-		piecePositions: boardCreator.piecePositions,
-	});
-}
-
 fileUpload?.addEventListener("change", () => previewFile());
 
 const loadButton = document.getElementById("load-button") as HTMLButtonElement;
 loadButton?.addEventListener("click", () => {
+	boardCreator.resetPiecePositions();
 	boardCreator.createPuzzle(previewImageElement.src);
 });
 const resetButton = document.getElementById("reset-button")!;
@@ -69,6 +69,6 @@ loadSavedState(
 	},
 	async () => {
 		await boardCreator.createPuzzle(previewImageElement.src);
-		console.log({ board: boardCreator.board });
+		// console.log({ board: boardCreator.board });
 	},
 );

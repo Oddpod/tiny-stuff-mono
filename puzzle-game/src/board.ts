@@ -11,29 +11,27 @@ interface CutAndPlacePiecesParams {
 	scaleFactorY: number;
 	imageSrc: string;
 }
+type PieceMovedCallback = Parameters<
+	ReturnType<typeof PieceDragger>["makePieceDraggable"]
+>[2];
 
 interface BoardParams {
 	boardElement: HTMLElement;
 	pieceSize: number;
 	pieceGap: number;
-	pieceMovedCallback: () => void;
+	pieceMovedCallback: PieceMovedCallback;
 }
 export type PiecePositionLookup = Map<number, { x: number; y: number }>;
 
 export class BoardCreator {
 	boardElement: HTMLElement;
 	pieceGap: number;
-	pieceMovedCallback: () => void;
+	pieceMovedCallback: PieceMovedCallback;
 	pieceSize: number;
 	board: PieceEntity[][];
 	piecePositions: Map<number, { x: number; y: number }>;
 	meta: { scaleFactorX: number; scaleFactorY: number };
-	pieceDragger: {
-		makePieceDraggable: (
-			divElement: HTMLDivElement,
-			onMouseUpCallback?: () => void,
-		) => void;
-	};
+	pieceDragger: ReturnType<typeof PieceDragger>;
 	constructor({
 		boardElement,
 		pieceSize,
@@ -45,7 +43,7 @@ export class BoardCreator {
 		this.pieceGap = pieceGap;
 		this.pieceMovedCallback = pieceMovedCallback;
 		this.board = [];
-		this.piecePositions = new Map<number, { x: number; y: number }>();
+		this.piecePositions = new Map();
 		this.meta = {
 			scaleFactorX: 1,
 			scaleFactorY: 1,
@@ -58,6 +56,10 @@ export class BoardCreator {
 
 	setPiecePositions(positions: typeof this.piecePositions) {
 		this.piecePositions = positions;
+	}
+
+	resetPiecePositions() {
+		this.piecePositions = new Map();
 	}
 
 	async createPuzzle(imageSrc: string) {
@@ -129,6 +131,7 @@ export class BoardCreator {
 						this.piecePositions.set(piece.id, placement);
 					}
 					this.pieceDragger.makePieceDraggable(
+						piece.id,
 						newPiece,
 						this.pieceMovedCallback,
 					);

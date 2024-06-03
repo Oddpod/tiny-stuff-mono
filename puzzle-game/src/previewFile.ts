@@ -5,14 +5,11 @@ const DEFAULT_IMAGE_SRC = Object.freeze(
 	"/zhenyu-luo-4-QpFNeLOpQ-unsplash(2).webp",
 );
 let caption: HTMLElement | null = null;
-export function previewFile(
-	onLoadedCallback = (_: string) => {},
-	onDefaultImageLoaded = (_: string) => {},
-) {
+export function previewFile(onLoadedCallback = (_: string) => {}) {
 	const file = fileUpload.files?.[0];
 	if (!file) {
 		resetToDefaultImage();
-		onDefaultImageLoaded(previewImageElement.src);
+		onLoadedCallback(previewImageElement.src);
 		return;
 	}
 
