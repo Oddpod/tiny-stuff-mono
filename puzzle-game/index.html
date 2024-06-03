@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A puzzle game</title>
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="board-container">
+        <div id="board"></div>
+      </div>
+      <div class="helpers" width="400">
+        <figure id="image-figure">
+          <img id="image" height="300" />
+        </figure>
+        <label>
+          Upload and use your own image
+          <input type="file" id="file-upload" />
+        </label>
+        <div>
+          <div class="row">
+            <label for="select-piece-size">Piece size: </label>
+            <select id="select-piece-size">
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="150">150</option>
+              <option value="200">200</option>
+            </select>
+          </div>
+
+          <button id="reset-button">Reset</button>
+          <button id="load-button">Load</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

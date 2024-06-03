@@ -4,3 +4,4 @@ _testData.json
 # Local Netlify folder
 .netlify
 node_modules
+puzzle-game/public/splash
