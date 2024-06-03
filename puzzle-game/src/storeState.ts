@@ -8,11 +8,6 @@ type OnLoadedCallbackParams = Parameters<
 	typeof BoardCreator.prototype.cutAndPlacePieces
 >[0] & { piecePositions: PiecePositionLookup; board: PieceEntity[][] };
 
-type PieceMetaMap = Map<
-	number,
-	{ boundingBox: PieceEntity["boundingBox"]; definitionId: number }
->;
-
 type SavedBoard = {
 	id: number;
 	definitionId: number;
@@ -36,7 +31,7 @@ export async function loadSavedState(
 		if (!savedBoardStateMeta || !savedPiecePositions || !savedBoard)
 			return onDefaultImageLoadedCallback(imageSrc);
 
-		const { rowNum, colNum, scaleFactorX, scaleFactorY } =
+		const { scaleFactorX, scaleFactorY } =
 			deserialize<SavedBoardMeta>(savedBoardStateMeta);
 
 		const piecePositions =

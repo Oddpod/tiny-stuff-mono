@@ -23,11 +23,11 @@ export function getFitBoardDimensions({
 	const numPiecesHeight = length / (pieceSize + pieceGap);
 
 	const numWholePieces = Math.floor(numPiecesHeight);
-	const rest = numPiecesHeight - numWholePieces;
-	const scaleToFitLengthFactor = 1 + (rest - pieceGap) / numWholePieces;
 	const numMiddlePieces = numWholePieces - 2;
-
+	
 	// TODO: Fix imprecise cuttong when using scalefactor != 1
+	// const rest = numPiecesHeight - numWholePieces;
+	// const scaleToFitLengthFactor = 1 + (rest - pieceGap) / numWholePieces;
 	return { scaleToFitLengthFactor: 1, numMiddlePieces };
 }
 
