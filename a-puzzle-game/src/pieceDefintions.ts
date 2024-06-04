@@ -384,7 +384,7 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	sidePieceBottom3: {
-		height: 80,
+		height: 65,
 		id: 30,
 		path: "M 65 65 H 15 V 50 C -5 55 -5 25 15 30 V 15 H 30 C 25 -5 55 -5 50 15 H 65 V 30 C 85 25 85 55 65 50 Z",
 		sides: {
