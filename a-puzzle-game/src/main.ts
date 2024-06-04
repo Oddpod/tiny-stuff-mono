@@ -64,11 +64,9 @@ loadSavedState(
 	({ piecePositions, board, ...rest }) => {
 		boardCreator.setPiecePositions(piecePositions);
 		boardCreator.board = board;
-		console.log({ board });
 		boardCreator.cutAndPlacePieces(rest);
 	},
 	async () => {
 		await boardCreator.createPuzzle(previewImageElement.src);
-		// console.log({ board: boardCreator.board });
 	},
 );

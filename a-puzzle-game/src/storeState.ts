@@ -70,7 +70,6 @@ export function saveBoardState({
 	board,
 	piecePositions,
 }: SaveBoardStateParams) {
-	console.log({ board });
 	localStorage.setItem("saved-image", imageSrc);
 	localStorage.setItem(
 		"saved-board-state-meta",

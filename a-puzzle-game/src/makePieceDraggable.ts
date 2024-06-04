@@ -40,7 +40,6 @@ const mouseDown = (
 		}
 
 		function onMouseMove(event: MouseEvent | TouchEvent) {
-			event.preventDefault();
 			if ("targetTouches" in event) {
 				moveAt(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
 			} else {
@@ -53,10 +52,10 @@ const mouseDown = (
 		boardElement.addEventListener("mousemove", onMouseMove);
 
 		// (3) drop the ball, remove unneeded handlers
-		divElement.onmouseup = () => {
+		document.onmouseup = () => {
 			boardElement.removeEventListener("mousemove", onMouseMove);
-			divElement.onmouseup = null;
 			onMouseUpCallback({ x, y });
+			document.onmouseup = null;
 		};
 		divElement.ontouchend = () => {
 			boardElement.removeEventListener("touchmove", onMouseMove);
