@@ -3,6 +3,7 @@ import { PieceDragger } from "./makePieceDraggable";
 import { PieceCreator, type PieceEntity } from "./pieceCreator";
 import { PieceCutter } from "./pieceCutter";
 import { shuffle } from "./shuffle";
+import { clamp } from "./utils";
 
 const boardContainer = document.getElementById("board-container")!;
 
@@ -149,15 +150,9 @@ function getRandomBoardCoordinates({
 	height,
 	pieceSize,
 }: { width: number; height: number; pieceSize: number }) {
-	const x = Math.max(
-		Math.random() *
-			(width - pieceSize - (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS),
-		pieceSize,
-	);
-	const y = Math.max(
-		Math.random() *
-			(height - pieceSize - (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS),
-		pieceSize,
-	);
+	const shiftXY =
+		pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
+	const x = clamp(0, Math.random() * (width - shiftXY), width - shiftXY);
+	const y = clamp(0, Math.random() * (height - shiftXY), height - shiftXY);
 	return { x, y };
 }

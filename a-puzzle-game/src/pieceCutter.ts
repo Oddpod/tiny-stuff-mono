@@ -34,9 +34,6 @@ export class PieceCutter {
 	}
 	cutPieceFromImage(piece: PieceEntity) {
 		return new Promise<HTMLDivElement>((res) => {
-			const img1 = new Image();
-			img1.src = (document.getElementById("image") as HTMLImageElement)!.src;
-
 			const croppingContext = this.canvasForCropping.getContext("2d")!;
 			const shiftLeftBy =
 				piece.definition.sides.left === "ear"
@@ -107,9 +104,7 @@ export class PieceCutter {
 				pathEl.setAttribute("d", piece.definition.path);
 				pathEl.setAttribute(
 					"transform",
-					`scale(${(this.pieceSize / PIECE_DIMENSIONS).toString()} ${(
-						this.pieceSize / PIECE_DIMENSIONS
-					).toString()})`,
+					`scale(${(this.pieceSize / PIECE_DIMENSIONS).toString()} ${(this.pieceSize / PIECE_DIMENSIONS).toString()})`,
 				);
 				clipPathEl.appendChild(pathEl);
 				svgElement.appendChild(clipPathEl);

@@ -10,13 +10,16 @@ const mouseDown = (
 	return (event: MouseEvent | TouchEvent) => {
 		divElement.style.zIndex = "1000";
 
-		// move it out of any current parents directly into body
-		// to make it positioned relative to the body
-		// document.body.append(divElement);
-		// centers the ball at (pageX, pageY) coordinates
+		const shiftX =
+			("clientX" in event ? event.clientX : event.touches[0].clientX) -
+			divElement.getBoundingClientRect().left;
+		const shiftY =
+			("clientY" in event ? event.clientY : event.touches[0].clientY) -
+			divElement.getBoundingClientRect().top;
+
 		function moveAt(pageX: number, pageY: number) {
-			x = pageX - divElement.offsetWidth / 2;
-			y = pageY - divElement.offsetHeight / 2;
+			x = pageX - shiftX;
+			y = pageY - shiftY;
 			divElement.style.left = `${clamp(
 				0,
 				x,
@@ -54,13 +57,11 @@ const mouseDown = (
 			boardElement.removeEventListener("mousemove", onMouseMove);
 			divElement.onmouseup = null;
 			onMouseUpCallback({ x, y });
-			event.preventDefault();
 		};
 		divElement.ontouchend = () => {
 			boardElement.removeEventListener("touchmove", onMouseMove);
 			divElement.ontouchend = null;
 			onMouseUpCallback({ x, y });
-			event.preventDefault();
 		};
 	};
 };
