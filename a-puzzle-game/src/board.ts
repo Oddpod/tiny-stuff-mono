@@ -1,5 +1,8 @@
 import { PIECE_DIMENSIONS, PIECE_EAR_SIZE } from "./pieceDefintions";
-import { PieceDragger } from "./makePieceDraggable";
+import {
+	type MakePieceDraggableParams,
+	PieceDragger,
+} from "./makePieceDraggable";
 import { PieceCreator, type PieceEntity } from "./pieceCreator";
 import { PieceCutter } from "./pieceCutter";
 import { shuffle } from "./shuffle";
@@ -12,17 +15,16 @@ interface CutAndPlacePiecesParams {
 	scaleFactorY: number;
 	imageSrc: string;
 }
-type PieceMovedCallback = Parameters<
-	ReturnType<typeof PieceDragger>["makePieceDraggable"]
->[2];
+type PieceMovedCallback = MakePieceDraggableParams["onMouseUpCallback"];
 
 interface BoardParams {
 	boardElement: HTMLElement;
 	pieceSize: number;
 	pieceGap: number;
 	pieceMovedCallback: PieceMovedCallback;
+	boardContainer: HTMLElement;
 }
-export type PiecePositionLookup = Map<number, { x: number; y: number }>;
+export type PiecePositionLookup = Map<number, { left: number; top: number }>;
 
 export class BoardCreator {
 	boardElement: HTMLElement;
@@ -30,16 +32,19 @@ export class BoardCreator {
 	pieceMovedCallback: PieceMovedCallback;
 	pieceSize: number;
 	board: PieceEntity[][];
-	piecePositions: Map<number, { x: number; y: number }>;
+	piecePositions: Map<number, { left: number; top: number }>;
 	meta: { scaleFactorX: number; scaleFactorY: number };
 	pieceDragger: ReturnType<typeof PieceDragger>;
+	boardContainer: HTMLElement;
 	constructor({
 		boardElement,
+		boardContainer,
 		pieceSize,
 		pieceGap,
 		pieceMovedCallback,
 	}: BoardParams) {
 		this.boardElement = boardElement;
+		this.boardContainer = boardContainer;
 		this.pieceSize = pieceSize;
 		this.pieceGap = pieceGap;
 		this.pieceMovedCallback = pieceMovedCallback;
@@ -49,7 +54,7 @@ export class BoardCreator {
 			scaleFactorX: 1,
 			scaleFactorY: 1,
 		};
-		this.pieceDragger = PieceDragger(boardElement);
+		this.pieceDragger = PieceDragger({ boardElement, boardContainer });
 	}
 	setPieceSize(newSize: number) {
 		this.pieceSize = newSize;
@@ -120,7 +125,7 @@ export class BoardCreator {
 				for (let j = 0; j < row.length; j++) {
 					const piece = row[j];
 					const newPiece = await pieceCutter.cutPieceFromImage(piece);
-					let placement = { x: 0, y: 0 };
+					let placement = { left: 0, top: 0 };
 					if (this.piecePositions.has(piece.id)) {
 						placement = this.piecePositions.get(piece.id)!;
 					} else {
@@ -131,13 +136,13 @@ export class BoardCreator {
 						});
 						this.piecePositions.set(piece.id, placement);
 					}
-					this.pieceDragger.makePieceDraggable(
-						piece.id,
-						newPiece,
-						this.pieceMovedCallback,
-					);
-					newPiece.style.left = `${placement.x}px`;
-					newPiece.style.top = `${placement.y}px`;
+					this.pieceDragger.makePieceDraggable({
+						divElement: newPiece,
+						onMouseUpCallback: this.pieceMovedCallback,
+						pieceId: piece.id,
+					});
+					newPiece.style.left = `${placement.left}px`;
+					newPiece.style.top = `${placement.top}px`;
 					this.boardElement.appendChild(newPiece);
 				}
 			}
@@ -152,7 +157,7 @@ function getRandomBoardCoordinates({
 }: { width: number; height: number; pieceSize: number }) {
 	const shiftXY =
 		pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
-	const x = clamp(0, Math.random() * (width - shiftXY), width - shiftXY);
-	const y = clamp(0, Math.random() * (height - shiftXY), height - shiftXY);
-	return { x, y };
+	const left = clamp(0, Math.random() * (width - shiftXY), width - shiftXY);
+	const top = clamp(0, Math.random() * (height - shiftXY), height - shiftXY);
+	return { left, top };
 }

@@ -129,7 +129,7 @@ export const pieceDefinitions = {
 			right: "hole",
 			top: "ear",
 		},
-		width: 65,
+		width: 50,
 	},
 	centerPiece10: {
 		height: 65,

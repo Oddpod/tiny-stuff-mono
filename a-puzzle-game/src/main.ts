@@ -4,6 +4,7 @@ import { loadSavedState, saveBoardState } from "./storeState";
 import { BoardCreator } from "./board";
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
+const boardContainer = document.getElementById("board-container") as HTMLDivElement
 export const fileUpload = document.getElementById(
 	"file-upload",
 ) as HTMLInputElement;
@@ -22,11 +23,12 @@ const pieceSizeSelector = document.getElementById(
 )! as HTMLSelectElement;
 
 const boardCreator = new BoardCreator({
+	boardContainer,
 	boardElement,
 	pieceGap: PIECE_GAP,
 	pieceSize: Number(pieceSizeSelector.value),
-	pieceMovedCallback: ({ pieceId, x, y }) => {
-		boardCreator.piecePositions.set(pieceId, { x, y });
+	pieceMovedCallback: ({ pieceId, left, top }) => {
+		boardCreator.piecePositions.set(pieceId, { left, top });
 		saveBoardState({
 			board: boardCreator.board,
 			imageSrc: previewImageElement.src,

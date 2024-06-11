@@ -1,12 +1,20 @@
 import { clamp } from "./utils";
 
-const mouseDown = (
-	boardElement: HTMLElement,
-	divElement: HTMLElement,
-	onMouseUpCallback: (_: { x: number; y: number }) => void,
-) => {
-	let x: number;
-	let y: number;
+interface MouseDownParams {
+	boardElement: HTMLElement;
+	divElement: HTMLElement;
+	onMouseUpCallback: (_: { left: number; top: number }) => void;
+	boardContainer: HTMLElement;
+}
+
+const mouseDown = ({
+	boardContainer,
+	boardElement,
+	divElement,
+	onMouseUpCallback,
+}: MouseDownParams) => {
+	let left: number;
+	let top: number;
 	return (event: MouseEvent | TouchEvent) => {
 		divElement.style.zIndex = "1000";
 
@@ -18,18 +26,18 @@ const mouseDown = (
 			divElement.getBoundingClientRect().top;
 
 		function moveAt(pageX: number, pageY: number) {
-			x = pageX - shiftX;
-			y = pageY - shiftY;
-			divElement.style.left = `${clamp(
+			left = clamp(
 				0,
-				x,
-				boardElement.clientWidth - divElement.offsetWidth,
-			)}px`;
-			divElement.style.top = `${clamp(
+				pageX - shiftX,
+				boardContainer.clientWidth - divElement.offsetWidth,
+			);
+			top = clamp(
 				0,
-				y,
-				boardElement.clientHeight - divElement.offsetHeight,
-			)}px`;
+				pageY - shiftY,
+				boardContainer.clientHeight - divElement.offsetHeight,
+			);
+			divElement.style.left = `${left}px`;
+			divElement.style.top = `${top}px`;
 		}
 
 		// move our absolutely positioned ball under the pointer
@@ -54,26 +62,42 @@ const mouseDown = (
 		// (3) drop the ball, remove unneeded handlers
 		document.onmouseup = () => {
 			boardElement.removeEventListener("mousemove", onMouseMove);
-			onMouseUpCallback({ x, y });
+			onMouseUpCallback({ left, top });
 			document.onmouseup = null;
 		};
 		divElement.ontouchend = () => {
 			boardElement.removeEventListener("touchmove", onMouseMove);
 			divElement.ontouchend = null;
-			onMouseUpCallback({ x, y });
+			onMouseUpCallback({ left, top });
 		};
 	};
 };
 
-export function PieceDragger(boardElement: HTMLElement) {
-	const makePieceDraggable = (
-		pieceId: number,
-		divElement: HTMLDivElement,
-		onMouseUpCallback = (_: { x: number; y: number; pieceId: number }) => {},
-	) => {
-		const mouseDownCallback = mouseDown(boardElement, divElement, ({ x, y }) =>
-			onMouseUpCallback({ x, y, pieceId }),
-		);
+export interface MakePieceDraggableParams
+	extends Pick<MouseDownParams, "divElement"> {
+	pieceId: number;
+	onMouseUpCallback: (_: {
+		left: number;
+		top: number;
+		pieceId: number;
+	}) => void;
+}
+export function PieceDragger({
+	boardElement,
+	boardContainer,
+}: { boardElement: HTMLElement; boardContainer: HTMLElement }) {
+	const makePieceDraggable = ({
+		pieceId,
+		divElement,
+		onMouseUpCallback,
+	}: MakePieceDraggableParams) => {
+		const mouseDownCallback = mouseDown({
+			boardContainer,
+			boardElement,
+			divElement,
+			onMouseUpCallback: ({ left, top }) =>
+				onMouseUpCallback({ left, top, pieceId }),
+		});
 		divElement.ondragstart = () => false;
 		divElement.onmousedown = mouseDownCallback;
 		divElement.ontouchstart = mouseDownCallback;
