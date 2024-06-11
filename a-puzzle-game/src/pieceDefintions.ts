@@ -36,11 +36,11 @@ export const pieceDefinitions = {
 		width: 50,
 	},
 	centerPiece2: {
-		height: 65,
+		height: 80,
 		id: 1,
 		path: "M 15 15 H 30 C 25 -5 55 -5 50 15 H 65 V 30 C 45 25 45 55 65 50 V 65 H 50 C 55 85 25 85 30 65 H 15 V 50 C -5 55 -5 25 15 30 Z",
 		sides: {
-			bottom: "flat",
+			bottom: "ear",
 			left: "ear",
 			right: "hole",
 			top: "ear",
@@ -69,7 +69,7 @@ export const pieceDefinitions = {
 			right: "hole",
 			top: "ear",
 		},
-		width: 65,
+		width: 50,
 	},
 	centerPiece5: {
 		height: 65,
