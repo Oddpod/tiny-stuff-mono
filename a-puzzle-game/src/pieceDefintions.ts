@@ -2,7 +2,7 @@ export const PIECE_EAR_SIZE = Object.freeze(15);
 export const PIECE_DIMENSIONS = Object.freeze(50);
 
 type Side = "ear" | "hole" | "flat";
-interface Piece {
+export interface Piece {
 	id: number;
 	width: number;
 	height: number;
@@ -648,3 +648,10 @@ export const pieceDefinitions = {
 		width: 50,
 	},
 } as const satisfies PiecesLookup;
+
+export const pieceDefinitionLookup = new Map<number, Piece>(
+	Object.values(pieceDefinitions).map(({ id, ...rest }) => [
+		id,
+		{ ...rest, id },
+	]),
+);

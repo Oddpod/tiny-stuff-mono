@@ -2,7 +2,7 @@ import { previewFile } from "./previewFile";
 import type { PieceEntity } from "./pieceCreator";
 import type { BoardCreator, PiecePositionLookup } from "./board";
 import { deserialize, serialize } from "./serilizationUtils";
-import { pieceDefinitions } from "./pieceDefintions";
+import { pieceDefinitionLookup } from "./pieceDefintions";
 
 type OnLoadedCallbackParams = Parameters<
 	typeof BoardCreator.prototype.cutAndPlacePieces
@@ -18,8 +18,6 @@ type SavedBoardMeta = {
 	colNum: number;
 } & Pick<OnLoadedCallbackParams, "scaleFactorX" | "scaleFactorY">;
 
-// TODO: Use a map
-const pieceDefintionsList = Object.values(pieceDefinitions);
 export async function loadSavedState(
 	onLoadedCallback: (_: OnLoadedCallbackParams) => void,
 	onDefaultImageLoadedCallback: (_: string) => void,
@@ -43,7 +41,7 @@ export async function loadSavedState(
 			return row.map(({ boundingBox, definitionId, id }) => ({
 				boundingBox,
 				id,
-				definition: pieceDefintionsList.find((def) => def.id === definitionId)!,
+				definition: pieceDefinitionLookup.get(definitionId)!,
 			}));
 		});
 		onLoadedCallback({

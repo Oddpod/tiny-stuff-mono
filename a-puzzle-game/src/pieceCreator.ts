@@ -1,11 +1,10 @@
-import type { pieceDefinitions } from "./pieceDefintions";
+import type { Piece } from "./pieceDefintions";
 import { findFittingPiece } from "./piecePicker";
 
-type PieceDefinition = (typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 export interface PieceEntity {
 	id: number;
 	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
-	definition: PieceDefinition;
+	definition: Piece;
 }
 
 interface PieceCreatorParams {
