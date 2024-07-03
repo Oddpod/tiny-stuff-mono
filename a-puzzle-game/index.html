@@ -22,13 +22,13 @@
         </label>
         <div>
           <div class="row">
-            <label for="select-piece-size">Piece size: </label>
-            <select id="select-piece-size">
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="150">150</option>
-              <option value="200" selected>200</option>
-            </select>
+            <form id="select-piece-dimensions">
+              <fieldset>
+                <legend>Dimensions:</legend>
+                <input id="dim-width" value="4">
+                <input id="dim-height" value="3">
+              </fieldset>
+            </form>
           </div>
 
           <button id="reset-button">Reset</button>

@@ -22,6 +22,19 @@ const pieceSizeSelector = document.getElementById(
 	"select-piece-size",
 )! as HTMLSelectElement;
 
+const dimensionsConfig = document.getElementById("select-piece-dimensions") as HTMLFormElement
+
+const inputWidth = dimensionsConfig.querySelector('input[id="dim-width"') as HTMLInputElement
+const inputHeight = dimensionsConfig.querySelector('input[id="dim-height"') as HTMLInputElement
+dimensionsConfig.addEventListener("submit", (event) => {
+	event.preventDefault();
+	const dimWidth = inputWidth.value;
+	const dimHeight = inputHeight.value;
+	// TODO: Create board
+	// TODO: --> place pieces --> 
+})
+
+
 const boardCreator = new BoardCreator({
 	boardContainer,
 	boardElement,
