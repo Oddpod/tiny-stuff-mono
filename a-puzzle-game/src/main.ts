@@ -3,15 +3,10 @@ import { previewFile, resetToDefaultImage } from "./previewFile";
 import { loadSavedState, saveBoardState } from "./storeState";
 import { BoardCreator } from "./board";
 import { createPuzzle } from "./boardUsingEffect";
+import { loadImage } from "./utils";
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
-export const fileUpload = document.getElementById(
-	"file-upload",
-) as HTMLInputElement;
-export const previewImageElement = (document.getElementById(
-	"image",
-) as HTMLImageElement)!;
 
 if (!boardElement) {
 	throw Error("No board div element");
@@ -29,10 +24,11 @@ const dimensionsConfig = document.getElementById("select-piece-dimensions") as H
 // const inputHeight = dimensionsConfig.querySelector('input[id="dim-height"') as HTMLInputElement
 dimensionsConfig.addEventListener("submit", (event: SubmitEvent) => {
 	event.preventDefault();
-	createPuzzle() 
+	boardElement.innerHTML = ""
+	createPuzzle()
 })
 
-// createPuzzle()
+createPuzzle()
 
 
 // const boardCreator = new BoardCreator({
@@ -56,9 +52,6 @@ dimensionsConfig.addEventListener("submit", (event: SubmitEvent) => {
 // 	const target = event.target as HTMLSelectElement;
 // 	boardCreator.setPieceSize(Number(target.value ?? DEFAULT_PIECE_SIZE));
 // });
-
-previewFile()
-fileUpload?.addEventListener("change", () => previewFile());
 
 // const loadButton = document.getElementById("load-button") as HTMLButtonElement;
 // loadButton?.addEventListener("click", () => {

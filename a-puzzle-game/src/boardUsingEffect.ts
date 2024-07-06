@@ -1,27 +1,28 @@
-import { Effect, Logger, LogLevel, pipe } from "effect";
-import type { PieceEntity } from "./pieceCreator";
-import { findFittingPiece } from "./piecePicker";
-import { cutPiece, CutPieceParams } from "./cutPiece";
-import { InputConfig, readConfig } from "./input";
-import { clamp } from "./utils";
+import { Effect, LogLevel, Logger } from "effect";
+import { cutPiece } from "./cutPiece";
+import { type InputConfig, readConfig, loadChosenImage } from "./input";
+import { clamp, loadImage } from "./utils";
 import { PIECE_DIMENSIONS, PIECE_EAR_SIZE } from "./pieceDefintions";
 import { createBoard } from "./makeBoard";
-import { loadAndAddImage } from "./loadAndAddImage";
 import { PieceDragger } from "./makePieceDraggable";
-
-const dimensionsConfig = document.getElementById("select-piece-dimensions") as HTMLFormElement
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const boardElement = document.getElementById("board") as HTMLDivElement
 
-const calculateAndAddPieceSize = ({ widthInPieces: width, heightInPieces: height, ...rest }: InputConfig) => {
-    // TODO: Calculate actual pieceSize
-    return Effect.succeed({ ...rest, widthInPieces: width, heightInPieces: height, pieceSize: 50 })
+interface CalculatePieceSizeParams extends Pick<InputConfig, 'heightInPieces' | 'widthInPieces'> {
+    imageWidth: number;
+    imageHeight: number;
 }
 
-const placePieces = (board: PieceEntity[][]) => {
-    // TODO: place pieces
-    return Effect.succeed(1)
+const calculatePieceSize = ({ widthInPieces, heightInPieces, imageWidth, imageHeight }: CalculatePieceSizeParams) => {
+    let pieceSize = 50;
+    if (widthInPieces > heightInPieces) {
+        pieceSize = boardElement.clientWidth / widthInPieces
+    } else {
+        pieceSize = boardElement.clientHeight / heightInPieces
+    }
+    Effect.logDebug({ pieceSize, widthInPieces, heightInPieces })
+    return Effect.succeed(Math.round(pieceSize))
 }
 
 function getRandomBoardCoordinates({
@@ -38,20 +39,16 @@ function getRandomBoardCoordinates({
 
 
 const createPuzzleProgram = Effect.gen(function* (_) {
-    const result = yield* readConfig().pipe(
-        Effect.tap((dim) => Effect.logDebug({ dim })),
-        Effect.flatMap(calculateAndAddPieceSize),
-        Effect.tap((withPieceSize) => Effect.logDebug({ withPieceSize })),
-        Effect.tap((board) => Effect.logDebug({ board })),
-        // Logger.withMinimumLogLevel(LogLevel.Debug)
-    )
-    const image = yield* Effect.promise(() => loadAndAddImage(result.imageSrc))
-    const board = yield* createBoard({ ...result, image })
-    const { pieceSize } = result
+    // const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig()
+    const { aspectRatio, heightInPieces, image, widthInPieces } = yield* Effect.promise(() => loadChosenImage())
+    // const image = yield* Effect.promise(() => loadImage(imageSrc))
+    const pieceSize = yield* calculatePieceSize({ heightInPieces, widthInPieces, imageHeight: image.height, imageWidth: image.width })
+    const board = yield* createBoard({ image, heightInPieces, widthInPieces, pieceSize })
+    yield* Effect.logDebug({ pieceSize, image, boardElement })
     const pieceDragger = PieceDragger({ boardContainer, boardElement })
     for (const row of board) {
         for (const piece of row) {
-            const newPiece = yield* Effect.promise(() => cutPiece({ piece, image, pieceSize }))
+            const newPiece = yield* Effect.promise(() => cutPiece({ piece, image, pieceSize, boardElement }))
             const placement = getRandomBoardCoordinates({ height: boardElement.clientHeight, pieceSize, width: boardElement.clientWidth })
             newPiece.style.left = `${placement.left}px`;
             newPiece.style.top = `${placement.top}px`;
@@ -59,6 +56,6 @@ const createPuzzleProgram = Effect.gen(function* (_) {
             pieceDragger.makePieceDraggable({ pieceId: piece.id, divElement: newPiece, onMouseUpCallback: () => { } })
         }
     }
-})
+}).pipe(Logger.withMinimumLogLevel(LogLevel.Debug))
 
 export const createPuzzle = () => Effect.runPromise(createPuzzleProgram)

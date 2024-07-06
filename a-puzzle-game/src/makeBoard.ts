@@ -1,10 +1,11 @@
 import { Effect } from "effect";
 import type { PieceEntity } from "./pieceCreator";
 import { findFittingPiece } from "./piecePicker";
-import type { DimConfigWithPieceSize } from "./loadAndAddImage";
+import type { InputConfig } from "./input";
 
-interface CreateBoardInput extends Omit<DimConfigWithPieceSize, 'imageSrc'> {
+interface CreateBoardInput extends Omit<InputConfig, 'imageSrc'> {
     image: HTMLImageElement
+    pieceSize: number
 }
 
 let uniqueCounter = 0
@@ -15,13 +16,13 @@ export const createBoard = ({ widthInPieces: width, heightInPieces: height, piec
         const row: PieceEntity[] = [];
         let toTheLeft = undefined;
         let toTheTop = undefined;
-        const isLastRow = j === height
+        const isLastRow = j === height - 1
         for (let i = 0; i < width; i++) {
             toTheTop = pieces[j - 1]?.[i]?.definition.sides.bottom
             const pieceDef = findFittingPiece({
                 toTheLeft,
                 toTheTop,
-                lastInRow: i === width,
+                lastInRow: i === width - 1,
                 isLastRow,
             });
             row.push({
