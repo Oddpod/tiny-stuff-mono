@@ -9,9 +9,11 @@ const inputHeight = dimensionsConfig.querySelector('#dim-height') as HTMLInputEl
 const imageElement = (document.getElementById(
     "image",
 ) as HTMLImageElement)!;
-export const fileUpload = document.getElementById(
+const fileUpload = document.getElementById(
     "file-upload",
 ) as HTMLInputElement;
+
+export const fileInput = fileUpload.querySelector("input") as HTMLInputElement
 
 let aspectRatio = 1;
 
@@ -86,4 +88,16 @@ export async function loadChosenImage() {
     return { image, heightInPieces, widthInPieces, aspectRatio };
 }
 loadChosenImage()
-fileUpload.addEventListener("change", loadChosenImage);
+fileInput.addEventListener("change", loadChosenImage);
+fileUpload.addEventListener("dragover", (event) => {
+    // TODO: Styling when file is dragged over
+    event.preventDefault()
+    console.log("dragover")
+})
+fileUpload.addEventListener("drop", (event) => {
+    event.preventDefault()
+    if (!event.dataTransfer?.files) { return }
+    fileInput.files = event.dataTransfer.files
+    loadChosenImage()
+    console.log({ event, fileInput })
+})

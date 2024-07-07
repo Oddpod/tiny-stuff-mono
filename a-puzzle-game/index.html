@@ -1,40 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>A puzzle game</title>
-    <link rel="stylesheet" href="https://unpkg.com/mvp.css" />
-  </head>
-  <body>
-    <div id="app">
-      <div id="board-container">
-        <div id="board"></div>
-      </div>
-      <div class="helpers" width="400">
-        <figure id="image-figure">
-          <img id="image" height="300" />
-        </figure>
-        <label>
-          Upload and use your own image
-          <input type="file" id="file-upload" />
-        </label>
-        <div>
-          <div class="row">
-            <form id="select-piece-dimensions">
-              <fieldset>
-                <legend>Dimensions:</legend>
-                <input id="dim-width" value="4">
-                <input id="dim-height" value="3">
-              </fieldset>
-              <button type="submit" id="load-button">Load</button>
-            </form>
-          </div>
 
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A puzzle game</title>
+  <!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css" /> -->
+</head>
+
+<body>
+  <button id="settings-button" class="rounded-full fixed top-4 right-4 p-2 cursor-pointer">
+    <div class="i-heroicons-cog-8-tooth-20-solid text-2xl" />
+  </button>
+
+  <div id="settings-drawer"
+    class="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform bg-gray-800">
+    <button id="settings-close-button" class="icon-btn absolute top-4 right-4">
+      <div class="i-heroicons-x-mark dark:text-white"></div>
+    </button>
+    <div class="flex flex-col items-center gap-4" width="400">
+      <figure id="image-figure">
+        <img id="image" height="300" />
+      </figure>
+      <label id="file-upload"
+        class="p-10 cursor-pointer flex flex-col items-center justify-center text-center text-2xl border-dashed border-gray-400 rounded-xl">
+        <span>
+          <div class="i-heroicons-photo"></div>
+          Upload or drop an image
+        </span>
+        <input type="file" accept=".jpg,.png,.webp" />
+      </label>
+      <div class="flex flex-col">
+        <form id="select-piece-dimensions" class="flex flex-col">
+          <fieldset class="mb-2 rounded-lg border-gray-600">
+            <legend class="text-2xl">Dimensions:</legend>
+            <!-- TODO: Buttons instead? -->
+            <input id="dim-width" value="4" class="mr-4 p-1 rounded">
+            <input id="dim-height" value="3" class="p-1 rounded">
+          </fieldset>
+          <button type="submit" id="load-button" class="self-end text-xl rounded-lg px-2 py-1">Load</button>
+        </form>
       </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  </div>
+
+  <div id="app">
+    <div id="board-container">
+      <div id="board"></div>
+    </div>
+
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>

@@ -1,4 +1,4 @@
-import { fileUpload } from "./input";
+import { fileInput } from "./input";
 
 const imageFigureElement = document.getElementById("image-figure");
 const DEFAULT_IMAGE_SRC = Object.freeze(
@@ -11,7 +11,7 @@ const previewImageElement = (document.getElementById(
 
 let caption: HTMLElement | null = null;
 export function previewFile(): Promise<string> {
-	const file = fileUpload.files?.[0];
+	const file = fileInput.files?.[0];
 	return new Promise((res, _) => {
 		if (!file) {
 			const imageSrc = resetToDefaultImage();
