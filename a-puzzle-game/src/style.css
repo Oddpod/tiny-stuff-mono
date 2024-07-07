@@ -27,14 +27,6 @@ button {
   padding: 12px;
 }
 
-#board-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: start;
-  align-items: start;
-  background-color: burlywood;
-}
-
 #board {
   position: relative;
   background-color: gray;

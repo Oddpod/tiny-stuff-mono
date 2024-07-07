@@ -37,6 +37,17 @@ function getRandomBoardCoordinates({
     return { left, top };
 }
 
+function getRandomCoordinatesOutsideBoard({ board, pieceSize }: { board: HTMLDivElement, pieceSize: number }) {
+    const shiftXY =
+        pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
+
+    const left = Math.random() * (window.innerWidth - shiftXY)
+    const top = Math.random() > 0.5 ? Math.random() * (board.offsetTop - shiftXY) :
+        board.offsetTop + board.offsetHeight + Math.random() * (board.offsetTop - shiftXY)
+    return { left, top }
+}
+
+const appElement = document.getElementById("app") as HTMLDivElement
 
 const createPuzzleProgram = Effect.gen(function* (_) {
     // const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig()
@@ -45,14 +56,16 @@ const createPuzzleProgram = Effect.gen(function* (_) {
     const pieceSize = yield* calculatePieceSize({ heightInPieces, widthInPieces, imageHeight: image.height, imageWidth: image.width })
     const board = yield* createBoard({ image, heightInPieces, widthInPieces, pieceSize })
     yield* Effect.logDebug({ pieceSize, image, boardElement })
-    const pieceDragger = PieceDragger({ boardContainer, boardElement })
+    const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     for (const row of board) {
         for (const piece of row) {
             const newPiece = yield* Effect.promise(() => cutPiece({ piece, image, pieceSize, boardElement }))
-            const placement = getRandomBoardCoordinates({ height: boardElement.clientHeight, pieceSize, width: boardElement.clientWidth })
+            // const placement = getRandomBoardCoordinates({ height: boardElement.clientHeight, pieceSize, width: boardElement.clientWidth })
+            const placement = getRandomCoordinatesOutsideBoard({ board: boardElement, pieceSize })
             newPiece.style.left = `${placement.left}px`;
             newPiece.style.top = `${placement.top}px`;
-            boardElement.appendChild(newPiece);
+            newPiece.style.position = "absolute"
+            appElement.appendChild(newPiece);
             pieceDragger.makePieceDraggable({ pieceId: piece.id, divElement: newPiece, onMouseUpCallback: () => { } })
         }
     }

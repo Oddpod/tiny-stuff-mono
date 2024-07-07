@@ -15,7 +15,7 @@
   </button>
 
   <div id="settings-drawer"
-    class="fixed top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform bg-gray-800">
+    class="fixed hidden top-0 right-0 z-40 h-screen p-4 overflow-y-auto transition-transform bg-gray-800">
     <button id="settings-close-button" class="icon-btn absolute top-4 right-4">
       <div class="i-heroicons-x-mark dark:text-white"></div>
     </button>
@@ -29,7 +29,8 @@
           <div class="i-heroicons-photo"></div>
           Upload or drop an image
         </span>
-        <input type="file" accept=".jpg,.png,.webp" />
+        <input type="file" accept="image/*"
+          class="cursor-pointer file:rounded-full file:py-2 file:px-4 file:border-0 file:bg-primary-600">
       </label>
       <div class="flex flex-col">
         <form id="select-piece-dimensions" class="flex flex-col">
@@ -39,15 +40,15 @@
             <input id="dim-width" value="4" class="mr-4 p-1 rounded">
             <input id="dim-height" value="3" class="p-1 rounded">
           </fieldset>
-          <button type="submit" id="load-button" class="self-end text-xl rounded-lg px-2 py-1">Load</button>
+          <button type="submit" id="load-button" class="self-end text-xl rounded-lg px-2 py-1 bg-primary-700">Load</button>
         </form>
       </div>
     </div>
   </div>
 
   <div id="app">
-    <div id="board-container">
-      <div id="board"></div>
+    <div id="board-container" class="flex items-center justify-center h-screen w-screen">
+      <div id="board" class=""></div>
     </div>
 
   </div>

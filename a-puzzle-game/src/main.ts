@@ -1,5 +1,6 @@
 import "./style.css";
 import 'virtual:uno.css'
+import './settings'
 
 import { previewFile, resetToDefaultImage } from "./previewFile";
 import { loadSavedState, saveBoardState } from "./storeState";
@@ -9,29 +10,6 @@ import { loadImage } from "./utils";
 
 const boardElement = document.getElementById("board") as HTMLDivElement;
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
-const settingsButton = document.getElementById("settings-button") as HTMLButtonElement
-const settingsDrawer = document.getElementById("settings-drawer") as HTMLDivElement
-const closeSettingsButton = document.getElementById("settings-close-button") as HTMLButtonElement
-
-
-let settingsDrawerOpen = false
-
-function toggleSettingsDrawer() {
-	settingsDrawerOpen = !settingsDrawerOpen
-	if (settingsDrawerOpen) {
-		settingsDrawer.classList.remove("hidden")
-	} else {
-		settingsDrawer.classList.add("hidden")
-	}
-}
-settingsButton.addEventListener("click", () => {
-	toggleSettingsDrawer();
-})
-
-closeSettingsButton.addEventListener("click", () => {
-	toggleSettingsDrawer()
-})
-
 if (!boardElement) {
 	throw Error("No board div element");
 }

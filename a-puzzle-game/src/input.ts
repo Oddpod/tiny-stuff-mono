@@ -97,6 +97,7 @@ fileUpload.addEventListener("dragover", (event) => {
 fileUpload.addEventListener("drop", (event) => {
     event.preventDefault()
     if (!event.dataTransfer?.files) { return }
+
     fileInput.files = event.dataTransfer.files
     loadChosenImage()
     console.log({ event, fileInput })
