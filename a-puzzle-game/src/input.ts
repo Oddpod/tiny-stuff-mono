@@ -52,43 +52,8 @@ inputHeight.addEventListener("change", (event: Event) => {
     inputWidth.value = (newHeightInPieces / aspectRatio).toString()
 })
 
-export async function loadChosenImage() {
-    const imageSrc = await previewFile()
-    const image = await loadImage(imageSrc)
-    let widthInPieces = Number.parseInt(inputWidth.value)
-    let heightInPieces = Number.parseInt(inputHeight.value)
-    aspectRatio = image.height / image.width;
-
-    if (widthInPieces > heightInPieces) {
-        heightInPieces = Math.round(widthInPieces * aspectRatio)
-        inputHeight.value = heightInPieces.toString()
-    } else {
-        widthInPieces = Math.round(heightInPieces / aspectRatio)
-        inputWidth.value = widthInPieces.toString()
-    }
-
-    let boardWidth = Math.min(image.width, window.innerWidth)
-    let boardHeight = Math.min(image.height, window.innerHeight)
-    if (image.width > image.height) {
-        boardWidth = Math.min(image.width, window.innerWidth * 3 / 4)
-        boardHeight = Math.round(boardWidth * aspectRatio)
-    } else {
-        boardHeight = Math.min(image.height, window.innerHeight * 3 / 4)
-        boardWidth = Math.round(boardHeight / aspectRatio)
-    }
-    document.documentElement.style.setProperty(
-        "--board-width",
-        `${boardWidth.toString()}px`,
-    );
-    document.documentElement.style.setProperty(
-        "--board-height",
-        `${boardHeight.toString()}px`,
-    );
-
-    return { image, heightInPieces, widthInPieces, aspectRatio };
-}
-loadChosenImage()
-fileInput.addEventListener("change", loadChosenImage);
+previewFile()
+fileInput.addEventListener("change", previewFile);
 fileUpload.addEventListener("dragover", (event) => {
     // TODO: Styling when file is dragged over
     event.preventDefault()
@@ -99,6 +64,6 @@ fileUpload.addEventListener("drop", (event) => {
     if (!event.dataTransfer?.files) { return }
 
     fileInput.files = event.dataTransfer.files
-    loadChosenImage()
+    previewFile()
     console.log({ event, fileInput })
 })

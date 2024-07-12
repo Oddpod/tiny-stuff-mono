@@ -98,6 +98,7 @@ export const cutPiece = async ({ piece, pieceSize, image, boardElement }: CutPie
     newPiece.appendChild(croppedImage);
     // newPiece.setAttribute("data-piece", JSON.stringify(piece))
     newPiece.setAttribute("style", style);
+    newPiece.classList.add("piece");
     newPiece.setAttribute("draggable", "");
 
     return newPiece;

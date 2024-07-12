@@ -27,6 +27,7 @@ export function serialize<T>(value: T) {
 	return JSON.stringify(value, replacer);
 }
 
-export function deserialize<T>(value: string) {
+export function deserialize<T>(value: string | null) {
+	if(!value) throw new Error("Cannot deserialize falsy value")
 	return JSON.parse(value, reviver) as T;
 }

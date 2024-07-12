@@ -16,7 +16,8 @@ const mouseDown = ({
 	let left: number;
 	let top: number;
 	return (event: MouseEvent | TouchEvent) => {
-		divElement.style.zIndex = "1000";
+		divElement.style.zIndex = "40";
+		event.preventDefault();
 
 		const shiftX =
 			("clientX" in event ? event.clientX : event.touches[0].clientX) -

@@ -1,74 +1,86 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
-import { type InputConfig, readConfig, loadChosenImage } from "./input";
-import { clamp, loadImage } from "./utils";
-import { PIECE_DIMENSIONS, PIECE_EAR_SIZE } from "./pieceDefintions";
+import { readConfig } from "./input";
+import { loadImage } from "./utils";
+import { pieceDefinitionLookup } from "./pieceDefintions";
 import { createBoard } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
+import { resetToDefaultImage } from "./previewFile";
+import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPieceSize, saveBoard, saveImage, savePiecePositions, savePieceSize } from "./storeState";
+import { calculateBoardDimensions, calculatePieceSize, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const boardElement = document.getElementById("board") as HTMLDivElement
 
-interface CalculatePieceSizeParams extends Pick<InputConfig, 'heightInPieces' | 'widthInPieces'> {
-    imageWidth: number;
-    imageHeight: number;
-}
-
-const calculatePieceSize = ({ widthInPieces, heightInPieces, imageWidth, imageHeight }: CalculatePieceSizeParams) => {
-    let pieceSize = 50;
-    if (widthInPieces > heightInPieces) {
-        pieceSize = boardElement.clientWidth / widthInPieces
-    } else {
-        pieceSize = boardElement.clientHeight / heightInPieces
-    }
-    Effect.logDebug({ pieceSize, widthInPieces, heightInPieces })
-    return Effect.succeed(Math.round(pieceSize))
-}
-
-function getRandomBoardCoordinates({
-    width,
-    height,
-    pieceSize,
-}: { width: number; height: number; pieceSize: number }) {
-    const shiftXY =
-        pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
-    const left = clamp(0, Math.random() * (width - shiftXY), width - shiftXY);
-    const top = clamp(0, Math.random() * (height - shiftXY), height - shiftXY);
-    return { left, top };
-}
-
-function getRandomCoordinatesOutsideBoard({ board, pieceSize }: { board: HTMLDivElement, pieceSize: number }) {
-    const shiftXY =
-        pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
-
-    const left = Math.random() * (window.innerWidth - shiftXY)
-    const top = Math.random() > 0.5 ? Math.random() * (board.offsetTop - shiftXY) :
-        board.offsetTop + board.offsetHeight + Math.random() * (board.offsetTop - shiftXY)
-    return { left, top }
-}
-
 const appElement = document.getElementById("app") as HTMLDivElement
 
 const createPuzzleProgram = Effect.gen(function* (_) {
-    // const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig()
-    const { aspectRatio, heightInPieces, image, widthInPieces } = yield* Effect.promise(() => loadChosenImage())
-    // const image = yield* Effect.promise(() => loadImage(imageSrc))
-    const pieceSize = yield* calculatePieceSize({ heightInPieces, widthInPieces, imageHeight: image.height, imageWidth: image.width })
+    const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig()
+    const image = yield* Effect.promise(() => loadImage(imageSrc))
+    saveImage(image.src)
+    const { boardHeight, boardWidth } = calculateBoardDimensions(image)
+    setBoardDimensions({ boardWidth, boardHeight })
+    const pieceSize = yield* calculatePieceSize({ heightInPieces, widthInPieces })
+    savePieceSize(pieceSize)
     const board = yield* createBoard({ image, heightInPieces, widthInPieces, pieceSize })
-    yield* Effect.logDebug({ pieceSize, image, boardElement })
+    saveBoard(board)
+    // yield* Effect.logDebug({ pieceSize, image, boardElement })
+
+    const piecePositions: PiecePositionLookup = new Map()
     const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     for (const row of board) {
         for (const piece of row) {
             const newPiece = yield* Effect.promise(() => cutPiece({ piece, image, pieceSize, boardElement }))
-            // const placement = getRandomBoardCoordinates({ height: boardElement.clientHeight, pieceSize, width: boardElement.clientWidth })
             const placement = getRandomCoordinatesOutsideBoard({ board: boardElement, pieceSize })
             newPiece.style.left = `${placement.left}px`;
             newPiece.style.top = `${placement.top}px`;
-            newPiece.style.position = "absolute"
+            piecePositions.set(piece.id, placement)
             appElement.appendChild(newPiece);
-            pieceDragger.makePieceDraggable({ pieceId: piece.id, divElement: newPiece, onMouseUpCallback: () => { } })
+            pieceDragger.makePieceDraggable({
+                pieceId: piece.id, divElement: newPiece, onMouseUpCallback: ({ pieceId, left, top }) => {
+                    piecePositions.set(pieceId, { left, top })
+                    savePiecePositions(piecePositions)
+                }
+            })
         }
     }
-}).pipe(Logger.withMinimumLogLevel(LogLevel.Debug))
+})
+    .pipe(Logger.withMinimumLogLevel(LogLevel.Debug))
 
+const resumePuzzleProgram = Effect.gen(function* (_) {
+    let savedImageSrc = yield* Effect.try(() => getSavedImage());
+    if (!savedImageSrc) {
+        savedImageSrc = resetToDefaultImage()
+    }
+
+    const image = yield* Effect.tryPromise(() => loadImage(savedImageSrc))
+    const { boardHeight, boardWidth } = calculateBoardDimensions(image)
+    setBoardDimensions({ boardHeight, boardWidth })
+
+    const savedBoard = yield* Effect.try(() => loadSavedBoard())
+    const pieceSize = yield* Effect.try(() => loadSavedPieceSize())
+    const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
+    const piecePositions = yield* Effect.try(() => loadPiecePositions())
+    for (const row of savedBoard) {
+        for (const piece of row) {
+            const definition = pieceDefinitionLookup.get(piece.definitionId)!
+            const newPiece = yield* Effect.promise(() => cutPiece({ piece: { ...piece, definition }, image, pieceSize, boardElement }))
+            const placement = piecePositions.get(piece.id)!
+            newPiece.style.left = `${placement.left}px`;
+            newPiece.style.top = `${placement.top}px`;
+            appElement.appendChild(newPiece);
+            pieceDragger.makePieceDraggable({
+                pieceId: piece.id, divElement: newPiece, onMouseUpCallback: ({ pieceId, left, top }) => {
+                    piecePositions.set(pieceId, { left, top })
+                    savePiecePositions(piecePositions)
+                }
+            })
+        }
+    }
+})
+    .pipe(Logger.withMinimumLogLevel(LogLevel.Debug))
+
+export const resumeSavedPuzzle = () => Effect.runPromise(resumePuzzleProgram).catch(() => {
+    createPuzzle()
+})
 export const createPuzzle = () => Effect.runPromise(createPuzzleProgram)

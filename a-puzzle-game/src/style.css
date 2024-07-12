@@ -54,10 +54,6 @@ button {
 
 .piece {
   position: absolute;
-  top: 100px;
-  background-color: red;
-  height: 50px;
-  width: 65px;
   cursor: pointer;
 }
 

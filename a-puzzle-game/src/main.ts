@@ -2,58 +2,19 @@ import "./style.css";
 import 'virtual:uno.css'
 import './settings'
 
-import { previewFile, resetToDefaultImage } from "./previewFile";
-import { loadSavedState, saveBoardState } from "./storeState";
-import { BoardCreator } from "./board";
-import { createPuzzle } from "./boardUsingEffect";
-import { loadImage } from "./utils";
+import { createPuzzle, resumeSavedPuzzle } from "./boardUsingEffect";
 
-const boardElement = document.getElementById("board") as HTMLDivElement;
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
-if (!boardElement) {
-	throw Error("No board div element");
-}
-
-const PIECE_GAP = Object.freeze(0 as const);
-const DEFAULT_PIECE_SIZE = Object.freeze(200 as const);
-const pieceSizeSelector = document.getElementById(
-	"select-piece-size",
-)! as HTMLSelectElement;
 
 const dimensionsConfig = document.getElementById("select-piece-dimensions") as HTMLFormElement
 
-// const inputWidth = dimensionsConfig.querySelector('input[id="dim-width"') as HTMLInputElement
-// const inputHeight = dimensionsConfig.querySelector('input[id="dim-height"') as HTMLInputElement
 dimensionsConfig.addEventListener("submit", (event: SubmitEvent) => {
 	event.preventDefault();
-	boardElement.innerHTML = ""
+	boardContainer.innerHTML = '<div id="board" class=""></div>'
 	createPuzzle()
 })
 
-createPuzzle()
-
-
-// const boardCreator = new BoardCreator({
-// 	boardContainer,
-// 	boardElement,
-// 	pieceGap: PIECE_GAP,
-// 	pieceSize: Number(pieceSizeSelector.value),
-// 	pieceMovedCallback: ({ pieceId, left, top }) => {
-// 		boardCreator.piecePositions.set(pieceId, { left, top });
-// 		saveBoardState({
-// 			board: boardCreator.board,
-// 			imageSrc: previewImageElement.src,
-// 			scaleFactorX: boardCreator.meta.scaleFactorX,
-// 			scaleFactorY: boardCreator.meta.scaleFactorY,
-// 			piecePositions: boardCreator.piecePositions,
-// 		});
-// 	},
-// });
-
-// pieceSizeSelector.addEventListener("change", (event) => {
-// 	const target = event.target as HTMLSelectElement;
-// 	boardCreator.setPieceSize(Number(target.value ?? DEFAULT_PIECE_SIZE));
-// });
+resumeSavedPuzzle()
 
 // const loadButton = document.getElementById("load-button") as HTMLButtonElement;
 // loadButton?.addEventListener("click", () => {
