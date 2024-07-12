@@ -1,6 +1,6 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
-import { readConfig, setConfigDimensions } from "./input";
+import { readConfig, setChosenImage, setConfigDimensions } from "./input";
 import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefintions";
 import { createBoard } from "./makeBoard";
@@ -53,6 +53,8 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
     }
 
     const image = yield* Effect.tryPromise(() => loadImage(savedImageSrc))
+    setChosenImage(savedImageSrc)
+
     const { boardHeight, boardWidth } = calculateBoardDimensions(image)
     setBoardDimensions({ boardHeight, boardWidth })
 

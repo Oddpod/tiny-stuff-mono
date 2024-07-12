@@ -24,7 +24,7 @@ export interface InputConfig {
     imageSrc: string,
 }
 
-async function loadChosenImage() {
+export async function loadChosenImage() {
     const imageSrc = await previewFile();
     const image = await loadImage(imageSrc)
     aspectRatio = image.height / image.width
@@ -34,6 +34,10 @@ async function loadChosenImage() {
 export function setConfigDimensions([width, height]: [number, number]) {
     inputHeight.value = height.toString()
     inputWidth.value = width.toString()
+}
+
+export function setChosenImage(src: string){
+    imageElement.src = src
 }
 
 export const readConfig = (): Effect.Effect<InputConfig, Error> => {
@@ -81,7 +85,6 @@ inputHeight.addEventListener("blur", () => {
     loadButton.removeAttribute("disabled")
 })
 
-loadChosenImage()
 fileInput.addEventListener("change", loadChosenImage);
 fileUpload.addEventListener("dragover", (event) => {
     // TODO: Styling when file is dragged over
