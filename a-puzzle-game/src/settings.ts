@@ -11,11 +11,21 @@ function toggleSettingsDrawer() {
 	}
 }
 settingsButton.addEventListener("click", () => {
+	removeAnimationIfNthTime();
 	toggleSettingsDrawer();
 });
 closeSettingsButton.addEventListener("click", () => {
 	toggleSettingsDrawer();
 });
 
+function removeAnimationIfNthTime() {
+	const hasOpenedSettingsBefore = localStorage.getItem("has-opened-settings")
+	if (hasOpenedSettingsBefore) {
+		settingsButton.classList.remove("animate-bounce")
+		return
+	}
 
-// TODO: Show settings pane the first time a user enters
+	localStorage.setItem("has-opened-settings", "true")
+}
+
+removeAnimationIfNthTime()

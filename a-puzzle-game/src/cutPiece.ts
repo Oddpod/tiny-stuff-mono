@@ -1,5 +1,5 @@
 import { PIECE_DIMENSIONS } from "./pieceDefintions";
-import type { PieceEntity } from "./pieceCreator";
+import type { PieceEntity } from "./makeBoard";
 import { loadImage } from "./utils";
 
 const canvasForCropping = document.createElement("canvas");

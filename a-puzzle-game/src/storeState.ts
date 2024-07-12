@@ -1,5 +1,5 @@
-import type { PieceEntity } from "./pieceCreator";
 import type { PiecePositionLookup } from "./board";
+import type { PieceEntity } from "./makeBoard";
 import { deserialize, serialize } from "./serilizationUtils";
 
 export type SavedBoard = {

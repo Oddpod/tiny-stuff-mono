@@ -1,11 +1,18 @@
 import { Effect } from "effect";
-import type { PieceEntity } from "./pieceCreator";
 import { findFittingPiece } from "./piecePicker";
 import type { InputConfig } from "./input";
 
 interface CreateBoardInput extends Omit<InputConfig, 'imageSrc'> {
     image: HTMLImageElement
     pieceSize: number
+}
+
+import type { Piece } from "./pieceDefintions";
+
+export interface PieceEntity {
+	id: number;
+	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
+	definition: Piece;
 }
 
 let uniqueCounter = 0
