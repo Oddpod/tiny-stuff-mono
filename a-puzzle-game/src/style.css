@@ -14,20 +14,17 @@
   --board-height: 300px;
 }
 
+button {
+  cursor: pointer;
+}
+
 #app {
   display: flex;
   flex-wrap: wrap;
   justify-content: stretch;
   width: 100%;
+  height: 100%;
   padding: 12px;
-}
-
-#board-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: start;
-  align-items: start;
-  background-color: burlywood;
 }
 
 #board {
@@ -57,10 +54,6 @@
 
 .piece {
   position: absolute;
-  top: 100px;
-  background-color: red;
-  height: 50px;
-  width: 65px;
   cursor: pointer;
 }
 
