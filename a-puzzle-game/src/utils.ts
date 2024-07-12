@@ -11,5 +11,6 @@ export const loadImage = (imageSrc: string): Promise<HTMLImageElement> => {
 		const img1 = new Image();
 		img1.src = imageSrc;
 		img1.onload = () => res(img1);
+		img1.onerror = (error) => rej(error)
 	});
 };
