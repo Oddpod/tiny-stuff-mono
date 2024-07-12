@@ -13,9 +13,10 @@ export interface CutPieceParams {
     pieceSize: number,
     piece: PieceEntity,
     image: HTMLImageElement
-    boardElement: HTMLDivElement
+    boardWidth: number
+    boardHeight: number
 }
-export const cutPiece = async ({ piece, pieceSize, image, boardElement }: CutPieceParams) => {
+export const cutPiece = async ({ piece, pieceSize, image, boardHeight, boardWidth }: CutPieceParams) => {
     const shiftLeftBy =
         piece.definition.sides.left === "ear"
             ? 15 * pieceSize / PIECE_DIMENSIONS
@@ -24,19 +25,20 @@ export const cutPiece = async ({ piece, pieceSize, image, boardElement }: CutPie
         piece.definition.sides.top === "ear"
             ? 15 * pieceSize / PIECE_DIMENSIONS
             : 0;
-    const shiftedLeftX = Math.max(0, piece.boundingBox[0].x - shiftLeftBy) * image.width / boardElement.clientWidth;
-    const shiftedTopY = Math.max(0, piece.boundingBox[0].y - shiftTopBy) * image.width / boardElement.clientWidth;
+    const shiftedLeftX = Math.max(0, piece.boundingBox[0].x - shiftLeftBy) * image.width / boardWidth;
+    const shiftedTopY = Math.max(0, piece.boundingBox[0].y - shiftTopBy) * image.height / boardHeight;
 
     const scaledUpWidth =
-        (piece.definition.width * pieceSize) / PIECE_DIMENSIONS * image.width / boardElement.clientWidth
+        (piece.definition.width * pieceSize) / PIECE_DIMENSIONS * image.width / boardWidth
     const scaledUpHeight =
-        (piece.definition.height * pieceSize) / PIECE_DIMENSIONS * image.height / boardElement.clientHeight
+        (piece.definition.height * pieceSize) / PIECE_DIMENSIONS * image.height / boardHeight
 
     const pieceWidth = (piece.definition.width * pieceSize) / PIECE_DIMENSIONS
     const pieceHeight = (piece.definition.height * pieceSize) / PIECE_DIMENSIONS
-    console.log({ scaledUpHeight, scaledUpWidth, width: image.width, heigh: image.height, pieceWidth, pieceHeight })
+    
     canvasForCropping.width = pieceWidth
     canvasForCropping.height = pieceHeight
+    
     croppingContext.drawImage(
         image,
         shiftedLeftX,
@@ -53,7 +55,6 @@ export const cutPiece = async ({ piece, pieceSize, image, boardElement }: CutPie
     const clipPathId = `pieceClipPath_${uniqueCounter++}`;
 
     const croppedImage = await loadImage(croppedImageDataUrl)
-    // 		clip-path: path("${piece.definition.path}");
     const style = `
         width: ${pieceWidth}px;
         height: ${pieceHeight}px;
@@ -96,7 +97,7 @@ export const cutPiece = async ({ piece, pieceSize, image, boardElement }: CutPie
     const newPiece = document.createElement("div");
     newPiece.appendChild(svgElement);
     newPiece.appendChild(croppedImage);
-    // newPiece.setAttribute("data-piece", JSON.stringify(piece))
+    newPiece.setAttribute("data-piece", JSON.stringify({ id: piece.id }))
     newPiece.setAttribute("style", style);
     newPiece.classList.add("piece");
     newPiece.setAttribute("draggable", "");

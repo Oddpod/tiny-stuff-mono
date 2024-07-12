@@ -37,8 +37,8 @@
           <fieldset class="mb-2 rounded-lg border-gray-600">
             <legend class="text-2xl">Dimensions:</legend>
             <!-- TODO: Buttons instead? -->
-            <input id="dim-width" value="4" class="mr-4 p-1 rounded">
-            <input id="dim-height" value="3" class="p-1 rounded">
+            <input id="dim-width" type="number" value="4" class="mr-4 p-1 rounded" pattern="[0-9]">
+            <input id="dim-height" type="number" value="3" class="p-1 rounded" pattern="[0-9]">
           </fieldset>
           <button type="submit" id="load-button" class="self-end text-xl rounded-lg px-2 py-1 bg-primary-700">Load</button>
         </form>

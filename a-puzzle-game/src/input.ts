@@ -12,6 +12,7 @@ const imageElement = (document.getElementById(
 const fileUpload = document.getElementById(
     "file-upload",
 ) as HTMLInputElement;
+const loadButton = document.getElementById('load-button') as HTMLButtonElement
 
 export const fileInput = fileUpload.querySelector("input") as HTMLInputElement
 
@@ -21,6 +22,18 @@ export interface InputConfig {
     widthInPieces: number,
     heightInPieces: number,
     imageSrc: string,
+}
+
+async function loadChosenImage() {
+    const imageSrc = await previewFile();
+    const image = await loadImage(imageSrc)
+    aspectRatio = image.height / image.width
+    inputHeight.value = Math.round(Number.parseInt(inputWidth.value) * aspectRatio).toString()
+}
+
+export function setConfigDimensions([width, height]: [number, number]) {
+    inputHeight.value = height.toString()
+    inputWidth.value = width.toString()
 }
 
 export const readConfig = (): Effect.Effect<InputConfig, Error> => {
@@ -52,8 +65,24 @@ inputHeight.addEventListener("change", (event: Event) => {
     inputWidth.value = (newHeightInPieces / aspectRatio).toString()
 })
 
-previewFile()
-fileInput.addEventListener("change", previewFile);
+inputWidth.addEventListener("focus", () => {
+    loadButton.setAttribute("disabled", "")
+})
+
+inputWidth.addEventListener("blur", () => {
+    loadButton.removeAttribute("disabled")
+})
+
+inputHeight.addEventListener("focus", () => {
+    loadButton.setAttribute("disabled", "")
+})
+
+inputHeight.addEventListener("blur", () => {
+    loadButton.removeAttribute("disabled")
+})
+
+loadChosenImage()
+fileInput.addEventListener("change", loadChosenImage);
 fileUpload.addEventListener("dragover", (event) => {
     // TODO: Styling when file is dragged over
     event.preventDefault()

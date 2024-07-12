@@ -1,12 +1,17 @@
 import { Effect } from "effect";
-import { InputConfig } from "./input";
+import type { InputConfig } from "./input";
 import { PIECE_DIMENSIONS, PIECE_EAR_SIZE } from "./pieceDefintions";
 
 const boardContainer = document.getElementById("board-container")!;
-const boardElement = document.getElementById("board") as HTMLDivElement;
 
 export type PiecePositionLookup = Map<number, { left: number; top: number }>;
 
+export function clearBoardContainer() {
+	boardContainer.innerHTML = ''
+	const boardElement = document.createElement("div")
+	boardElement.id = "board"
+	boardContainer.appendChild(boardElement)
+}
 export function calculateBoardDimensions(image: HTMLImageElement) {
 	const aspectRatio = image.height / image.width;
 
@@ -33,14 +38,16 @@ export function setBoardDimensions({ boardWidth, boardHeight }: { boardWidth: nu
 	);
 }
 
-export function getRandomCoordinatesOutsideBoard({ board, pieceSize }: { board: HTMLDivElement, pieceSize: number }) {
+export function getRandomCoordinatesOutsideBoard(pieceSize: number) {
+	const boardElement = document.getElementById("board") as HTMLDivElement;
+
 	const shiftXY =
 		pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
 
 	const left = Math.random() * (window.innerWidth - shiftXY)
 	// TODO: Limit top based on width
-	const top = Math.random() > 0.5 ? Math.random() * (board.offsetTop - shiftXY) :
-		board.offsetTop + board.offsetHeight + Math.random() * (board.offsetTop - shiftXY)
+	const top = Math.random() > 0.5 ? Math.random() * (boardElement.offsetTop - shiftXY) :
+		boardElement.offsetTop + boardElement.offsetHeight + Math.random() * (boardElement.offsetTop - shiftXY)
 	return { left, top }
 }
 
@@ -49,6 +56,8 @@ interface CalculatePieceSizeParams extends Pick<InputConfig, 'heightInPieces' | 
 
 export const calculatePieceSize = ({ widthInPieces, heightInPieces }: CalculatePieceSizeParams) => {
 	let pieceSize = 50;
+	const boardElement = document.getElementById("board") as HTMLDivElement;
+
 	if (widthInPieces > heightInPieces) {
 		pieceSize = boardElement.clientWidth / widthInPieces
 	} else {
