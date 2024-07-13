@@ -14,3 +14,21 @@ export const loadImage = (imageSrc: string): Promise<HTMLImageElement> => {
 		img1.onerror = (error) => rej(error)
 	});
 };
+
+export function getRndInteger(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function gcd(a: number, b: number) {
+	if (b > a) {
+		const temp = a;
+		a = b;
+		b = temp;
+	}
+	while (true) {
+		if (b === 0) return a;
+		a %= b;
+		if (a === 0) return b;
+		b %= a;
+	}
+}

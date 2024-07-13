@@ -13,18 +13,8 @@
   --board-width: 500px;
   --board-height: 300px;
 }
-
-button {
-  cursor: pointer;
-}
-
-#app {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: stretch;
-  width: 100%;
-  height: 100%;
-  padding: 12px;
+body {
+  margin: 0;
 }
 
 #board {
@@ -34,22 +24,10 @@ button {
   height: var(--board-height);
 }
 
-#board > * {
-  position: absolute;
-  cursor: pointer;
-}
-
 #image {
-  width: 25rem;
+  max-width: calc(100vw - 5rem);
+  max-height: 500px;
   object-fit: contain;
-}
-
-.helpers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 35rem;
-  flex-grow: 0;
 }
 
 .piece {
@@ -59,14 +37,4 @@ button {
 
 figure > figcaption {
   text-align: center;
-}
-
-.row {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-}
-
-.row > * {
-  margin-bottom: 0;
 }

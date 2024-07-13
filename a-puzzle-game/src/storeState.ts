@@ -27,17 +27,6 @@ export function loadSavedPuzzleDimensions(){
 	return deserialize<SavedDimensions>(localStorage.getItem("saved-dimensions"))
 }
 
-export function savePieceSize(pieceSize: number) {
-	localStorage.setItem("saved-piece-size", pieceSize.toString())
-}
-
-
-export function loadSavedPieceSize() {
-	const savedPieceSize = Number.parseInt(localStorage.getItem("saved-piece-size") ?? "")
-	if (Number.isNaN(savedPieceSize)) throw new Error("Couldn't read saved-piece-size")
-	return savedPieceSize
-}
-
 export function saveBoard(board: PieceEntity[][]) {
 	const savedBoard = board.map((row) =>
 		row.map(({ id, definition, boundingBox }) => ({

@@ -8,7 +8,7 @@ import {
 export default defineConfig({
     shortcuts: [
         // ['btn', 'px-4 py-1 rounded inline-block bg-teal-600 text-white cursor-pointer hover:bg-teal-700 disabled:cursor-default disabled:bg-gray-600 disabled:opacity-50'],
-        ['icon-btn', 'border-none text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white'],
+        ['icon-btn', 'border-none text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 flex items-center justify-center cursor-pointer dark:hover:bg-gray-600 dark:hover:text-white'],
     ],
     presets: [
         presetUno(),

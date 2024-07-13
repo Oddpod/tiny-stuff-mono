@@ -152,11 +152,12 @@ export function findFittingPiece({
 		);
 		return getRandom(candidatePieces);
 	}
+	
 	return getRandom(
 		centerPieces.filter(
 			(piece) =>
 				piece.sides.top === requiredTopSide &&
-				piece.sides.right === requiredLeftSide,
+				piece.sides.left === requiredLeftSide,
 		),
 	);
 }

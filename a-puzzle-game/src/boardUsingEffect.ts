@@ -1,36 +1,41 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
-import { readConfig, setChosenImage, setConfigDimensions } from "./input";
+import { loadChosenImage, readConfig, setChosenImage } from "./input";
 import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefintions";
 import { createBoard } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
-import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, loadSavedPieceSize, saveBoard, saveImage, savePiecePositions, savePieceSize, savePuzzleDimensions } from "./storeState";
-import { calculateBoardDimensions, calculatePieceSize, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
+import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePieceSize, savePuzzleDimensions } from "./storeState";
+import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const appElement = document.getElementById("app") as HTMLDivElement
 
 const createPuzzleProgram = Effect.gen(function* (_) {
     const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig()
+    yield* Effect.tryPromise(() => loadChosenImage())
     savePuzzleDimensions([widthInPieces, heightInPieces])
+
     const image = yield* Effect.tryPromise(() => loadImage(imageSrc))
     saveImage(imageSrc)
-    const { boardHeight, boardWidth } = calculateBoardDimensions(image)
+
+    const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({image, widthInPieces, heightInPieces})
     setBoardDimensions({ boardWidth, boardHeight })
-    const pieceSize = yield* calculatePieceSize({ heightInPieces, widthInPieces })
-    savePieceSize(pieceSize)
+
+    yield* Effect.logDebug({ pieceSize, widthInPieces, heightInPieces })
+
     const board = yield* createBoard({ image, heightInPieces, widthInPieces, pieceSize })
     saveBoard(board)
-    yield* Effect.logDebug({ boardHeight, boardWidth, boardElement: { width: document.getElementById("board")?.clientWidth, height: document.getElementById("board")?.clientHeight } })
+
+    yield* Effect.logDebug({ boardHeight, boardWidth, pieceSize })
 
     const piecePositions: PiecePositionLookup = new Map()
     const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     for (const row of board) {
         for (const piece of row) {
             const newPiece = yield* Effect.promise(() => cutPiece({ piece, image, pieceSize, boardHeight, boardWidth }))
-            const placement = getRandomCoordinatesOutsideBoard(pieceSize)
+            const placement = getRandomCoordinatesOutsideBoard(pieceSize, piece.definition.sides)
             newPiece.style.left = `${placement.left}px`;
             newPiece.style.top = `${placement.top}px`;
             piecePositions.set(piece.id, placement)
@@ -53,16 +58,16 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
     }
 
     const image = yield* Effect.tryPromise(() => loadImage(savedImageSrc))
-    setChosenImage(savedImageSrc)
 
-    const { boardHeight, boardWidth } = calculateBoardDimensions(image)
+    const [widthInPieces] = yield* Effect.try(() => loadSavedPuzzleDimensions())
+    const heightInPieces = setChosenImage(image, widthInPieces)
+
+    const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({ image, widthInPieces, heightInPieces })
     setBoardDimensions({ boardHeight, boardWidth })
 
     const savedBoard = yield* Effect.try(() => loadSavedBoard())
-    const pieceSize = yield* Effect.try(() => loadSavedPieceSize())
-    const savedPuzzleDimensions = yield* Effect.try(() => loadSavedPuzzleDimensions())
-    setConfigDimensions(savedPuzzleDimensions)
-    yield* Effect.logDebug({ boardHeight, boardWidth, boardElement: { width: document.getElementById("board")?.clientWidth, height: document.getElementById("board")?.clientHeight } })
+
+    yield* Effect.logDebug({ boardHeight, boardWidth, pieceSize })
 
     const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     const piecePositions = yield* Effect.try(() => loadPiecePositions())

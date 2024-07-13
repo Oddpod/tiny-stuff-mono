@@ -1,30 +1,38 @@
-import { Effect } from "effect";
-import type { InputConfig } from "./input";
-import { PIECE_DIMENSIONS, PIECE_EAR_SIZE } from "./pieceDefintions";
+import { PIECE_DIMENSIONS, PIECE_EAR_SIZE, Side } from "./pieceDefintions";
+import { clamp, getRandom, getRndInteger } from "./utils";
 
 const boardContainer = document.getElementById("board-container")!;
 
 export type PiecePositionLookup = Map<number, { left: number; top: number }>;
 
 export function clearBoardContainer() {
+	const boardElement = boardContainer.querySelector('div[id="board"]')!
 	boardContainer.innerHTML = ''
-	const boardElement = document.createElement("div")
-	boardElement.id = "board"
 	boardContainer.appendChild(boardElement)
 }
-export function calculateBoardDimensions(image: HTMLImageElement) {
-	const aspectRatio = image.height / image.width;
 
-	let boardWidth = Math.min(image.width, window.innerWidth)
-	let boardHeight = Math.min(image.height, window.innerHeight)
-	if (image.width > image.height) {
-		boardWidth = Math.min(image.width, window.innerWidth * 3 / 4)
-		boardHeight = Math.round(boardWidth * aspectRatio)
-	} else {
-		boardHeight = Math.min(image.height, window.innerHeight * 3 / 4)
-		boardWidth = Math.round(boardHeight / aspectRatio)
-	}
-	return { boardHeight, boardWidth }
+interface CalculateBoardDimensions {
+	image: HTMLImageElement
+	widthInPieces: number
+	heightInPieces: number
+}
+
+const MAX_PIECE_SIZE = Object.freeze(150)
+const MIN_PIECE_SIZE = Object.freeze(50)
+export function calculateBoardDimensions({ image, widthInPieces, heightInPieces }: CalculateBoardDimensions) {
+	let pieceSize = 50;
+
+	const initialBoardWidth = Math.min(image.width, window.innerWidth * 3 / 4)
+	const initialBoardHeight = Math.min(image.height, window.innerHeight * 3 / 4)
+
+	pieceSize = initialBoardWidth > initialBoardHeight ? initialBoardWidth / widthInPieces : initialBoardHeight / heightInPieces
+
+	pieceSize = clamp(pieceSize, MIN_PIECE_SIZE, MAX_PIECE_SIZE)
+
+	const boardWidth = pieceSize * widthInPieces
+	const boardHeight = pieceSize * heightInPieces
+
+	return { boardHeight, boardWidth, pieceSize }
 }
 
 export function setBoardDimensions({ boardWidth, boardHeight }: { boardWidth: number, boardHeight: number }) {
@@ -38,31 +46,22 @@ export function setBoardDimensions({ boardWidth, boardHeight }: { boardWidth: nu
 	);
 }
 
-export function getRandomCoordinatesOutsideBoard(pieceSize: number) {
+export function getRandomCoordinatesOutsideBoard(pieceSize: number, sides: { bottom: Side; top: Side; left: Side; right: Side; }) {
 	const boardElement = document.getElementById("board") as HTMLDivElement;
+	const boardBoundingBox = boardElement.getBoundingClientRect()
 
-	const shiftXY =
-		pieceSize + (2 * PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS;
+	const shiftXForRightEar = sides.right === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
+	const shiftXForLeftEar = sides.left === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
+	const pieceWidth = pieceSize + shiftXForLeftEar + shiftXForRightEar
 
-	const left = Math.random() * (window.innerWidth - shiftXY)
-	// TODO: Limit top based on width
-	const top = Math.random() > 0.5 ? Math.random() * (boardElement.offsetTop - shiftXY) :
-		boardElement.offsetTop + boardElement.offsetHeight + Math.random() * (boardElement.offsetTop - shiftXY)
-	return { left, top }
-}
+	const shiftYForTopEar = sides.top === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
+	const shiftYForBottomEar = sides.bottom === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
+	const pieceHeight = pieceSize + shiftYForBottomEar + shiftYForTopEar
 
-interface CalculatePieceSizeParams extends Pick<InputConfig, 'heightInPieces' | 'widthInPieces'> {
-}
-
-export const calculatePieceSize = ({ widthInPieces, heightInPieces }: CalculatePieceSizeParams) => {
-	let pieceSize = 50;
-	const boardElement = document.getElementById("board") as HTMLDivElement;
-
-	if (widthInPieces > heightInPieces) {
-		pieceSize = boardElement.clientWidth / widthInPieces
-	} else {
-		pieceSize = boardElement.clientHeight / heightInPieces
+	const left = getRndInteger(pieceWidth, window.innerWidth - pieceWidth)
+	let top = getRndInteger(pieceHeight, window.innerHeight - pieceHeight)
+	if (left + pieceWidth > boardBoundingBox.left && left < boardBoundingBox.right) {
+		top = getRndInteger(boardElement.offsetTop + boardElement.offsetHeight, window.innerHeight - pieceHeight)
 	}
-	Effect.logDebug({ pieceSize, widthInPieces, heightInPieces })
-	return Effect.succeed(Math.round(pieceSize))
+	return { left, top }
 }
