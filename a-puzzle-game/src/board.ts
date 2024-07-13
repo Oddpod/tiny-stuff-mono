@@ -1,5 +1,5 @@
-import { PIECE_DIMENSIONS, PIECE_EAR_SIZE, Side } from "./pieceDefintions";
-import { clamp, getRandom, getRndInteger } from "./utils";
+import { PIECE_DIMENSIONS, PIECE_EAR_SIZE, type Side } from "./pieceDefintions";
+import { clamp, getRndInteger } from "./utils";
 
 const boardContainer = document.getElementById("board-container")!;
 

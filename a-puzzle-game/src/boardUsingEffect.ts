@@ -6,7 +6,7 @@ import { pieceDefinitionLookup } from "./pieceDefintions";
 import { createBoard } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
-import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePieceSize, savePuzzleDimensions } from "./storeState";
+import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
 import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
