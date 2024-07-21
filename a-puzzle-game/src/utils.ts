@@ -19,6 +19,10 @@ export function getRndInteger(min: number, max: number) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export function isWithinRangeInclusive(value: number, min: number, max: number) {
+	return value >= min && value <= max
+}
+
 export function gcd(a: number, b: number) {
 	if (b > a) {
 		const temp = a;

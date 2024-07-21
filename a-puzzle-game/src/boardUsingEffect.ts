@@ -1,13 +1,14 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
 import { loadChosenImage, readConfig, setChosenImage } from "./input";
-import { loadImage } from "./utils";
-import { pieceDefinitionLookup } from "./pieceDefintions";
-import { createBoard } from "./makeBoard";
+import { isWithinRangeInclusive, loadImage } from "./utils";
+import { Piece, PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
+import { createBoard, PieceEntity } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
 import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
 import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
+import { clickPieceIntoPlace } from "./clickPieceInPlace";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const appElement = document.getElementById("app") as HTMLDivElement
@@ -20,7 +21,7 @@ const createPuzzleProgram = Effect.gen(function* (_) {
     const image = yield* Effect.tryPromise(() => loadImage(imageSrc))
     saveImage(imageSrc)
 
-    const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({image, widthInPieces, heightInPieces})
+    const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({ image, widthInPieces, heightInPieces })
     setBoardDimensions({ boardWidth, boardHeight })
 
     yield* Effect.logDebug({ pieceSize, widthInPieces, heightInPieces })
@@ -79,9 +80,15 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
             const placement = piecePositions.get(piece.id)!
             newPiece.style.left = `${placement.left}px`;
             newPiece.style.top = `${placement.top}px`;
+            newPiece.id = `piece-${piece.id}`
+            newPiece.setAttribute("data-definition-id", definition.id.toString())
+            newPiece.dataset.boundingbox = JSON.stringify(piece.boundingBox)
             boardContainer.appendChild(newPiece);
             pieceDragger.makePieceDraggable({
-                pieceId: piece.id, divElement: newPiece, onMouseUpCallback: ({ pieceId, left, top }) => {
+                pieceId: piece.id,
+                divElement: newPiece,
+                onMouseUpCallback: ({ pieceId, left, top }) => {
+                    clickPieceIntoPlace({ boundingBox: piece.boundingBox, left, top, pieceId, definition, pieceSize })
                     piecePositions.set(pieceId, { left, top })
                     savePiecePositions(piecePositions)
                 }
