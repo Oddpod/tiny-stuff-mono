@@ -6,6 +6,7 @@ export type SavedBoard = {
 	id: number;
 	definitionId: number;
 	boundingBox: PieceEntity["boundingBox"];
+	connections: PieceEntity["connections"];
 }[][];
 
 export function savePiecePositions(piecePositions: PiecePositionLookup) {
@@ -23,16 +24,17 @@ export function savePuzzleDimensions(dimensions: [number, number]) {
 	localStorage.setItem("saved-dimensions", serialize(dimensions))
 }
 
-export function loadSavedPuzzleDimensions(){
+export function loadSavedPuzzleDimensions() {
 	return deserialize<SavedDimensions>(localStorage.getItem("saved-dimensions"))
 }
 
 export function saveBoard(board: PieceEntity[][]) {
-	const savedBoard = board.map((row) =>
-		row.map(({ id, definition, boundingBox }) => ({
+	const savedBoard: SavedBoard = board.map((row) =>
+		row.map(({ id, definition, boundingBox, connections }) => ({
 			id,
 			definitionId: definition.id,
 			boundingBox,
+			connections
 		})),
 	);
 	localStorage.setItem("saved-board", serialize(savedBoard));
@@ -45,9 +47,9 @@ export function loadSavedBoard() {
 }
 
 export function saveImage(imageSrc: string) {
-    localStorage.setItem("saved-image", imageSrc)
+	localStorage.setItem("saved-image", imageSrc)
 }
 
 export function getSavedImage() {
-    return localStorage.getItem("saved-image")
+	return localStorage.getItem("saved-image")
 }

@@ -76,11 +76,9 @@ const mouseDown = ({
 
 export interface MakePieceDraggableParams
 	extends Pick<MouseDownParams, "divElement"> {
-	pieceId: number;
-	onMouseUpCallback: (_: {
+	onMouseUpCallback?: (_: {
 		left: number;
 		top: number;
-		pieceId: number;
 	}) => void;
 }
 export function PieceDragger({
@@ -88,7 +86,7 @@ export function PieceDragger({
 	boardContainer,
 }: { boardElement: HTMLElement; boardContainer: HTMLElement }) {
 	const makePieceDraggable = ({
-		pieceId,
+		// pieceId,
 		divElement,
 		onMouseUpCallback,
 	}: MakePieceDraggableParams) => {
@@ -96,8 +94,11 @@ export function PieceDragger({
 			boardContainer,
 			boardElement,
 			divElement,
-			onMouseUpCallback: ({ left, top }) =>
-				onMouseUpCallback({ left, top, pieceId }),
+			onMouseUpCallback: ({ left, top }) => {
+				if (onMouseUpCallback) {
+					onMouseUpCallback({ left, top })
+				}
+			}
 		});
 		divElement.ondragstart = () => false;
 		divElement.onmousedown = mouseDownCallback;
