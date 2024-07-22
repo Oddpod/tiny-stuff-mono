@@ -37,7 +37,7 @@ function combinePieces({ innerParentDiv, wantedPiece, pieceDiv, parentDiv }: Com
 
 let uniqueCounterCombined = 0
 
-export function combineWithTopConnection({ boardContainer, pieceDiv, wantedPiece, wantedPieceDomRect, pieceSize, pieceDefSides }: CombineWithLeftConnectionParams): CombineConnectionReturnType {
+export function combineWithTopConnection({ boardContainer, pieceDiv, wantedPiece, wantedPieceDomRect, pieceSize, pieceDefSides, pieceDomRect }: CombineWithLeftConnectionParams): CombineConnectionReturnType {
     const { parentDiv, innerParentDiv } = createParentDivs();
 
     boardContainer?.removeChild(pieceDiv);
@@ -53,6 +53,8 @@ export function combineWithTopConnection({ boardContainer, pieceDiv, wantedPiece
 
     parentDiv.style.top = `${wantedPieceDomRect.top}px`;
     parentDiv.style.left = `${wantedPieceDomRect.left}px`;
+    parentDiv.style.height = `${wantedPieceDomRect.height + pieceDomRect.height}px`
+    parentDiv.style.width = `${Math.max(wantedPieceDomRect.width, pieceDomRect.width)}px`
 
     combinePieces({ innerParentDiv, parentDiv, pieceDiv, wantedPiece });
 
@@ -100,7 +102,7 @@ export function combineWithBottomConnection({ boardContainer, wantedPiece, piece
 
     wantedPiece.style.left = `${wantedPieceLeft}px`
     pieceDiv.style.left = `${pieceDivLeft}px`
-    
+
     wantedPiece.style.top = `${pieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS}px`;
     pieceDiv.style.top = "0px";
 

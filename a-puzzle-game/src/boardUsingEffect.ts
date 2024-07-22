@@ -1,7 +1,7 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
 import { loadChosenImage, readConfig, setChosenImage } from "./input";
-import { isWithinRangeInclusive, loadImage } from "./utils";
+import { checkCollision, isWithinRangeInclusive, loadImage } from "./utils";
 import { Piece, PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
 import { createBoard, PieceEntity } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
@@ -85,18 +85,16 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
     const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     const piecePositions = yield* Effect.try(() => loadPiecePositions())
 
-    function findAllPiecesTouchingRect(rect: DOMRect, offset: number) {
+    function findAllPiecesTouchingRect(combinedPieceDiv: HTMLDivElement, offset: number) {
         const allPieces = document.querySelectorAll(".piece")
         console.log({ allPieces })
         const piecesInside = [];
+        const rect = combinedPieceDiv.getBoundingClientRect();
         for (const element of allPieces) {
             const box = element.getBoundingClientRect();
-            const isTouchingRect =
-                box.right >= rect.left && rect.top <= box.top ||
-                box.left <= rect.right && box.top <= rect.top ||
-                box.bottom >= rect.top && box.left
+            const alreadyInCombinedDiv = combinedPieceDiv.id === element.parentElement?.parentElement?.id
             if (
-                isTouchingRect
+                checkCollision(rect, box) && !alreadyInCombinedDiv
             ) {
                 piecesInside.push(element);
             }
@@ -125,7 +123,7 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
                         // combinedPiecesLookup.set(id, pieceIds)
                         pieceDragger.makePieceDraggable({
                             divElement: combinedPieceDiv, onMouseUpCallback: (_) => {
-                                const pieces = findAllPiecesTouchingRect(combinedPieceDiv.getBoundingClientRect(), id)
+                                const pieces = findAllPiecesTouchingRect(combinedPieceDiv, id)
                                 const combinedPieceEntity = combinedPiecesLookup.get(id)!
 
                                 console.log({ pieces })
