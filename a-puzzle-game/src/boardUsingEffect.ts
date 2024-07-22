@@ -8,7 +8,8 @@ import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
 import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
 import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
-import { clickIntoPlaceAndCombine, clickPieceIntoPlace } from "./clickPieceInPlace";
+import { clickPieceIntoPlace } from "./clickPieceInPlace";
+import { clickIntoPlaceAndCombine } from "./clickIntoPlaceAndCombine";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const appElement = document.getElementById("app") as HTMLDivElement
@@ -45,10 +46,11 @@ const createPuzzleProgram = Effect.gen(function* (_) {
             boardContainer.appendChild(newPiece);
             pieceDragger.makePieceDraggable({
                 divElement: newPiece, onMouseUpCallback: ({ left, top }) => {
-                    const combinedPiece = clickIntoPlaceAndCombine({ piece, pieceSize })
-                    if (combinedPiece) {
-                        pieceDragger.makePieceDraggable({ divElement: combinedPiece })
-                        boardContainer.appendChild(combinedPiece)
+                    const result = clickIntoPlaceAndCombine({ piece, pieceSize })
+                    if (result) {
+                        const { combinedPieceDiv, id, pieceIds } = result
+                        pieceDragger.makePieceDraggable({ divElement: combinedPieceDiv })
+                        boardContainer.appendChild(combinedPieceDiv)
                     }
                     piecePositions.set(piece.id, { left, top })
                     savePiecePositions(piecePositions)
@@ -120,7 +122,7 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
                     const result = clickIntoPlaceAndCombine({ piece: { ...piece, definition }, pieceSize })
                     if (result) {
                         const { combinedPieceDiv, pieceIds, id } = result
-                        combinedPiecesLookup.set(id, pieceIds)
+                        // combinedPiecesLookup.set(id, pieceIds)
                         pieceDragger.makePieceDraggable({
                             divElement: combinedPieceDiv, onMouseUpCallback: (_) => {
                                 const pieces = findAllPiecesTouchingRect(combinedPieceDiv.getBoundingClientRect(), id)
