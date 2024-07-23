@@ -13,6 +13,7 @@ interface ClickPieceIntoPlaceParams {
 
 export interface HtmlPieceElement extends HTMLDivElement {
     dataset: {
+        pieceId: string,
         definitionId: string,
     }
 }
@@ -101,11 +102,6 @@ export interface ClickIntoPlaceAndCombineParams {
     piece: PieceEntity
     pieceSize: number
 }
-
-const connectedPiecesLookup = new Map<number, number[][]>
-
-
-
 
 function checkWantedPiece(wantedLeftPieceId: number, hitOffsetForEar: number) {
     const wantedLeftPiece = document.getElementById(`piece-${wantedLeftPieceId}`)! as HtmlPieceElement;

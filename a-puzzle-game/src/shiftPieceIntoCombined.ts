@@ -55,8 +55,10 @@ export function rightConnectionCalcPos({ wantedPieceDomRect, combinedParentDiv, 
     const combinedParentDivRect = combinedParentDiv.getBoundingClientRect();
     const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
     let pieceDivTop = 0;
+    console.log("wantedTop", wantedPieceDef.sides.top)
+    console.log("pieceTop", sides.top)
     if (wantedPieceDef.sides.top === sides.top) {
-        pieceDivTop = wantedPieceDomRect.top - combinedParentDivRect.top;
+        pieceDivTop = 0;
     } else if (wantedPieceDef.sides.top === "ear") {
         pieceDivTop = wantedPieceDomRect.top - combinedParentDivRect.top + 15 * pieceSize / PIECE_DIMENSIONS;
     }
@@ -73,10 +75,29 @@ interface AdjustAndAddPieceToCombinedParams {
 }
 
 export function adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv }: AdjustAndAddPieceToCombinedParams) {
-    pieceDiv.style.top = `${pieceDivTop}px`;
-    pieceDiv.style.left = `${pieceDivLeft}px`;
     pieceDiv.ontouchstart = null;
     pieceDiv.onmousedown = null;
+    // Shift rest of pieces if left or top is negative
+    if (pieceDivLeft < 0) {
+        const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
+        const children = combinedParentDiv.querySelectorAll<HtmlPieceElement>(".piece")
+        for (const child of children) {
+            child.style.left = `${child.getBoundingClientRect().left - combinedParentDomRect.left + Math.abs(pieceDivLeft)}px`
+        }
+        combinedParentDiv.parentElement!.style.left = `${combinedParentDomRect.left + pieceDivLeft}px`
+        pieceDivLeft = 0
+    }
+    if (pieceDivTop < 0) {
+        const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
+        const children = combinedParentDiv.querySelectorAll<HtmlPieceElement>(".piece")
+        for (const child of children) {
+            child.style.left = `${child.getBoundingClientRect().left - combinedParentDomRect.top + Math.abs(pieceDivTop)}px`
+        }
+        combinedParentDiv.parentElement!.style.top = `${combinedParentDomRect.top + pieceDivTop}px`
+        pieceDivTop = 0
+    }
+    pieceDiv.style.top = `${pieceDivTop}px`;
+    pieceDiv.style.left = `${pieceDivLeft}px`;
     combinedParentDiv.appendChild(pieceDiv);
 }
 

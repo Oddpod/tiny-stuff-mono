@@ -46,15 +46,16 @@ export function combineWithTopConnection({ boardContainer, pieceDiv, wantedPiece
     const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
 
     const { wantedPieceLeft, pieceDivLeft } = calculateLeftForTopAndBottom(wantedPieceDef, pieceDefSides.left, pieceSize)
+    const pieceDivTop = wantedPieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS
     wantedPiece.style.left = `${wantedPieceLeft}px`;
     wantedPiece.style.top = "0px";
     pieceDiv.style.left = `${pieceDivLeft}px`;
-    pieceDiv.style.top = `${wantedPieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS}px`;
+    pieceDiv.style.top = `${pieceDivTop}px`;
 
     parentDiv.style.top = `${wantedPieceDomRect.top}px`;
     parentDiv.style.left = `${wantedPieceDomRect.left}px`;
-    parentDiv.style.height = `${wantedPieceDomRect.height + pieceDomRect.height}px`
-    parentDiv.style.width = `${Math.max(wantedPieceDomRect.width, pieceDomRect.width)}px`
+    innerParentDiv.style.height = `${pieceDivTop + pieceDomRect.height}px`
+    innerParentDiv.style.width = `${Math.max(wantedPieceDomRect.width, pieceDomRect.width)}px`
 
     combinePieces({ innerParentDiv, parentDiv, pieceDiv, wantedPiece });
 
@@ -72,19 +73,23 @@ export function combineWithRightConnection({
 
     const { pieceDivTop, wantedPieceTop } = calculateTopsForLeftAndRight(wantedPieceDef, pieceDefSides.top, pieceSize);
 
+    const wantedPieceLeft = pieceDomRect.width - 15 * pieceSize / PIECE_DIMENSIONS
     pieceDiv.style.top = `${pieceDivTop}px`;
 
     wantedPiece.style.top = `${wantedPieceTop}px`;
-    wantedPiece.style.left = `${pieceDomRect.width - 15 * pieceSize / PIECE_DIMENSIONS}px`;
+    wantedPiece.style.left = `${wantedPieceLeft}px`;
     pieceDiv.style.left = "0px";
 
     const { parentDiv, innerParentDiv } = createParentDivs();
 
     parentDiv.style.top = `${Math.max(wantedPieceDomRect.top, pieceDomRect.top)}px`;
     parentDiv.style.left = `${pieceDomRect.left}px`;
-    parentDiv.id = `combined-piece-${uniqueCounterCombined}`;
+    innerParentDiv.style.height = `${Math.max(wantedPieceDomRect.height, pieceDomRect.height)}px`
+    innerParentDiv.style.width = `${wantedPieceLeft + wantedPieceDomRect.width}px`
 
     combinePieces({ innerParentDiv, parentDiv, pieceDiv, wantedPiece });
+
+    parentDiv.id = `combined-piece-${uniqueCounterCombined}`;
     return { combinedPieceDiv: parentDiv, id: uniqueCounterCombined++ };
 }
 interface CombineWithBottomConnectionParams extends Pick<CombineWithTopConnectionParams, 'boardContainer' | 'pieceDiv' | 'pieceSize' | 'wantedPiece' | 'wantedPieceDomRect'> {
@@ -100,16 +105,20 @@ export function combineWithBottomConnection({ boardContainer, wantedPiece, piece
 
     const { wantedPieceLeft, pieceDivLeft } = calculateLeftForTopAndBottom(wantedPieceDef, pieceDefSides.left, pieceSize)
 
+    const wantedPieceTop = pieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS
     wantedPiece.style.left = `${wantedPieceLeft}px`
     pieceDiv.style.left = `${pieceDivLeft}px`
 
-    wantedPiece.style.top = `${pieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS}px`;
+    wantedPiece.style.top = `${wantedPieceTop}px`;
     pieceDiv.style.top = "0px";
 
     const { parentDiv, innerParentDiv } = createParentDivs();
 
     parentDiv.style.top = `${pieceDomRect.top}px`;
     parentDiv.style.left = `${Math.min(pieceDomRect.left, wantedPieceDomRect.left)}px`;
+    innerParentDiv.style.height = `${wantedPieceTop + wantedPieceDomRect.height}px`
+    innerParentDiv.style.width = `${Math.max(wantedPieceDomRect.width, pieceDomRect.width)}px`
+
 
     combinePieces({ innerParentDiv, wantedPiece, pieceDiv, parentDiv });
 
@@ -123,15 +132,20 @@ export function combineWithLeftConnection({ wantedPiece, pieceDiv, boardContaine
     boardContainer.removeChild(pieceDiv);
     const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!
 
-    pieceDiv.style.left = `${wantedPieceDomRect.width - 15 * pieceSize / PIECE_DIMENSIONS}px`;
-    wantedPiece.style.left = "0px";
     const { pieceDivTop, wantedPieceTop } = calculateTopsForLeftAndRight(wantedPieceDef, pieceDefSides.top, pieceSize);
-    const { parentDiv, innerParentDiv } = createParentDivs();
+    const pieceDivLeft = wantedPieceDomRect.width - 15 * pieceSize / PIECE_DIMENSIONS
 
+    wantedPiece.style.left = "0px";
+    pieceDiv.style.left = `${pieceDivLeft}px`;
     pieceDiv.style.top = `${pieceDivTop}px`
     wantedPiece.style.top = `${wantedPieceTop}px`
+
+    const { parentDiv, innerParentDiv } = createParentDivs();
     parentDiv.style.top = `${Math.min(pieceDomRect.top, wantedPieceDomRect.top)}px`;
     parentDiv.style.left = `${wantedPieceDomRect.left}px`;
+
+    innerParentDiv.style.height = `${Math.max(wantedPieceDomRect.height, pieceDomRect.height)}px`
+    innerParentDiv.style.width = `${pieceDivLeft + pieceDomRect.width}px`
 
     combinePieces({ innerParentDiv, wantedPiece, pieceDiv, parentDiv });
 

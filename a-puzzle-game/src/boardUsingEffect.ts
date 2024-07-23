@@ -8,7 +8,7 @@ import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
 import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
 import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
-import { clickPieceIntoPlace } from "./clickPieceInPlace";
+import { clickPieceIntoPlace, HtmlPieceElement } from "./clickPieceInPlace";
 import { clickIntoPlaceAndCombine } from "./clickIntoPlaceAndCombine";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
@@ -85,11 +85,13 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
     const pieceDragger = PieceDragger({ boardContainer, boardElement: appElement })
     const piecePositions = yield* Effect.try(() => loadPiecePositions())
 
-    function findAllPiecesTouchingRect(combinedPieceDiv: HTMLDivElement, offset: number) {
-        const allPieces = document.querySelectorAll(".piece")
+    function findAllPiecesTouchingCombinedDiv(combinedPieceDiv: HTMLDivElement, boundingBox: PieceEntity["boundingBox"]) {
+        const allPieces = document.querySelectorAll<HtmlPieceElement>(".piece")
         console.log({ allPieces })
         const piecesInside = [];
-        const rect = combinedPieceDiv.getBoundingClientRect();
+        const boundingRect = combinedPieceDiv.getBoundingClientRect()
+        const rect = new DOMRect(boundingRect.x, boundingRect.y, boundingBox[1].x - boundingBox[0].x, boundingBox[1].y - boundingBox[0].y)
+        console.log({ rect })
         for (const element of allPieces) {
             const box = element.getBoundingClientRect();
             const alreadyInCombinedDiv = combinedPieceDiv.id === element.parentElement?.parentElement?.id
@@ -101,7 +103,7 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
         };
         return piecesInside;
     }
-    const combinedPiecesLookup = new Map<number, number[]>()
+    const combinedPiecesLookup = new Map<number, { boundingBox: PieceEntity["boundingBox"] }>()
     for (const row of savedBoard) {
         for (const piece of row) {
             const definition = pieceDefinitionLookup.get(piece.definitionId)!
@@ -119,12 +121,48 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
                     // clickPieceIntoPlace({ boundingBox: piece.boundingBox, left, top, pieceId, definition, pieceSize })
                     const result = clickIntoPlaceAndCombine({ piece: { ...piece, definition }, pieceSize })
                     if (result) {
-                        const { combinedPieceDiv, pieceIds, id } = result
+                        if (result.didCombine) {
+                            return
+                        }
+                        const { combinedPieceDiv, connectedPieceId, id } = result
+
+                        const connectedPiece = savedBoard.flat().find(p => p.id === connectedPieceId)!
+                        const xMin = Math.min(piece.boundingBox[0].x, connectedPiece.boundingBox[0].x)
+                        const xMax = Math.max(piece.boundingBox[1].x, connectedPiece.boundingBox[1].x)
+                        const yMin = Math.min(piece.boundingBox[0].y, connectedPiece.boundingBox[0].y)
+                        const yMax = Math.max(piece.boundingBox[1].y, connectedPiece.boundingBox[1].y)
+                        console.log({ xMin, xMax, yMin, yMax })
+                        combinedPiecesLookup.set(id, { boundingBox: [{ x: xMin, y: yMin }, { x: xMax, y: yMax }] })
                         // combinedPiecesLookup.set(id, pieceIds)
                         pieceDragger.makePieceDraggable({
                             divElement: combinedPieceDiv, onMouseUpCallback: (_) => {
-                                const pieces = findAllPiecesTouchingRect(combinedPieceDiv, id)
-                                const combinedPieceEntity = combinedPiecesLookup.get(id)!
+                                // const allChildPieces = combinedPieceDiv.querySelectorAll<HtmlPieceElement>(".piece")
+
+                                // for (const pieceDiv of allChildPieces) {
+                                //     const piece = savedBoard.flat().find(p => p.id === Number.parseInt(pieceDiv.dataset.pieceId))!
+                                //     const wantedPieces = [piece.connections.bottom, piece.connections.right, piece.connections.bottom, piece.connections.left]
+                                // }
+                                const combinedPiece = combinedPiecesLookup.get(id)!
+                                const pieces = findAllPiecesTouchingCombinedDiv(combinedPieceDiv, combinedPiece.boundingBox)
+
+                                console.log({ pieces })
+                                for (const pieceDiv of pieces) {
+                                    const hasCombinedDiv = pieceDiv.parentElement !== null && pieceDiv.parentElement?.id !== "board-container"
+                                    if (!hasCombinedDiv) {
+                                        const pieceToTry = savedBoard.flat().find(p => p.id === Number.parseInt(pieceDiv.dataset.pieceId))!
+                                        const pieceDefinition = pieceDefinitionLookup.get(Number.parseInt(pieceDiv.dataset.definitionId))!
+                                        const { didCombine = false } = clickIntoPlaceAndCombine({ piece: { ...pieceToTry, definition: pieceDefinition }, pieceSize })
+
+                                        if (didCombine) {
+                                            const xMin = Math.min(combinedPiece.boundingBox[0].x, pieceToTry.boundingBox[0].x)
+                                            const xMax = Math.max(combinedPiece.boundingBox[1].x, pieceToTry.boundingBox[1].x)
+                                            const yMin = Math.min(combinedPiece.boundingBox[0].y, pieceToTry.boundingBox[0].y)
+                                            const yMax = Math.max(combinedPiece.boundingBox[1].y, pieceToTry.boundingBox[1].y)
+                                            console.log("new", { xMin, xMax, yMin, yMax })
+                                            combinedPiecesLookup.set(id, { boundingBox: [{ x: xMin, y: yMin }, { x: xMax, y: yMax }] })
+                                        }
+                                    }
+                                }
 
                                 console.log({ pieces })
                                 // const domRect = combinedPiece.getBoundingClientRect()

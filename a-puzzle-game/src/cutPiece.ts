@@ -35,10 +35,10 @@ export const cutPiece = async ({ piece, pieceSize, image, boardHeight, boardWidt
 
     const pieceWidth = (piece.definition.width * pieceSize) / PIECE_DIMENSIONS
     const pieceHeight = (piece.definition.height * pieceSize) / PIECE_DIMENSIONS
-    
+
     canvasForCropping.width = pieceWidth
     canvasForCropping.height = pieceHeight
-    
+
     croppingContext.drawImage(
         image,
         shiftedLeftX,
@@ -97,7 +97,17 @@ export const cutPiece = async ({ piece, pieceSize, image, boardHeight, boardWidt
     const newPiece = document.createElement("div");
     newPiece.appendChild(svgElement);
     newPiece.appendChild(croppedImage);
-    newPiece.setAttribute("data-piece", JSON.stringify({ id: piece.id }))
+    const numberElement = document.createElement("div")
+    numberElement.style.position = "absolute"
+    numberElement.style.zIndex = "100"
+    numberElement.style.top = "50%"
+    numberElement.style.left = "50%"
+    numberElement.style.transform = "translate(-50%, -50%)"
+    numberElement.style.fontSize = "2rem"
+    numberElement.style.textAlign = "center"
+    numberElement.innerText = piece.id.toString()
+    newPiece.appendChild(numberElement)
+    newPiece.setAttribute("data-piece-id", piece.id.toString())
     newPiece.setAttribute("style", style);
     newPiece.classList.add("piece");
     newPiece.setAttribute("draggable", "");

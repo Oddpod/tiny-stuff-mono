@@ -17,17 +17,19 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
 
         if (isOverLappingOnX && isOverLappingOnY) {
             const combinedParentDiv = wantedPiece.parentElement;
-
             const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
             if (hasCombinedParent) {
+                const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
                 const { pieceDivTop, pieceDivLeft } = topConnectionCalculateShiftXY({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, sides: piece.definition.sides, pieceDomRect });
+                combinedParentDiv.style.height = `${pieceDomRect.height + pieceDivTop}px`
+                combinedParentDiv.style.width = `${Math.max(combinedParentDomRect.width, pieceDomRect.width)}px`
                 adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-                return null;
+                return { didCombine: true };
             }
 
             return {
                 ...combineWithTopConnection({ boardContainer, pieceDiv, pieceSize, wantedPiece, wantedPieceDomRect, pieceDefSides: piece.definition.sides, pieceDomRect }),
-                pieceIds: [piece.id, wantedPieceId]
+                connectedPieceId: wantedPieceId
             };
         }
     }
@@ -39,14 +41,17 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
 
             const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
             if (hasCombinedParent) {
+                const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
                 const { pieceDivLeft, pieceDivTop } = rightConnectionCalcPos({ wantedPieceDomRect, combinedParentDiv, wantedPiece, sides: piece.definition.sides, pieceSize, pieceDomRect });
+                combinedParentDiv.style.height = `${Math.max(combinedParentDomRect.height, pieceDomRect.height)}px`
+                combinedParentDiv.style.width = `${Math.abs(pieceDivLeft) + combinedParentDomRect.width}px`
                 adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-                return null;
+                return { didCombine: true };
             }
 
             return {
                 ...combineWithRightConnection({ boardContainer, pieceDefSides: piece.definition.sides, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect }),
-                pieceIds: [piece.id, wantedPieceId]
+                connectedPieceId: wantedPieceId
             };
         }
     }
@@ -60,12 +65,12 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
             if (hasCombinedParent) {
                 const { pieceDivTop, pieceDivLeft } = bottomConnectionCalcPos({ combinedParentDiv, wantedPiece, wantedPieceDomRect, sides: piece.definition.sides, pieceDomRect, pieceSize });
                 adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-                return null;
+                return { didCombine: true };
             }
 
             return {
                 ...combineWithBottomConnection({ boardContainer, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect, pieceDefSides: piece.definition.sides }),
-                pieceIds: [piece.id, wantedPieceId]
+                connectedPieceId: wantedPieceId
             };
         }
     }
@@ -79,13 +84,14 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
             if (hasCombinedParent) {
                 const { pieceDivTop, pieceDivLeft } = leftConnectionCalcPos({ combinedParentDiv, wantedPiece, wantedPieceDomRect, sides: piece.definition.sides, pieceDomRect, pieceSize });
                 adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-                return null;
+                return { didCombine: true };
             }
             return {
                 ...combineWithLeftConnection({ boardContainer, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect, pieceDefSides: piece.definition.sides }),
-                pieceIds: [piece.id, wantedPieceId]
+                connectedPieceId: wantedPieceId
             };
         }
     }
+    return {}
 }
 
