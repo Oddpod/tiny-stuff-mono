@@ -63,5 +63,5 @@ export function checkOverLapOnTop({ connections, pieceDomRect, hitOffsetForEar }
 
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "top" });
 
-    return { isOverLappingOnX, isOverLappingOnY, wantedPieceDomRect, wantedPiece, wantedPieceId };
+    return { isOverLapping: isOverLappingOnX && isOverLappingOnY, wantedPieceDomRect, wantedPiece, wantedPieceId };
 }

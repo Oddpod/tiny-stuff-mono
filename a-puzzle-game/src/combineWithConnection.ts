@@ -17,8 +17,11 @@ interface CombineConnectionReturnType {
 
 interface CombinePiecesParams { innerParentDiv: HTMLDivElement, wantedPiece: HtmlPieceElement, pieceDiv: HtmlPieceElement, parentDiv: HTMLDivElement }
 
+let uniqueCombinedDivIdCounter = 0
+
 function createParentDivs() {
     const parentDiv = document.createElement("div");
+    parentDiv.setAttribute("data-id", (uniqueCombinedDivIdCounter++).toString())
     const innerParentDiv = document.createElement("div");
     parentDiv.style.position = "absolute";
     innerParentDiv.style.position = "relative";
