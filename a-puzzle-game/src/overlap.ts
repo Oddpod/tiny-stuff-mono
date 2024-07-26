@@ -10,8 +10,15 @@ interface CheckOverlapParams {
     hitOffsetForEar: number
 }
 
-export function checkOverlapOnLeft({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams) {
-    const wantedPieceId = connections.left;
+interface CheckOverlapReturnType {
+    isOverlapping: boolean,
+    wantedPiece: HtmlPieceElement,
+    wantedPieceDomRect: DOMRect,
+    wantedPieceId: number
+}
+
+export function checkOverlapOnLeft({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams): CheckOverlapReturnType {
+    const wantedPieceId = connections.left!;
     const wantedPiece = document.getElementById(`piece-${wantedPieceId}`) as HtmlPieceElement;
     const wantedPieceDomRect = wantedPiece.getBoundingClientRect();
     const diffY = wantedPieceDomRect.top - pieceDomRect.top - HIT_OFFSET;
@@ -20,11 +27,11 @@ export function checkOverlapOnLeft({ connections, pieceDomRect, hitOffsetForEar 
     const isOverLappingOnX = isWithinRangeInclusive(diffX, -hitOffsetForEar, hitOffsetForEar);
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "left" });
 
-    return { isOverLappingOnX, isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
+    return { isOverlapping: isOverLappingOnX && isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
 }
 
-export function checkOverlapOnBottom({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams) {
-    const wantedPieceId = connections.bottom;
+export function checkOverlapOnBottom({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams): CheckOverlapReturnType {
+    const wantedPieceId = connections.bottom!;
     const wantedPiece = document.getElementById(`piece-${wantedPieceId}`) as HtmlPieceElement;
     const wantedPieceDomRect = wantedPiece.getBoundingClientRect();
     const diffY = wantedPieceDomRect.top - pieceDomRect.bottom - HIT_OFFSET;
@@ -33,11 +40,11 @@ export function checkOverlapOnBottom({ connections, pieceDomRect, hitOffsetForEa
     const isOverLappingOnX = isWithinRangeInclusive(diffX, -hitOffsetForEar, hitOffsetForEar);
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "bottom" });
 
-    return { isOverLappingOnX, isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
+    return { isOverlapping: isOverLappingOnX && isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
 }
 
-export function checkOverlapOnRight({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams) {
-    const wantedPieceId = connections.right;
+export function checkOverlapOnRight({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams): CheckOverlapReturnType {
+    const wantedPieceId = connections.right!;
     const wantedPiece = document.getElementById(`piece-${wantedPieceId}`) as HtmlPieceElement;
     const wantedPieceDomRect = wantedPiece.getBoundingClientRect();
     // TODO: Is it necessary to use HIT_OFFSET?
@@ -47,11 +54,11 @@ export function checkOverlapOnRight({ connections, pieceDomRect, hitOffsetForEar
     const isOverLappingOnX = isWithinRangeInclusive(diffX, 1 / 2 * hitOffsetForEar, hitOffsetForEar);
 
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "right" });
-    return { isOverLappingOnX, isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
+    return { isOverlapping: isOverLappingOnX && isOverLappingOnY, wantedPiece, wantedPieceDomRect, wantedPieceId };
 }
 
-export function checkOverLapOnTop({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams) {
-    const wantedPieceId = connections.top;
+export function checkOverLapOnTop({ connections, pieceDomRect, hitOffsetForEar }: CheckOverlapParams): CheckOverlapReturnType {
+    const wantedPieceId = connections.top!;
 
     const wantedPiece = document.getElementById(`piece-${wantedPieceId}`) as HtmlPieceElement;
     const wantedPieceDomRect = wantedPiece.getBoundingClientRect();
@@ -63,5 +70,5 @@ export function checkOverLapOnTop({ connections, pieceDomRect, hitOffsetForEar }
 
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "top" });
 
-    return { isOverLapping: isOverLappingOnX && isOverLappingOnY, wantedPieceDomRect, wantedPiece, wantedPieceId };
+    return { isOverlapping: isOverLappingOnX && isOverLappingOnY, wantedPieceDomRect, wantedPiece, wantedPieceId };
 }

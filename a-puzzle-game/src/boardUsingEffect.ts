@@ -1,16 +1,16 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
 import { loadChosenImage, readConfig, setChosenImage } from "./input";
-import { checkCollision, isWithinRangeInclusive, loadImage } from "./utils";
-import { Piece, PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
-import { createBoard, PieceEntity } from "./makeBoard";
+import { checkCollision, loadImage } from "./utils";
+import { type Piece, pieceDefinitionLookup } from "./pieceDefintions";
+import { createBoard } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
-import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, SavedBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
+import { getSavedImage, loadPiecePositions, loadSavedBoard, loadSavedPuzzleDimensions, saveBoard, type SavedBoard, saveImage, savePiecePositions, savePuzzleDimensions } from "./storeState";
 import { calculateBoardDimensions, getRandomCoordinatesOutsideBoard, type PiecePositionLookup, setBoardDimensions } from "./board";
-import { clickPieceIntoPlace, HtmlPieceElement } from "./clickPieceInPlace";
-import { clickIntoPlaceAndCombine, expandPieceGroupTop, getCombineParams, PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
-import { checkOverLapOnTop } from "./overlap";
+import type { HtmlPieceElement } from "./clickPieceInPlace";
+import { clickIntoPlaceAndCombine, expandPieceGroupBottom, expandPieceGroupLeft, expandPieceGroupRight, expandPieceGroupTop, getCombineParams, PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
+import { checkOverlapOnBottom, checkOverlapOnLeft, checkOverlapOnRight, checkOverLapOnTop } from "./overlap";
 
 const boardContainer = document.getElementById("board-container") as HTMLDivElement
 const appElement = document.getElementById("app") as HTMLDivElement
@@ -43,8 +43,8 @@ const createPuzzleProgram = Effect.gen(function* (_) {
             newPiece.style.top = `${placement.top}px`;
             newPiece.id = `piece-${piece.id}`
             newPiece.setAttribute("data-definition-id", piece.definition.id.toString())
-            piecePositions.set(piece.id, placement)
             boardContainer.appendChild(newPiece);
+            piecePositions.set(piece.id, placement)
             pieceDragger.makePieceDraggable({
                 divElement: newPiece, onMouseUpCallback: ({ left, top }) => {
                     const result = clickIntoPlaceAndCombine({ piece, pieceSize })
@@ -101,7 +101,6 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
             pieceDragger.makePieceDraggable({
                 divElement: newPiece,
                 onMouseUpCallback: ({ left, top }) => {
-                    // clickPieceIntoPlace({ boundingBox: piece.boundingBox, left, top, pieceId, definition, pieceSize })
                     const res = clickIntoPlaceAndCombine({ piece: { ...piece, definition }, pieceSize })
                     if (res.result === PlaceAndCombineResult.Nothing) return
 
@@ -114,15 +113,10 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
                     }
 
                     const { combinedPieceDiv, connectedPieceId, id } = res
-
                     combinedPiecesLookup.set(id, { pieceIds: new Set([connectedPieceId, piece.id]) })
+
                     pieceDragger.makePieceDraggable({
-                        divElement: combinedPieceDiv, onMouseUpCallback: (_) => {
-                            onPieceGroupMouseUp(combinedPiecesLookup, id, combinedPieceDiv, savedBoard, definition, pieceSize);
-                            // const domRect = combinedPiece.getBoundingClientRect()
-                            // const elements = document.elementsFromPoint(domRect.x, domRect.y)
-                            // console.log({ elements })
-                        }
+                        divElement: combinedPieceDiv, onMouseUpCallback: (_) => onPieceGroupMouseUp(combinedPiecesLookup, id, combinedPieceDiv, savedBoard, definition, pieceSize)
                     })
                     boardContainer.appendChild(combinedPieceDiv)
                     piecePositions.set(piece.id, { left, top })
@@ -161,30 +155,58 @@ function onPieceGroupMouseUp(combinedPiecesLookup: Map<number, { pieceIds: Set<n
     const combinedPiece = combinedPiecesLookup.get(id)!;
     const pieces = findAllPiecesTouchingCombinedDiv(combinedPieceDiv);
 
-    console.log({ pieces });
     for (const pieceDiv of pieces) {
         const hasCombinedDiv = pieceDiv.parentElement !== null && pieceDiv.parentElement?.id !== "board-container";
         if (!hasCombinedDiv) {
             const pieceToTry = savedBoard.flat().find(p => p.id === Number.parseInt(pieceDiv.dataset.pieceId))!;
+            const definition = pieceDefinitionLookup.get(pieceToTry.definitionId)!
 
-            // TODO: Same for right, bottom and left connections
             if (combinedPiece.pieceIds.has(pieceToTry.connections.top ?? -1)) {
                 const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams({ ...pieceToTry, definition }, pieceSize);
-                const { isOverLapping, wantedPieceDomRect, wantedPiece } = checkOverLapOnTop({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
-                if (isOverLapping) {
-                    expandPieceGroupTop({ combinedParentDiv: combinedPieceDiv, piece: { ...pieceToTry, definition }, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect });
+                const { isOverlapping, wantedPieceDomRect, wantedPiece } = checkOverLapOnTop({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
+                if (isOverlapping) {
+                    const { newCombinedLeft, newCombinedTop } = expandPieceGroupTop({ combinedParentDiv: combinedPieceDiv, piece: { ...pieceToTry, definition }, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect });
+                    combinedPieceDiv.style.left = `${newCombinedLeft}px`
+                    combinedPieceDiv.style.top = `${newCombinedTop}px`
+                    combinedPiece.pieceIds.add(pieceToTry.id);
+                    combinedPiecesLookup.set(id, combinedPiece);
+                    continue
+                }
+            }
+            if (combinedPiece.pieceIds.has(pieceToTry.connections.right ?? -1)) {
+                const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams({ ...pieceToTry, definition }, pieceSize);
+                const { isOverlapping, wantedPieceDomRect, wantedPiece } = checkOverlapOnRight({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
+                if (isOverlapping) {
+                    const { newCombinedLeft, newCombinedTop } = expandPieceGroupRight({ combinedParentDiv: combinedPieceDiv, piece: { ...pieceToTry, definition }, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect });
+                    combinedPieceDiv.style.left = `${newCombinedLeft}px`
+                    combinedPieceDiv.style.top = `${newCombinedTop}px`
+                    combinedPiece.pieceIds.add(pieceToTry.id);
+                    combinedPiecesLookup.set(id, combinedPiece);
+                    continue
+                }
+            }
+            if (combinedPiece.pieceIds.has(pieceToTry.connections.bottom ?? -1)) {
+                const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams({ ...pieceToTry, definition }, pieceSize);
+                const { isOverlapping, wantedPieceDomRect, wantedPiece } = checkOverlapOnBottom({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
+                if (isOverlapping) {
+                    expandPieceGroupBottom({ combinedParentDiv: combinedPieceDiv, piece: { ...pieceToTry, definition }, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect });
+                    combinedPiece.pieceIds.add(pieceToTry.id);
+                    combinedPiecesLookup.set(id, combinedPiece);
+                    continue
+                }
+            }
+
+            if (combinedPiece.pieceIds.has(pieceToTry.connections.left ?? -1)) {
+                const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams({ ...pieceToTry, definition }, pieceSize);
+                const { isOverlapping, wantedPieceDomRect, wantedPiece } = checkOverlapOnLeft({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
+                if (isOverlapping) {
+                    expandPieceGroupLeft({ combinedParentDiv: combinedPieceDiv, piece: { ...pieceToTry, definition }, pieceDiv, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect });
                     combinedPiece.pieceIds.add(pieceToTry.id);
                     combinedPiecesLookup.set(id, combinedPiece);
                 }
             }
-            // const pieceDefinition = pieceDefinitionLookup.get(Number.parseInt(pieceDiv.dataset.definitionId))!
-            // const res = clickIntoPlaceAndCombine({ piece: { ...pieceToTry, definition: pieceDefinition }, pieceSize })
-            // if (res.result === PlaceAndCombineResult.ExpandedGroup) {
-            //     combinedPiece.pieceIds.add(pieceToTry.id)
-            //     combinedPiecesLookup.set(id, combinedPiece)
-            // }
+            return
         }
+        console.log("asdf")
     }
-
-    console.log({ pieces });
 }

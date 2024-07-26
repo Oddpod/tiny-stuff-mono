@@ -15,6 +15,21 @@ interface LeftConnectionCalcPosParams extends BottomConnectionCalcPosParams {
 
 }
 
+export function topConnectionCalculateShiftXY({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, sides }: BottomConnectionCalcPosParams) {
+    const combinedParentDivRect = combinedParentDiv.getBoundingClientRect();
+    let pieceDivLeft = 0;
+    const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
+    if (wantedPieceDef.sides.left === sides.left) {
+        pieceDivLeft = wantedPieceDomRect.left - combinedParentDivRect.left;
+    } else {
+        if (wantedPieceDef.sides.left === "ear") {
+            pieceDivLeft = 15 * pieceSize / PIECE_DIMENSIONS;
+        }
+    }
+    const pieceDivTop = wantedPieceDomRect.bottom - combinedParentDivRect.top - 15 * pieceSize / PIECE_DIMENSIONS;
+    return { pieceDivTop, pieceDivLeft };
+}
+
 export function leftConnectionCalcPos({ combinedParentDiv, sides, pieceDomRect, pieceSize, wantedPiece, wantedPieceDomRect }: LeftConnectionCalcPosParams) {
     const combinedParentDivRect = combinedParentDiv.getBoundingClientRect();
     const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
@@ -66,52 +81,49 @@ export function rightConnectionCalcPos({ wantedPieceDomRect, combinedParentDiv, 
         pieceDivTop = wantedPieceDomRect.top - combinedParentDivRect.top - 15 * pieceSize / PIECE_DIMENSIONS;
     }
     console.log({ pieceDivTop });
-    const pieceDivLeft = wantedPieceDomRect.left - pieceDomRect.width - combinedParentDivRect.left + 15 * pieceSize / PIECE_DIMENSIONS;
+    const pieceDivLeft = - pieceDomRect.width + 15 * pieceSize / PIECE_DIMENSIONS;
     return { pieceDivLeft, pieceDivTop };
 }
 
 interface AdjustAndAddPieceToCombinedParams {
-    pieceDiv: HtmlPieceElement, pieceDivTop: number, pieceDivLeft: number, combinedParentDiv: HTMLElement
+    pieceDiv: HtmlPieceElement,
+    pieceDivTop: number,
+    pieceDivLeft: number,
+    combinedParentDiv: HTMLElement,
+    // pieceSize: number,
+    pieceDomRect: DOMRect
 }
 
-export function adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv }: AdjustAndAddPieceToCombinedParams) {
+export function adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv, pieceDomRect }: AdjustAndAddPieceToCombinedParams) {
     pieceDiv.ontouchstart = null;
     pieceDiv.onmousedown = null;
+    const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
+    let newCombinedLeft = combinedParentDomRect.left
+    let newCombinedTop = combinedParentDomRect.top
+    // console.log('asdas', combinedParentDiv.getBoundingClientRect())
     // Shift rest of pieces if left or top is negative
     if (pieceDivLeft < 0) {
-        const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
         const children = combinedParentDiv.querySelectorAll<HtmlPieceElement>(".piece")
         for (const child of children) {
             child.style.left = `${child.getBoundingClientRect().left - combinedParentDomRect.left + Math.abs(pieceDivLeft)}px`
         }
-        combinedParentDiv.parentElement!.style.left = `${combinedParentDomRect.left + pieceDivLeft}px`
+        console.log('asdas', pieceDomRect.left)
+        newCombinedLeft = pieceDomRect.left
         pieceDivLeft = 0
     }
     if (pieceDivTop < 0) {
-        const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
         const children = combinedParentDiv.querySelectorAll<HtmlPieceElement>(".piece")
         for (const child of children) {
-            child.style.left = `${child.getBoundingClientRect().left - combinedParentDomRect.top + Math.abs(pieceDivTop)}px`
+            child.style.top = `${child.getBoundingClientRect().top - combinedParentDomRect.top + Math.abs(pieceDivTop)}px`
         }
-        combinedParentDiv.parentElement!.style.top = `${combinedParentDomRect.top + pieceDivTop}px`
+        console.log('asdas', pieceDomRect.top)
+        newCombinedTop = pieceDomRect.top
         pieceDivTop = 0
     }
     pieceDiv.style.top = `${pieceDivTop}px`;
     pieceDiv.style.left = `${pieceDivLeft}px`;
+    console.log({ pieceDivTop, pieceDivLeft })
     combinedParentDiv.appendChild(pieceDiv);
-}
-
-export function topConnectionCalculateShiftXY({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, sides }: BottomConnectionCalcPosParams) {
-    const combinedParentDivRect = combinedParentDiv.getBoundingClientRect();
-    const pieceDivTop = wantedPieceDomRect.bottom - combinedParentDivRect.top - 15 * pieceSize / PIECE_DIMENSIONS;
-    let pieceDivLeft = 0;
-    const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
-    if (wantedPieceDef.sides.left === sides.left) {
-        pieceDivLeft = wantedPieceDomRect.left - combinedParentDivRect.left;
-    } else {
-        if (wantedPieceDef.sides.left === "ear") {
-            pieceDivLeft = 15 * pieceSize / PIECE_DIMENSIONS;
-        }
-    }
-    return { pieceDivTop, pieceDivLeft };
+    console.log({ newCombinedLeft, newCombinedTop })
+    return { newCombinedLeft, newCombinedTop }
 }
