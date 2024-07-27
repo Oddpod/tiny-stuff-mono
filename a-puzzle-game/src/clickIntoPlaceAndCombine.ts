@@ -22,8 +22,8 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
         const { isOverlapping, wantedPieceDomRect, wantedPiece, wantedPieceId } = checkOverLapOnTop({ connections: piece.connections, pieceDomRect, hitOffsetForEar });
 
         if (isOverlapping) {
-            const combinedParentDiv = wantedPiece.parentElement;
-            const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
+            const combinedParentDiv = wantedPiece.parentElement?.parentElement;
+            const hasCombinedParent = !!combinedParentDiv && combinedParentDiv?.id.startsWith("combined-piece")
 
             if (hasCombinedParent) {
                 return expandPieceGroupTop({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, piece, pieceDomRect, pieceDiv });
@@ -40,8 +40,8 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
         const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } = checkOverlapOnRight({ connections: piece.connections, pieceDomRect, hitOffsetForEar });
 
         if (isOverlapping) {
-            const combinedParentDiv = wantedPiece.parentElement;
-            const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
+            const combinedParentDiv = wantedPiece.parentElement?.parentElement;
+            const hasCombinedParent = !!combinedParentDiv && combinedParentDiv?.id.startsWith("combined-piece")
 
             if (hasCombinedParent) {
                 return expandPieceGroupRight({ combinedParentDiv, wantedPieceDomRect, wantedPiece, piece, pieceSize, pieceDomRect, pieceDiv });
@@ -58,8 +58,8 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
         const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } = checkOverlapOnBottom({ hitOffsetForEar, connections: piece.connections, pieceDomRect });
 
         if (isOverlapping) {
-            const combinedParentDiv = wantedPiece.parentElement;
-            const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
+            const combinedParentDiv = wantedPiece.parentElement?.parentElement;
+            const hasCombinedParent = !!combinedParentDiv && combinedParentDiv?.id.startsWith("combined-piece")
 
             if (hasCombinedParent) {
                 return expandPieceGroupBottom({ combinedParentDiv, wantedPiece, wantedPieceDomRect, piece, pieceDomRect, pieceSize, pieceDiv });
@@ -76,8 +76,8 @@ export function clickIntoPlaceAndCombine({ piece, pieceSize }: ClickIntoPlaceAnd
         const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } = checkOverlapOnLeft({ hitOffsetForEar, connections: piece.connections, pieceDomRect });
 
         if (isOverlapping) {
-            const combinedParentDiv = wantedPiece.parentElement;
-            const hasCombinedParent = combinedParentDiv !== null && combinedParentDiv?.id !== "board-container";
+            const combinedParentDiv = wantedPiece.parentElement?.parentElement;
+            const hasCombinedParent = !!combinedParentDiv && combinedParentDiv?.id.startsWith("combined-piece")
 
             if (hasCombinedParent) {
                 return expandPieceGroupLeft({ combinedParentDiv, wantedPiece, wantedPieceDomRect, piece, pieceDomRect, pieceSize, pieceDiv });
@@ -100,8 +100,8 @@ export function expandPieceGroupLeft({ combinedParentDiv, wantedPiece, wantedPie
     const { pieceDivTop, pieceDivLeft } = leftConnectionCalcPos({ combinedParentDiv, wantedPiece, wantedPieceDomRect, sides: piece.definition.sides, pieceDomRect, pieceSize });
     combinedParentDiv.style.height = `${Math.max(combinedParentDomRect.height, pieceDomRect.height)}px`;
     combinedParentDiv.style.width = `${Math.abs(pieceDivLeft) + combinedParentDomRect.width}px`;
-    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.parentElement!.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
+    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv, pieceDomRect });
+    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
 }
 
 export function expandPieceGroupBottom({ combinedParentDiv, wantedPiece, wantedPieceDomRect, piece, pieceDomRect, pieceSize, pieceDiv }: ExpandPieceGroupTop) {
@@ -109,8 +109,8 @@ export function expandPieceGroupBottom({ combinedParentDiv, wantedPiece, wantedP
     const { pieceDivTop, pieceDivLeft } = bottomConnectionCalcPos({ combinedParentDiv, wantedPiece, wantedPieceDomRect, sides: piece.definition.sides, pieceDomRect, pieceSize });
     combinedParentDiv.style.height = `${Math.abs(pieceDivTop) + pieceDomRect.height}px`;
     combinedParentDiv.style.width = `${Math.max(combinedParentDomRect.width, pieceDomRect.width)}px`;
-    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.parentElement!.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
+    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv, pieceDomRect });
+    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
 }
 
 export function expandPieceGroupRight({ combinedParentDiv, wantedPieceDomRect, wantedPiece, piece, pieceSize, pieceDomRect, pieceDiv }: ExpandPieceGroupTop) {
@@ -119,7 +119,7 @@ export function expandPieceGroupRight({ combinedParentDiv, wantedPieceDomRect, w
     combinedParentDiv.style.height = `${Math.max(combinedParentDomRect.height, pieceDomRect.height)}px`;
     combinedParentDiv.style.width = `${Math.abs(pieceDivLeft) + combinedParentDomRect.width}px`;
     const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDomRect, pieceDivTop, pieceDivLeft, combinedParentDiv });
-    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.parentElement!.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
+    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
 }
 
 export function expandPieceGroupTop({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, piece, pieceDomRect, pieceDiv }: ExpandPieceGroupTop) {
@@ -127,8 +127,8 @@ export function expandPieceGroupTop({ combinedParentDiv, wantedPieceDomRect, pie
     const { pieceDivTop, pieceDivLeft } = topConnectionCalculateShiftXY({ combinedParentDiv, wantedPieceDomRect, pieceSize, wantedPiece, sides: piece.definition.sides, pieceDomRect });
     combinedParentDiv.style.height = `${pieceDomRect.height + pieceDivTop}px`;
     combinedParentDiv.style.width = `${Math.max(combinedParentDomRect.width, pieceDomRect.width)}px`;
-    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv });
-    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.parentElement!.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
+    const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv, pieceDomRect });
+    return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
 }
 
 export function getCombineParams(piece: PieceEntity, pieceSize: number) {

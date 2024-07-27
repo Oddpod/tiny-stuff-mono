@@ -51,9 +51,9 @@ export const createBoard = ({ widthInPieces: width, heightInPieces: height, piec
                     }
                 ],
                 connections: {
-                    top: uniqueCounter - width >= 0 ? uniqueCounter - width : null,
-                    left: uniqueCounter - 1 >= 0 ? uniqueCounter - 1 : null,
-                    right: i === width - 1 ? null : uniqueCounter + 1,
+                    top: uniqueCounter - width > 0 ? uniqueCounter - width : null,
+                    left: row.length !== 0 ? uniqueCounter - 1 : null,
+                    right: i < width - 1 ? uniqueCounter + 1 : null,
                     bottom: isLastRow ? null : uniqueCounter + width
                 },
                 definition: pieceDef

@@ -65,7 +65,7 @@ export function checkOverLapOnTop({ connections, pieceDomRect, hitOffsetForEar }
 
     const diffY = wantedPieceDomRect.bottom - pieceDomRect.top - HIT_OFFSET
     const diffX = wantedPieceDomRect.left - pieceDomRect.left - HIT_OFFSET
-    const isOverLappingOnY = isWithinRangeInclusive(diffY, 1 / 2 * hitOffsetForEar, hitOffsetForEar);
+    const isOverLappingOnY = isWithinRangeInclusive(diffY, 1 / 2 * hitOffsetForEar, 2 * hitOffsetForEar);
     const isOverLappingOnX = isWithinRangeInclusive(diffX, -1 / 2 * hitOffsetForEar, 1 / 2 * hitOffsetForEar);
 
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "top" });

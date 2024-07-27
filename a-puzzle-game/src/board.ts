@@ -6,9 +6,10 @@ const boardContainer = document.getElementById("board-container")!;
 export type PiecePositionLookup = Map<number, { left: number; top: number }>;
 
 export function clearBoardContainer() {
-	const boardElement = boardContainer.querySelector('div[id="board"]')!
+	// const boardElement = boardContainer.querySelector('div[id="board"]')!
+	// console.log({ boardElement })
 	boardContainer.innerHTML = ''
-	boardContainer.appendChild(boardElement)
+	// boardContainer.appendChild(boardElement)
 }
 
 interface CalculateBoardDimensions {
@@ -47,8 +48,8 @@ export function setBoardDimensions({ boardWidth, boardHeight }: { boardWidth: nu
 }
 
 export function getRandomCoordinatesOutsideBoard(pieceSize: number, sides: { bottom: Side; top: Side; left: Side; right: Side; }) {
-	const boardElement = document.getElementById("board") as HTMLDivElement;
-	const boardBoundingBox = boardElement.getBoundingClientRect()
+	// const boardElement = document.getElementById("board") as HTMLDivElement;
+	// const boardBoundingBox = boardElement.getBoundingClientRect()
 
 	const shiftXForRightEar = sides.right === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
 	const shiftXForLeftEar = sides.left === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0
@@ -59,9 +60,9 @@ export function getRandomCoordinatesOutsideBoard(pieceSize: number, sides: { bot
 	const pieceHeight = pieceSize + shiftYForBottomEar + shiftYForTopEar
 
 	const left = getRndInteger(pieceWidth, window.innerWidth - pieceWidth)
-	let top = getRndInteger(pieceHeight, window.innerHeight - pieceHeight)
-	if (left + pieceWidth > boardBoundingBox.left && left < boardBoundingBox.right) {
-		top = getRndInteger(boardElement.offsetTop + boardElement.offsetHeight, window.innerHeight - pieceHeight)
-	}
+	const top = getRndInteger(pieceHeight, window.innerHeight - pieceHeight)
+	// if (left + pieceWidth > boardBoundingBox.left && left < boardBoundingBox.right) {
+	// 	top = getRndInteger(boardElement.offsetTop + boardElement.offsetHeight, window.innerHeight - pieceHeight)
+	// }
 	return { left, top }
 }
