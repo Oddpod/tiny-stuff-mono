@@ -48,8 +48,9 @@ export function leftConnectionCalcPos({ combinedParentDiv, sides, pieceDomRect, 
     else {
         pieceDivTop = wantedPieceDomRect.top - combinedParentDivRect.top - 15 * pieceSize / PIECE_DIMENSIONS;
     }
-    console.log({ pieceDivTop });
-    const pieceDivLeft = wantedPieceDomRect.left + pieceDomRect.width - combinedParentDivRect.left + 15 * pieceSize / PIECE_DIMENSIONS;
+    // Should be fine :)
+    const pieceDivLeft = wantedPieceDomRect.right - combinedParentDivRect.left - 15 * pieceSize / PIECE_DIMENSIONS;
+    console.log({ pieceDivTop, pieceDivLeft });
     return { pieceDivLeft, pieceDivTop };
 
 }
@@ -66,8 +67,9 @@ export function bottomConnectionCalcPos({ combinedParentDiv, wantedPiece, wanted
     else {
         pieceDivLeft = wantedPieceDomRect.left - combinedParentDivRect.left - 15 * pieceSize / PIECE_DIMENSIONS;
     }
-    console.log({ pieceDivLeft });
+    // TODO ?
     const pieceDivTop = wantedPieceDomRect.top - combinedParentDivRect.top - pieceDomRect.height + 15 * pieceSize / PIECE_DIMENSIONS;
+    console.log({ pieceDivLeft, pieceDivTop });
     return { pieceDivTop, pieceDivLeft };
 }
 

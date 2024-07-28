@@ -50,7 +50,7 @@ export function checkOverlapOnRight({ connections, pieceDomRect, hitOffsetForEar
     // TODO: Is it necessary to use HIT_OFFSET?
     const diffY = wantedPieceDomRect.top - pieceDomRect.top - HIT_OFFSET;
     const diffX = pieceDomRect.right - wantedPieceDomRect.left - HIT_OFFSET;
-    const isOverLappingOnY = isWithinRangeInclusive(diffY, -hitOffsetForEar, hitOffsetForEar);
+    const isOverLappingOnY = isWithinRangeInclusive(diffY, - 3 / 2 * hitOffsetForEar, hitOffsetForEar);
     const isOverLappingOnX = isWithinRangeInclusive(diffX, 1 / 2 * hitOffsetForEar, hitOffsetForEar);
 
     console.log({ isOverLappingOnX, isOverLappingOnY, hitOffsetForEar, diffX, diffY, case: "right" });
