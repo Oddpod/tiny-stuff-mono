@@ -22,11 +22,12 @@ export function topConnectionCalculateShiftXY({ combinedParentDiv, wantedPieceDo
     const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
     if (wantedPieceDef.sides.left === sides.left) {
         pieceDivLeft = wantedPieceDomRect.left - combinedParentDivRect.left;
+    } else if (wantedPieceDef.sides.left === "ear") {
+        pieceDivLeft = 15 * pieceSize / PIECE_DIMENSIONS;
     } else {
-        if (wantedPieceDef.sides.left === "ear") {
-            pieceDivLeft = 15 * pieceSize / PIECE_DIMENSIONS;
-        }
+        pieceDivLeft = wantedPieceDomRect.left - combinedParentDivRect.left - 15 * pieceSize / PIECE_DIMENSIONS;
     }
+
     // const pieceDivTop = isWithinRangeInclusive(combinedParentDivRect.top - pieceDomRect.top, 0, 15 * pieceSize / PIECE_DIMENSIONS) ? 0 : pieceDomRect.height - 15 * pieceSize / PIECE_DIMENSIONS;
 
     // Should be good :)

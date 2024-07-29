@@ -1,7 +1,7 @@
 import { getCombineParams, expandPieceGroupTop, expandPieceGroupRight, expandPieceGroupBottom, expandPieceGroupLeft } from "./clickIntoPlaceAndCombine";
 import type { HtmlPieceElement } from "./clickPieceInPlace";
 import { checkOverLapOnTop, checkOverlapOnRight, checkOverlapOnBottom, checkOverlapOnLeft } from "./overlap";
-import { type Piece, pieceDefinitionLookup } from "./pieceDefintions";
+import { type Piece, PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
 import { topConnectionCalculateShiftXY } from "./shiftPieceIntoCombined";
 import type { SavedBoard } from "./storeState";
 import { checkCollision } from "./utils";
@@ -39,6 +39,7 @@ export function onPieceGroupMouseUp({ combinedPiecesLookup, id, combinedPieceDiv
     for (const pieceDiv of pieces) {
         const combinedPieceParent = pieceDiv.parentElement?.parentElement
         const hasCombinedDiv = !!combinedPieceParent && combinedPieceParent.id.startsWith("combined-piece")
+        console.log({ pieceDiv, combinedPieceParent })
         if (!hasCombinedDiv) {
             const pieceToTry = savedBoard.flat().find(p => p.id === Number.parseInt(pieceDiv.dataset.pieceId))!;
             const definition = pieceDefinitionLookup.get(pieceToTry.definitionId)!;
@@ -96,32 +97,57 @@ export function onPieceGroupMouseUp({ combinedPiecesLookup, id, combinedPieceDiv
             const pieceToTry = savedBoard.flat().find(p => p.id === Number.parseInt(pieceDiv.dataset.pieceId))!;
             const pieceToTryDefinition = pieceDefinitionLookup.get(pieceToTry.definitionId)!;
 
+            console.log(pieceToTry.id, pieceToTry.connections)
             if (combinedPiece.pieceIds.has(pieceToTry.connections.top ?? -1)) {
                 const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams({ ...pieceToTry, definition: pieceToTryDefinition }, pieceSize);
                 const { isOverlapping, wantedPieceDomRect, wantedPiece } = checkOverLapOnTop({ connections: pieceToTry.connections, pieceDomRect, hitOffsetForEar });
                 if (isOverlapping) {
-                    const { pieceDivTop: newCombinedTop, pieceDivLeft } = topConnectionCalculateShiftXY({ combinedParentDiv: droppedPieceGroupDiv, pieceDomRect, pieceSize, sides: pieceToTryDefinition.sides, wantedPiece, wantedPieceDomRect })
-                    const newCombinedLeft = Math.min(droppedPieceGroupDiv.getBoundingClientRect().left, combinedPieceParent.getBoundingClientRect().left);
-                    // const newCombinedTop ;
-                    
+                    // const { pieceDivTop, pieceDivLeft } = topConnectionCalculateShiftXY({ combinedParentDiv: droppedPieceGroupDiv, pieceDomRect, pieceSize, sides: pieceToTryDefinition.sides, wantedPiece, wantedPieceDomRect })
+                    // const newCombinedLeft = Math.min(droppedPieceGroupDiv.getBoundingClientRect().left, combinedPieceParent.getBoundingClientRect().left);
+
                     const leftMostParent = droppedPieceGroupDiv.getBoundingClientRect().left < combinedPieceParent.getBoundingClientRect().left ? droppedPieceGroupDiv : combinedPieceParent
                     const rightMostParent = droppedPieceGroupDiv.getBoundingClientRect().left < combinedPieceParent.getBoundingClientRect().left ? combinedPieceParent : droppedPieceGroupDiv
-                    
+                    const leftMostRect = leftMostParent.getBoundingClientRect()
+                    const rightMostRect = rightMostParent.getBoundingClientRect()
+                    const top = Math.min(leftMostRect.top, rightMostRect.top)
+
+                    const combinedParentDivRect = droppedPieceGroupDiv.getBoundingClientRect();
+                    let diffX = 0;
+                    const wantedPieceDef = pieceDefinitionLookup.get(Number.parseInt(wantedPiece.dataset.definitionId))!;
+                    if (wantedPieceDef.sides.left === pieceToTryDefinition.sides.left) {
+                        diffX = rightMostRect.left - leftMostRect.left;
+                    } else if (wantedPieceDef.sides.left === "ear") {
+                        diffX = 15 * pieceSize / PIECE_DIMENSIONS;
+                    } else {
+                        diffX = rightMostRect.left - leftMostRect.left + 15 * pieceSize / PIECE_DIMENSIONS;
+                    }
+
+                    // const diffY = wantedPieceDomRect.bottom - combinedParentDivRect.top - 15 * pieceSize / PIECE_DIMENSIONS
+                    const diffY = rightMostRect.top - leftMostRect.bottom + 15 * pieceSize / PIECE_DIMENSIONS
+
+                    if (pieceToTry.connections.left) {
+
+                    }
+                    // const diffX = rightMostRect.left - leftMostRect.left + 15 * pieceSize / PIECE_DIMENSIONS
+
                     const boardContainer = document.getElementById("board-container")
                     const children = rightMostParent.querySelectorAll<HtmlPieceElement>(".piece")!
+                    console.log({ diffX, diffY })
                     for (const child of children) {
-                        child.style.left = "0px"
-                        child.style.top = "0px"
+                        child.style.left = `${child.getBoundingClientRect().left - leftMostRect.left - diffX}px`
+                        child.style.top = `${child.getBoundingClientRect().top - top - diffY}px`
                         leftMostParent.appendChild(child)
                     }
-                    boardContainer?.removeChild(leftMostParent)
-                    
-                    leftMostParent.style.left = `${newCombinedLeft}px`;
-                    leftMostParent.style.top = `${newCombinedTop}px`;
+                    boardContainer?.removeChild(rightMostParent)
+                    pieceDiv.ontouchstart = null;
+                    pieceDiv.onmousedown = null;
+
+                    // leftMostParent.style.left = `${newCombinedLeft}px`;
+                    // leftMostParent.style.top = `${newCombinedTop}px`;
                     combinedPiece.pieceIds.add(pieceToTry.id);
                     combinedPiecesLookup.set(id, combinedPiece);
 
-                    continue;
+                    return
                 }
             }
         }

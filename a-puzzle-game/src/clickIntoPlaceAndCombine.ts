@@ -98,8 +98,9 @@ interface ExpandPieceGroupTop {
 export function expandPieceGroupLeft({ combinedParentDiv, wantedPiece, wantedPieceDomRect, piece, pieceDomRect, pieceSize, pieceDiv }: ExpandPieceGroupTop) {
     const combinedParentDomRect = combinedParentDiv.getBoundingClientRect();
     const { pieceDivTop, pieceDivLeft } = leftConnectionCalcPos({ combinedParentDiv, wantedPiece, wantedPieceDomRect, sides: piece.definition.sides, pieceDomRect, pieceSize });
+    console.log({ pieceDivLeft, width: combinedParentDomRect.width })
     combinedParentDiv.style.height = `${Math.max(combinedParentDomRect.height, pieceDomRect.height)}px`;
-    combinedParentDiv.style.width = `${Math.abs(pieceDivLeft) + combinedParentDomRect.width}px`;
+    combinedParentDiv.style.width = `${Math.abs(pieceDivLeft) + pieceDomRect.width}px`;
     const { newCombinedLeft, newCombinedTop } = adjustAndAddPieceToCombined({ pieceDiv, pieceDivTop, pieceDivLeft, combinedParentDiv, pieceDomRect });
     return { result: PlaceAndCombineResult.ExpandedGroup, groupDivId: Number.parseInt(combinedParentDiv.dataset.id!), newCombinedLeft, newCombinedTop } satisfies ReturnType;
 }
