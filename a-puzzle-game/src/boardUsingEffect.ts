@@ -163,6 +163,9 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 					});
 
 					if (res.result === PlaceAndCombineResult.Combined) {
+						combinedPiecesLookup.set(res.id, {
+							pieceIds: new Set([piece.id, res.combinedWithPieceId]),
+						});
 						pieceDragger.makePieceDraggable({
 							divElement: res.newCombinedDiv,
 							onMouseUpCallback: (_) => console.log("dropped"),

@@ -1,8 +1,20 @@
 import {
+	addPieceToGroupBottomConnection,
+	addPieceToGroupLeftConnection,
+	addPieceToGroupRightConnection,
+	addPieceToGroupTopConnection,
+} from "./addPieceToGroup";
+import {
 	PlaceAndCombineResult,
 	getCombineParams,
 } from "./clickIntoPlaceAndCombine";
 import type { HtmlPieceElement } from "./clickPieceInPlace";
+import {
+	combineUsingBottomConnection,
+	combineUsingLeftConnection,
+	combineUsingRightConnection,
+	combineUsingTopConnection,
+} from "./createCombinedUsingConnection";
 import type { PieceEntity } from "./makeBoard";
 import {
 	checkOverLapOnTop,
@@ -16,19 +28,20 @@ export interface ClickIntoPlaceAndCombineParams {
 	pieceSize: number;
 }
 
-type CombinedPieceResult = {
+export type CombinedPieceResult = {
 	result: PlaceAndCombineResult.Combined;
 	newCombinedDiv: HTMLDivElement;
 	combinedWithPieceId: number;
+	id: number;
+};
+
+export type ExpandPieceGroupResult = {
+	result: PlaceAndCombineResult.ExpandedGroup;
+	groupDivId: number;
 };
 type ReturnType =
 	| { result: PlaceAndCombineResult.Nothing }
-	| {
-			result: PlaceAndCombineResult.ExpandedGroup;
-			groupDivId: number;
-			newCombinedTop: number;
-			newCombinedLeft: number;
-	  }
+	| ExpandPieceGroupResult
 	| CombinedPieceResult;
 
 export function clickIntoPlaceAndCombineWithGrid({
@@ -52,16 +65,23 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement?.parentElement;
+			const combinedParentDiv = wantedPiece.parentElement;
 			const hasCombinedParent =
 				!!combinedParentDiv &&
-				combinedParentDiv?.id.startsWith("combined-piece");
+				combinedParentDiv?.classList.contains("combined-piece");
 
 			if (hasCombinedParent) {
 				// TODO:
-				return { result: PlaceAndCombineResult.Nothing };
+				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+
+				return addPieceToGroupTopConnection({
+					wantedPiece,
+					pieceDiv,
+					boardContainer,
+					combinedParentDiv,
+				});
 			}
-			return combineWithTopConnection(
+			return combineUsingTopConnection(
 				pieceSize,
 				wantedPiece,
 				pieceDiv,
@@ -72,45 +92,35 @@ export function clickIntoPlaceAndCombineWithGrid({
 		}
 	}
 	if (piece.connections.right !== null) {
-		const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =
-			checkOverlapOnRight({
-				connections: piece.connections,
-				pieceDomRect,
-				hitOffsetForEar,
-			});
+		const { isOverlapping, wantedPiece, wantedPieceId } = checkOverlapOnRight({
+			connections: piece.connections,
+			pieceDomRect,
+			hitOffsetForEar,
+		});
 		if (isOverlapping) {
-			const newCombinedDiv = createCombinedPieceDiv(pieceSize);
-			console.log({ pieceDomRect });
-			const marginTop = pieceDiv.style.marginTop
-				? Number.parseInt(pieceDiv.style.marginTop.slice(0, -2))
-				: 0;
-			const marginLeft = pieceDiv.style.marginLeft
-				? Number.parseInt(pieceDiv.style.marginLeft.slice(0, -2))
-				: 0;
+			const combinedParentDiv = wantedPiece.parentElement;
+			const hasCombinedParent =
+				!!combinedParentDiv &&
+				combinedParentDiv?.classList.contains("combined-piece");
 
-			newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
-			newCombinedDiv.style.left = `${pieceDomRect.left - marginLeft}px`;
-			console.log({ marginLeft, marginTop });
-
-			newCombinedDiv.style.height = `${pieceSize * 2}px`;
-			newCombinedDiv.style.width = `${pieceSize}px`;
-			newCombinedDiv.style.zIndex = "100";
-			wantedPiece.style.gridRowStart = "1";
-			wantedPiece.style.gridColumnStart = "2";
-			pieceDiv.style.gridRowStart = "1";
-			pieceDiv.style.gridColumnStart = "1";
-			adjustPiecesAndAddToCombined(
+			if (hasCombinedParent) {
+				// TODO:
+				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
+				return addPieceToGroupRightConnection({
+					boardContainer,
+					combinedParentDiv,
+					pieceDiv,
+					wantedPiece,
+				});
+			}
+			return combineUsingRightConnection(
+				pieceSize,
+				pieceDomRect,
 				pieceDiv,
 				wantedPiece,
 				boardContainer,
-				newCombinedDiv,
+				wantedPieceId,
 			);
-			boardContainer.appendChild(newCombinedDiv);
-			return {
-				result: PlaceAndCombineResult.Combined,
-				newCombinedDiv,
-				combinedWithPieceId: wantedPieceId,
-			};
 		}
 	}
 	if (piece.connections.bottom !== null) {
@@ -121,43 +131,29 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const newCombinedDiv = createCombinedPieceDiv(pieceSize);
-			console.log({ pieceDomRect });
-			const marginTop = pieceDiv.style.marginTop
-				? Number.parseInt(pieceDiv.style.marginTop.slice(0, -2))
-				: 0;
-			const marginLeft = pieceDiv.style.marginLeft
-				? Number.parseInt(pieceDiv.style.marginLeft.slice(0, -2))
-				: 0;
+			const combinedParentDiv = wantedPiece.parentElement;
+			const hasCombinedParent =
+				!!combinedParentDiv &&
+				combinedParentDiv?.classList.contains("combined-piece");
 
-			newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
-			newCombinedDiv.style.left = `${pieceDomRect.left - marginLeft}px`;
-			console.log({
-				marginLeft,
-				marginTop,
-				newTop: pieceDomRect.top - marginLeft,
-				newLeft: pieceDomRect.left - marginTop,
-			});
-
-			newCombinedDiv.style.height = `${pieceSize * 2}px`;
-			newCombinedDiv.style.width = `${pieceSize}px`;
-			newCombinedDiv.style.zIndex = "100";
-			wantedPiece.style.gridRowStart = "2";
-			wantedPiece.style.gridColumnStart = "1";
-			pieceDiv.style.gridRowStart = "1";
-			pieceDiv.style.gridColumnStart = "1";
-			adjustPiecesAndAddToCombined(
-				pieceDiv,
-				wantedPiece,
+			if (hasCombinedParent) {
+				// TODO:
+				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				return addPieceToGroupBottomConnection({
+					boardContainer,
+					combinedParentDiv,
+					pieceDiv,
+					wantedPiece,
+				});
+			}
+			return combineUsingBottomConnection({
 				boardContainer,
-				newCombinedDiv,
-			);
-			boardContainer.appendChild(newCombinedDiv);
-			return {
-				result: PlaceAndCombineResult.Combined,
-				newCombinedDiv,
-				combinedWithPieceId: wantedPieceId,
-			};
+				pieceDiv,
+				pieceSize,
+				wantedPiece,
+				wantedPieceDomRect,
+				wantedPieceId,
+			});
 		}
 	}
 
@@ -169,93 +165,35 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const newCombinedDiv = createCombinedPieceDiv(pieceSize);
-			console.log({ pieceDomRect });
-			const marginTop = pieceDiv.style.marginTop
-				? Number.parseInt(pieceDiv.style.marginTop.slice(0, -2))
-				: 0;
-			const marginLeft = pieceDiv.style.marginLeft
-				? Number.parseInt(pieceDiv.style.marginLeft.slice(0, -2))
-				: 0;
+			const combinedParentDiv = wantedPiece.parentElement;
+			const hasCombinedParent =
+				!!combinedParentDiv &&
+				combinedParentDiv?.classList.contains("combined-piece");
 
-			newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
-			newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-			console.log({ marginLeft, marginTop });
-
-			newCombinedDiv.style.height = `${pieceSize * 2}px`;
-			newCombinedDiv.style.width = `${pieceSize}px`;
-			newCombinedDiv.style.zIndex = "100";
-			wantedPiece.style.gridRowStart = "1";
-			wantedPiece.style.gridColumnStart = "1";
-			pieceDiv.style.gridRowStart = "1";
-			pieceDiv.style.gridColumnStart = "2";
-			adjustPiecesAndAddToCombined(
-				pieceDiv,
-				wantedPiece,
+			if (hasCombinedParent) {
+				// TODO:
+				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
+				return addPieceToGroupLeftConnection({
+					boardContainer,
+					combinedParentDiv,
+					pieceDiv,
+					wantedPiece,
+				});
+			}
+			return combineUsingLeftConnection({
 				boardContainer,
-				newCombinedDiv,
-			);
-			boardContainer.appendChild(newCombinedDiv);
-			return {
-				result: PlaceAndCombineResult.Combined,
-				newCombinedDiv,
-				combinedWithPieceId: wantedPieceId,
-			};
+				pieceDiv,
+				pieceSize,
+				wantedPiece,
+				wantedPieceDomRect,
+				wantedPieceId,
+			});
 		}
 	}
 	return { result: PlaceAndCombineResult.Nothing };
 }
 
-function combineWithTopConnection(
-	pieceSize: number,
-	wantedPiece: HtmlPieceElement,
-	pieceDiv: HtmlPieceElement,
-	wantedPieceDomRect: DOMRect,
-	boardContainer: HTMLDivElement,
-	wantedPieceId: number,
-): CombinedPieceResult {
-	const newCombinedDiv = createCombinedPieceDiv(pieceSize);
-	const marginTop = wantedPiece.style.marginTop
-		? Number.parseInt(wantedPiece.style.marginTop.slice(0, -2))
-		: 0;
-	const marginLeft = pieceDiv.style.marginLeft
-		? Number.parseInt(pieceDiv.style.marginLeft.slice(0, -2))
-		: 0;
-
-	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
-	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-
-	newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	newCombinedDiv.style.width = `${pieceSize}px`;
-	newCombinedDiv.style.zIndex = "100";
-	wantedPiece.style.gridRowStart = "1";
-	wantedPiece.style.gridColumnStart = "1";
-	pieceDiv.style.gridRowStart = "2";
-	pieceDiv.style.gridColumnStart = "1";
-	adjustPiecesAndAddToCombined(
-		pieceDiv,
-		wantedPiece,
-		boardContainer,
-		newCombinedDiv,
-	);
-	boardContainer.appendChild(newCombinedDiv);
-	return {
-		result: PlaceAndCombineResult.Combined,
-		newCombinedDiv,
-		combinedWithPieceId: wantedPieceId,
-	};
-}
-
-function createCombinedPieceDiv(pieceSize: number) {
-	const newCombinedDiv = document.createElement("div");
-	newCombinedDiv.classList.add("combined-piece");
-	newCombinedDiv.style.gridAutoColumns = `${pieceSize}px`;
-	newCombinedDiv.style.gridAutoRows = `${pieceSize}px`;
-	newCombinedDiv.style.position = "absolute";
-	return newCombinedDiv;
-}
-
-function adjustPiecesAndAddToCombined(
+export function adjustPiecesAndAddToCombined(
 	pieceDiv: HtmlPieceElement,
 	wantedPiece: HtmlPieceElement,
 	boardContainer: HTMLDivElement,
@@ -265,14 +203,14 @@ function adjustPiecesAndAddToCombined(
 	pieceDiv.style.removeProperty("top");
 	pieceDiv.style.removeProperty("z-index");
 	pieceDiv.classList.remove("piece");
+	pieceDiv.ontouchstart = null;
+	pieceDiv.onmousedown = null;
 	wantedPiece.style.removeProperty("z-index");
 	wantedPiece.style.removeProperty("left");
 	wantedPiece.style.removeProperty("top");
 	wantedPiece.classList.remove("piece");
 	wantedPiece.ontouchstart = null;
 	wantedPiece.onmousedown = null;
-	pieceDiv.ontouchstart = null;
-	pieceDiv.onmousedown = null;
 	boardContainer.removeChild(wantedPiece);
 	boardContainer.removeChild(pieceDiv);
 	newCombinedDiv.appendChild(pieceDiv);
