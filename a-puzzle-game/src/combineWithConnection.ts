@@ -22,9 +22,10 @@ let uniqueCombinedDivIdCounter = 0
 function createParentDivs() {
     const parentDiv = document.createElement("div");
     parentDiv.setAttribute("data-id", (uniqueCombinedDivIdCounter++).toString())
+    parentDiv.classList.add("combined-piece")
     const innerParentDiv = document.createElement("div");
     parentDiv.style.position = "absolute";
-    innerParentDiv.style.position = "relative";
+    // innerParentDiv.style.position = "relative";
     return { parentDiv, innerParentDiv };
 }
 

@@ -1,7 +1,6 @@
 import type { HtmlPieceElement } from "./clickPieceInPlace";
 import type { PieceEntity } from "./makeBoard";
 import { PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
-import { isWithinRangeInclusive } from "./utils";
 
 interface BottomConnectionCalcPosParams {
     combinedParentDiv: HTMLElement,

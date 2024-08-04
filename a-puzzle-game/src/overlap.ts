@@ -1,3 +1,4 @@
+
 import type { HtmlPieceElement } from "./clickPieceInPlace";
 import type { PieceEntity } from "./makeBoard";
 import { isWithinRangeInclusive } from "./utils";
