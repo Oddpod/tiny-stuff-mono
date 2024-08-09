@@ -139,4 +139,3 @@ export function getCombineParams(piece: PieceEntity, pieceSize: number) {
     const hitOffsetForEar = 15 * pieceSize / PIECE_DIMENSIONS + HIT_OFFSET;
     return { pieceDomRect, hitOffsetForEar, pieceDiv };
 }
-

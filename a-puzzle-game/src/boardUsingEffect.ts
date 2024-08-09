@@ -1,9 +1,8 @@
 import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
-import { loadChosenImage, readConfig, setChosenImage } from "./input";
-import { checkCollision, loadImage } from "./utils";
+import { setChosenImage } from "./input";
+import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefintions";
-import { createBoard } from "./makeBoard";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
 import {
@@ -11,97 +10,17 @@ import {
 	loadPiecePositions,
 	loadSavedBoard,
 	loadSavedPuzzleDimensions,
-	saveBoard,
-	saveImage,
-	savePiecePositions,
-	savePuzzleDimensions,
 } from "./storeState";
-import {
-	calculateBoardDimensions,
-	getRandomCoordinatesOutsideBoard,
-	type PiecePositionLookup,
-	setBoardDimensions,
-} from "./board";
-import type { HtmlPieceElement } from "./clickPieceInPlace";
-import {
-	clickIntoPlaceAndCombine,
-	PlaceAndCombineResult,
-} from "./clickIntoPlaceAndCombine";
-import { onPieceGroupMouseUp } from "./onPieceGroupMouseUp";
+import { calculateBoardDimensions, setBoardDimensions } from "./board";
+import { PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
+import { onPieceGroupDropped } from "./onPieceGroupMouseUp";
 import { clickIntoPlaceAndCombineWithGrid } from "./clickIntoPlaceAndCombineGridApproach";
+import { createPuzzleProgram } from "./createPuzzleProgram";
 
-const boardContainer = document.getElementById(
+export const boardContainer = document.getElementById(
 	"board-container",
 ) as HTMLDivElement;
-const appElement = document.getElementById("app") as HTMLDivElement;
-
-const createPuzzleProgram = Effect.gen(function* (_) {
-	const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig();
-	yield* Effect.tryPromise(() => loadChosenImage());
-	savePuzzleDimensions([widthInPieces, heightInPieces]);
-
-	const image = yield* Effect.tryPromise(() => loadImage(imageSrc));
-	saveImage(imageSrc);
-
-	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
-		image,
-		widthInPieces,
-		heightInPieces,
-	});
-	setBoardDimensions({ boardWidth, boardHeight });
-
-	yield* Effect.logDebug({ pieceSize, widthInPieces, heightInPieces });
-
-	const board = yield* createBoard({
-		image,
-		heightInPieces,
-		widthInPieces,
-		pieceSize,
-	});
-	saveBoard(board);
-
-	yield* Effect.logDebug({ boardHeight, boardWidth, pieceSize });
-
-	const piecePositions: PiecePositionLookup = new Map();
-	const pieceDragger = PieceDragger({
-		boardContainer,
-		boardElement: appElement,
-	});
-	for (const row of board) {
-		for (const piece of row) {
-			const newPiece = yield* Effect.promise(() =>
-				cutPiece({ piece, image, pieceSize, boardHeight, boardWidth }),
-			);
-			const placement = getRandomCoordinatesOutsideBoard(
-				pieceSize,
-				piece.definition.sides,
-			);
-			newPiece.style.left = `${placement.left}px`;
-			newPiece.style.top = `${placement.top}px`;
-			newPiece.id = `piece-${piece.id}`;
-			newPiece.setAttribute(
-				"data-definition-id",
-				piece.definition.id.toString(),
-			);
-			boardContainer.appendChild(newPiece);
-			console.log({ newPiece });
-			piecePositions.set(piece.id, placement);
-			pieceDragger.makePieceDraggable({
-				divElement: newPiece,
-				onMouseUpCallback: ({ left, top }) => {
-					const result = clickIntoPlaceAndCombine({ piece, pieceSize });
-					if (result) {
-						const { combinedPieceDiv, id, pieceIds } = result;
-						pieceDragger.makePieceDraggable({ divElement: combinedPieceDiv });
-						boardContainer.appendChild(combinedPieceDiv);
-					}
-					piecePositions.set(piece.id, { left, top });
-					savePiecePositions(piecePositions);
-				},
-			});
-		}
-	}
-}).pipe(Logger.withMinimumLogLevel(LogLevel.Debug));
+export const appElement = document.getElementById("app") as HTMLDivElement;
 
 const resumePuzzleProgram = Effect.gen(function* (_) {
 	let savedImageSrc = yield* Effect.try(() => getSavedImage());
@@ -162,42 +81,31 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 						pieceSize,
 					});
 
-					if (res.result === PlaceAndCombineResult.Combined) {
-						combinedPiecesLookup.set(res.id, {
-							pieceIds: new Set([piece.id, res.combinedWithPieceId]),
-						});
-						pieceDragger.makePieceDraggable({
-							divElement: res.newCombinedDiv,
-							onMouseUpCallback: (_) => console.log("dropped"),
-							// onPieceGroupMouseUp({
-							// 	combinedPiecesLookup,
-							// 	id,
-							// 	combinedPieceDiv,
-							// 	savedBoard,
-							// 	pieceSize,
-							// }),
-						});
-					}
-					// const res = clickIntoPlaceAndCombine({ piece: { ...piece, definition }, pieceSize })
-					// if (res.result === PlaceAndCombineResult.Nothing) return
+					if (res.result === PlaceAndCombineResult.Nothing) return;
 
-					// if (res.result === PlaceAndCombineResult.ExpandedGroup) {
-					//     const { groupDivId } = res
-					//     const groupPiece = combinedPiecesLookup.get(groupDivId)!
-					//     groupPiece.pieceIds.add(piece.id)
-					//     combinedPiecesLookup.set(groupDivId!, groupPiece)
-					//     return
-					// }
+					if (res.result === PlaceAndCombineResult.ExpandedGroup)
+						// TODO
+						return;
 
-					// const { combinedPieceDiv, connectedPieceId, id } = res
-					// combinedPiecesLookup.set(id, { pieceIds: new Set([connectedPieceId, piece.id]) })
+					combinedPiecesLookup.set(res.id, {
+						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
+					});
 
-					// pieceDragger.makePieceDraggable({
-					//     divElement: combinedPieceDiv, onMouseUpCallback: (_) => onPieceGroupMouseUp({ combinedPiecesLookup, id, combinedPieceDiv, savedBoard, pieceSize })
-					// })
-					// boardContainer.appendChild(combinedPieceDiv)
-					// piecePositions.set(piece.id, { left, top })
-					// savePiecePositions(piecePositions)
+					pieceDragger.makePieceDraggable({
+						divElement: res.newCombinedDiv,
+						onMouseUpCallback: (_) => {
+							onPieceGroupDropped({
+								boardContainer,
+								pieceDragger,
+								savedBoard,
+								groupId: res.id,
+								combinedParentDiv: res.newCombinedDiv,
+								piece: { ...piece, definition },
+								combinedPiecesLookup,
+								pieceSize,
+							});
+						},
+					});
 				},
 			});
 		}

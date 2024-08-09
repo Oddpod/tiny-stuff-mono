@@ -72,7 +72,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
 
 				return addPieceToGroupTopConnection({
 					wantedPiece,
@@ -105,7 +105,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
+				combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
+				combinedParentDiv.style.left = pieceDiv.style.left;
 				return addPieceToGroupRightConnection({
 					boardContainer,
 					combinedParentDiv,
@@ -138,7 +139,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				combinedParentDiv.style.top = pieceDiv.style.top;
 				return addPieceToGroupBottomConnection({
 					boardContainer,
 					combinedParentDiv,

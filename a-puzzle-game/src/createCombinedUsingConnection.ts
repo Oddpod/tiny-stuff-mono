@@ -24,7 +24,7 @@ export function combineUsingTopConnection(
 	boardContainer: HTMLDivElement,
 	wantedPieceId: number,
 ): CombinedPieceResult {
-	const newCombinedDiv = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
@@ -48,7 +48,7 @@ export function combineUsingTopConnection(
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
 		combinedWithPieceId: wantedPieceId,
-		id: uniqueCounterCombined++,
+		id,
 	};
 }
 
@@ -60,7 +60,7 @@ export function combineUsingRightConnection(
 	boardContainer: HTMLDivElement,
 	wantedPieceId: number,
 ): CombinedPieceResult {
-	const newCombinedDiv = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
@@ -84,7 +84,7 @@ export function combineUsingRightConnection(
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
 		combinedWithPieceId: wantedPieceId,
-		id: uniqueCounterCombined++,
+		id,
 	};
 }
 
@@ -92,15 +92,14 @@ export function combineUsingBottomConnection({
 	pieceSize,
 	wantedPiece,
 	pieceDiv,
-	wantedPieceDomRect,
 	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const newCombinedDiv = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
-	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
-	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
+	newCombinedDiv.style.top = `${pieceDiv.getBoundingClientRect().top - marginTop}px`;
+	newCombinedDiv.style.left = `${pieceDiv.getBoundingClientRect().left - marginLeft}px`;
 
 	newCombinedDiv.style.height = `${pieceSize * 2}px`;
 	newCombinedDiv.style.width = `${pieceSize}px`;
@@ -120,7 +119,7 @@ export function combineUsingBottomConnection({
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
 		combinedWithPieceId: wantedPieceId,
-		id: uniqueCounterCombined++,
+		id,
 	};
 }
 
@@ -132,7 +131,7 @@ export function combineUsingLeftConnection({
 	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const newCombinedDiv = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
@@ -156,7 +155,7 @@ export function combineUsingLeftConnection({
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
 		combinedWithPieceId: wantedPieceId,
-		id: uniqueCounterCombined++,
+		id,
 	};
 }
 
@@ -176,5 +175,7 @@ function createCombinedPieceDiv(pieceSize: number) {
 	newCombinedDiv.style.gridAutoColumns = `${pieceSize}px`;
 	newCombinedDiv.style.gridAutoRows = `${pieceSize}px`;
 	newCombinedDiv.style.position = "absolute";
-	return newCombinedDiv;
+	const id = uniqueCounterCombined++;
+	newCombinedDiv.setAttribute("id", id.toString());
+	return { newCombinedDiv, id };
 }

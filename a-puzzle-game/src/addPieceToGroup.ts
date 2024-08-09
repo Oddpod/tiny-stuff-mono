@@ -32,9 +32,16 @@ export function addPieceToGroupRightConnection({
 	boardContainer,
 	combinedParentDiv,
 }: AddPieceToGroupParams): ExpandPieceGroupResult {
-	const gridColumnStart = +wantedPiece.style.gridColumnStart - 1;
+	let gridColumnStart = +wantedPiece.style.gridColumnStart - 1;
 	if (gridColumnStart <= 0) {
 		// TODO: Shove all pieces in group right
+		for (const piece of combinedParentDiv.children) {
+			const pieceElement = piece as HtmlPieceElement;
+			pieceElement.style.gridColumnStart = (
+				+pieceElement.style.gridColumnStart + 1
+			).toString();
+		}
+		gridColumnStart = 1;
 	}
 	pieceDiv.style.gridRowStart = wantedPiece.style.gridRowStart;
 	pieceDiv.style.gridColumnStart = gridColumnStart.toString();
@@ -52,9 +59,16 @@ export function addPieceToGroupBottomConnection({
 	boardContainer,
 	combinedParentDiv,
 }: AddPieceToGroupParams): ExpandPieceGroupResult {
-	const gridRowStart = +wantedPiece.style.gridRowStart - 1;
+	let gridRowStart = +wantedPiece.style.gridRowStart - 1;
 	if (gridRowStart <= 0) {
 		// TODO: Shove all pieces in group down
+		for (const piece of combinedParentDiv.children) {
+			const pieceElement = piece as HtmlPieceElement;
+			pieceElement.style.gridRowStart = (
+				+pieceElement.style.gridRowStart + 1
+			).toString();
+			gridRowStart = 1;
+		}
 	}
 	pieceDiv.style.gridRowStart = gridRowStart.toString();
 	pieceDiv.style.gridColumnStart = wantedPiece.style.gridColumnStart;

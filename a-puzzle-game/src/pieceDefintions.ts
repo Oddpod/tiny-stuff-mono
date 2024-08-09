@@ -564,7 +564,7 @@ export const pieceDefinitions = {
 		width: 50,
 	},
 	sidePieceRight6: {
-		height: 65,
+		height: 50,
 		id: 44,
 		path: "M 50 0 V 50 H 35 C 40 30 10 30 15 50 H 0 V 35 C 20 40 20 10 0 15 V 0 H 15 C 10 20 40 20 35 0 Z",
 		sides: {
