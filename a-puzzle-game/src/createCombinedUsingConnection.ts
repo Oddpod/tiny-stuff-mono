@@ -32,7 +32,7 @@ export function combineUsingTopConnection(
 
 	newCombinedDiv.style.height = `${pieceSize * 2}px`;
 	newCombinedDiv.style.width = `${pieceSize}px`;
-	newCombinedDiv.style.zIndex = "100";
+	
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "2";
@@ -68,7 +68,7 @@ export function combineUsingRightConnection(
 
 	newCombinedDiv.style.height = `${pieceSize}px`;
 	newCombinedDiv.style.width = `${pieceSize * 2}px`;
-	newCombinedDiv.style.zIndex = "100";
+	
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "2";
 	pieceDiv.style.gridRowStart = "1";
@@ -103,7 +103,7 @@ export function combineUsingBottomConnection({
 
 	newCombinedDiv.style.height = `${pieceSize * 2}px`;
 	newCombinedDiv.style.width = `${pieceSize}px`;
-	newCombinedDiv.style.zIndex = "100";
+	
 	wantedPiece.style.gridRowStart = "2";
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "1";
@@ -139,7 +139,7 @@ export function combineUsingLeftConnection({
 
 	newCombinedDiv.style.height = `${pieceSize}px`;
 	newCombinedDiv.style.width = `${pieceSize * 2}px`;
-	newCombinedDiv.style.zIndex = "100";
+	
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "1";
@@ -169,7 +169,7 @@ function getMargins(pieceDiv: HtmlPieceElement) {
 	return { marginTop, marginLeft };
 }
 
-function createCombinedPieceDiv(pieceSize: number) {
+export function createCombinedPieceDiv(pieceSize: number) {
 	const newCombinedDiv = document.createElement("div");
 	newCombinedDiv.classList.add("combined-piece");
 	newCombinedDiv.style.gridAutoColumns = `${pieceSize}px`;
@@ -177,5 +177,6 @@ function createCombinedPieceDiv(pieceSize: number) {
 	newCombinedDiv.style.position = "absolute";
 	const id = uniqueCounterCombined++;
 	newCombinedDiv.setAttribute("id", id.toString());
+	newCombinedDiv.style.zIndex = "100"
 	return { newCombinedDiv, id };
 }

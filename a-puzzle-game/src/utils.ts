@@ -52,3 +52,20 @@ export function checkCollision(
 		rect1.left > rect2.right
 	);
 }
+
+export function groupBy<T, U extends number | string>(
+	list: T[],
+	keyGetter: (item: T) => U,
+) {
+	const map = new Map<U, T[]>();
+	for (const item of list) {
+		const key = keyGetter(item);
+		const collection = map.get(key);
+		if (!collection) {
+			map.set(key, [item]);
+		} else {
+			collection.push(item);
+		}
+	}
+	return map;
+}

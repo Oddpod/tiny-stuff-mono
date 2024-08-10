@@ -14,6 +14,7 @@ import {
 } from "./clickIntoPlaceAndCombine";
 import { clickIntoPlaceAndCombineWithGrid } from "./clickIntoPlaceAndCombineGridApproach";
 import { HIT_OFFSET, type HtmlPieceElement } from "./clickPieceInPlace";
+import { createCombinedPieceDiv } from "./createCombinedUsingConnection";
 import type { PieceEntity } from "./makeBoard";
 import type { PieceDragger } from "./makePieceDraggable";
 import {
@@ -27,9 +28,10 @@ import {
 	PIECE_DIMENSIONS,
 	pieceDefinitionLookup,
 } from "./pieceDefintions";
+import { deserialize } from "./serilizationUtils";
 import { topConnectionCalculateShiftXY } from "./shiftPieceIntoCombined";
 import type { SavedBoard } from "./storeState";
-import { checkCollision } from "./utils";
+import { checkCollision, groupBy } from "./utils";
 
 export function findAllPiecesTouchingCombinedDiv(
 	combinedPieceDiv: HTMLDivElement,
@@ -351,7 +353,88 @@ export function onPieceGroupDropped({
 		if (hasCombinedParent) {
 			console.log("oi");
 			// TODO: combine group divs
-			continue;
+			const isOverlapping =
+				(pieceToTry.connections.top &&
+					checkOverLapOnTop({
+						connections: pieceToTry.connections,
+						hitOffsetForEar,
+						pieceDomRect,
+					}).isOverlapping) ||
+				(pieceToTry.connections.right &&
+					checkOverlapOnRight({
+						connections: pieceToTry.connections,
+						hitOffsetForEar,
+						pieceDomRect,
+					}).isOverlapping) ||
+				(pieceToTry.connections.bottom &&
+					checkOverlapOnBottom({
+						connections: pieceToTry.connections,
+						hitOffsetForEar,
+						pieceDomRect,
+					}).isOverlapping) ||
+				(pieceToTry.connections.left &&
+					checkOverlapOnLeft({
+						connections: pieceToTry.connections,
+						hitOffsetForEar,
+						pieceDomRect,
+					}).isOverlapping);
+			if (!isOverlapping) continue;
+
+			const { topMostGroupDiv, bottomMostGroupDiv } =
+				combinedParentDiv.getBoundingClientRect().top <
+				droppedPieceGroupDiv.getBoundingClientRect().top
+					? {
+							topMostGroupDiv: combinedParentDiv,
+							bottomMostGroupDiv: droppedPieceGroupDiv,
+						}
+					: {
+							topMostGroupDiv: droppedPieceGroupDiv,
+							bottomMostGroupDiv: combinedParentDiv,
+						};
+			const leftMostGroupDiv =
+				combinedParentDiv.getBoundingClientRect().left <
+				droppedPieceGroupDiv.getBoundingClientRect().left
+					? combinedParentDiv
+					: droppedPieceGroupDiv;
+			const piecesToMove =
+				bottomMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]");
+			const allRelevantPieces = [
+				...piecesToMove,
+				...topMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]"),
+			];
+			const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+
+			newCombinedDiv.style.left = leftMostGroupDiv.style.left;
+			newCombinedDiv.style.top = topMostGroupDiv.style.top;
+
+			const pieceByRow = groupBy(
+				allRelevantPieces.map((p) => ({
+					pieceDiv: p,
+					deserializedCoords: deserialize<PieceEntity["coords"]>(
+						p.dataset.coords,
+					),
+				})),
+				({ deserializedCoords }) => {
+					return deserializedCoords.row;
+				},
+			);
+
+			for (const [row, piecesToAdjust] of pieceByRow) {
+				let j = 1;
+				piecesToAdjust.sort(
+					(p1, p2) => p1.deserializedCoords.col - p2.deserializedCoords.col,
+				);
+				for (const { pieceDiv } of piecesToAdjust) {
+					pieceDiv.style.gridRowStart = (row + 1).toString();
+					pieceDiv.style.gridColumnStart = j.toString();
+					newCombinedDiv.appendChild(pieceDiv);
+					j++;
+				}
+			}
+			boardContainer.removeChild(combinedParentDiv);
+			boardContainer.removeChild(droppedPieceGroupDiv);
+			boardContainer.appendChild(newCombinedDiv);
+			return { mergedGroups: true, newCombinedDiv };
 		}
 		if (pieceToTry.connections.top !== null) {
 			const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =

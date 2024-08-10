@@ -71,11 +71,10 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
 			newPiece.setAttribute("data-definition-id", definition.id.toString());
-			newPiece.dataset.boundingbox = JSON.stringify(piece.boundingBox);
 			boardContainer.appendChild(newPiece);
 			pieceDragger.makePieceDraggable({
 				divElement: newPiece,
-				onMouseUpCallback: ({ left, top }) => {
+				onMouseUpCallback: (_) => {
 					const res = clickIntoPlaceAndCombineWithGrid({
 						piece: { ...piece, definition },
 						pieceSize,
@@ -94,7 +93,7 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 					pieceDragger.makePieceDraggable({
 						divElement: res.newCombinedDiv,
 						onMouseUpCallback: (_) => {
-							onPieceGroupDropped({
+							const result = onPieceGroupDropped({
 								boardContainer,
 								pieceDragger,
 								savedBoard,
@@ -104,6 +103,11 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 								combinedPiecesLookup,
 								pieceSize,
 							});
+							if (!!result && "mergedGroups" in result) {
+								pieceDragger.makePieceDraggable({
+									divElement: result.newCombinedDiv,
+								});
+							}
 						},
 					});
 				},
