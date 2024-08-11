@@ -10,13 +10,34 @@ export type SavedBoard = {
 	connections: PieceEntity["connections"];
 }[][];
 
-export function savePiecePositions(piecePositions: PiecePositionLookup) {
+export type CombinedPiecePositionLookup = Map<
+	number,
+	{ pieceIds: Set<number>; position: { top: number; left: number } }
+>;
+
+export function savePiecePositions(
+	piecePositions: PiecePositionLookup,
+	combinedPiecePositions: CombinedPiecePositionLookup,
+) {
+	// TODO: split into two save methods? Depends on how slow it is
+	localStorage.setItem(
+		"piece-group-positions",
+		serialize(combinedPiecePositions),
+	);
 	localStorage.setItem("piece-positions", serialize(piecePositions));
 }
 
 export function loadPiecePositions() {
 	const savedPiecePositions = localStorage.getItem("piece-positions");
-	return deserialize<PiecePositionLookup>(savedPiecePositions);
+	const savedCombinePiecesPositions = localStorage.getItem(
+		"piece-group-positions",
+	);
+	return {
+		piecePositions: deserialize<PiecePositionLookup>(savedPiecePositions),
+		pieceGroupPositions: deserialize<CombinedPiecePositionLookup>(
+			savedCombinePiecesPositions,
+		),
+	};
 }
 
 type SavedDimensions = [number, number];
@@ -40,6 +61,7 @@ export function saveBoard(board: PieceEntity[][]) {
 		})),
 	);
 	localStorage.setItem("saved-board", serialize(savedBoard));
+	return savedBoard;
 }
 
 export function loadSavedBoard() {

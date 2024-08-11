@@ -14,6 +14,7 @@ import {
 	combineUsingLeftConnection,
 	combineUsingRightConnection,
 	combineUsingTopConnection,
+	type PieceGroupDivElement,
 } from "./createCombinedUsingConnection";
 import type { PieceEntity } from "./makeBoard";
 import {
@@ -30,7 +31,7 @@ export interface ClickIntoPlaceAndCombineParams {
 
 export type CombinedPieceResult = {
 	result: PlaceAndCombineResult.Combined;
-	newCombinedDiv: HTMLDivElement;
+	newCombinedDiv: PieceGroupDivElement;
 	combinedWithPieceId: number;
 	id: number;
 };

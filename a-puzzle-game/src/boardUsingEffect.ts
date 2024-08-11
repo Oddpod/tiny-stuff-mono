@@ -10,12 +10,14 @@ import {
 	loadPiecePositions,
 	loadSavedBoard,
 	loadSavedPuzzleDimensions,
+	savePiecePositions,
 } from "./storeState";
 import { calculateBoardDimensions, setBoardDimensions } from "./board";
 import { PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
-import { onPieceGroupDropped } from "./onPieceGroupMouseUp";
+import { onPieceGroupDropped } from "./onPieceGroupDropped";
 import { clickIntoPlaceAndCombineWithGrid } from "./clickIntoPlaceAndCombineGridApproach";
 import { createPuzzleProgram } from "./createPuzzleProgram";
+import { createAndPlacePieceGroups } from "./createAndPlacePieceGroups";
 
 export const boardContainer = document.getElementById(
 	"board-container",
@@ -51,11 +53,26 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 		boardContainer,
 		boardElement: appElement,
 	});
-	const piecePositions = yield* Effect.try(() => loadPiecePositions());
+	const { piecePositions, pieceGroupPositions: combinedPiecesLookup } =
+		yield* Effect.try(() => loadPiecePositions());
 
-	const combinedPiecesLookup = new Map<number, { pieceIds: Set<number> }>();
+	yield* createAndPlacePieceGroups({
+		combinedPiecesLookup,
+		pieceSize,
+		savedBoard,
+		image,
+		boardHeight,
+		boardWidth,
+		pieceDragger,
+		piecePositions,
+	});
+
 	for (const row of savedBoard) {
 		for (const piece of row) {
+			const placement = piecePositions.get(piece.id)!;
+			// Skip pieces in combinedDiv
+			if (!placement) continue;
+
 			const definition = pieceDefinitionLookup.get(piece.definitionId)!;
 			const newPiece = yield* Effect.promise(() =>
 				cutPiece({
@@ -66,7 +83,6 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 					boardWidth,
 				}),
 			);
-			const placement = piecePositions.get(piece.id)!;
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
@@ -74,7 +90,7 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 			boardContainer.appendChild(newPiece);
 			pieceDragger.makePieceDraggable({
 				divElement: newPiece,
-				onMouseUpCallback: (_) => {
+				onMouseUpCallback: ({ left, top }) => {
 					const res = clickIntoPlaceAndCombineWithGrid({
 						piece: { ...piece, definition },
 						pieceSize,
@@ -82,33 +98,67 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 
 					if (res.result === PlaceAndCombineResult.Nothing) return;
 
-					if (res.result === PlaceAndCombineResult.ExpandedGroup)
+					if (res.result === PlaceAndCombineResult.ExpandedGroup) {
 						// TODO
+						const parent = combinedPiecesLookup.get(res.groupDivId)!;
+						parent.pieceIds.add(piece.id);
+						piecePositions.delete(piece.id);
+						savePiecePositions(piecePositions, combinedPiecesLookup);
 						return;
+					}
 
 					combinedPiecesLookup.set(res.id, {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
+						position: { left, top },
 					});
+					console.log({ pieceId: piece.id, otherId: res.combinedWithPieceId });
+					piecePositions.delete(piece.id);
+					piecePositions.delete(res.combinedWithPieceId);
+					savePiecePositions(piecePositions, combinedPiecesLookup);
+
+					const onPieceGroupMouseUpCallback = ({
+						left,
+						top,
+					}: { left: number; top: number }) => {
+						// TODO: refactor into own method
+						const result = onPieceGroupDropped({
+							boardContainer,
+							pieceDragger,
+							savedBoard,
+							groupId: res.id,
+							combinedParentDiv: res.newCombinedDiv,
+							piece: { ...piece, definition },
+							combinedPiecesLookup,
+							pieceSize,
+						});
+						if (!!result && "mergedGroups" in result) {
+							const { newCombinedDiv, removedIds, newCombinedDivId } = result;
+							const ids1 = combinedPiecesLookup.get(removedIds[0])!.pieceIds;
+							const ids2 = combinedPiecesLookup.get(removedIds[1])!.pieceIds;
+
+							combinedPiecesLookup.set(newCombinedDivId, {
+								pieceIds: new Set([...ids1, ...ids2]),
+								position: { left, top },
+							});
+							combinedPiecesLookup.delete(removedIds[0]);
+							combinedPiecesLookup.delete(removedIds[1]);
+							pieceDragger.makePieceDraggable({
+								divElement: newCombinedDiv,
+								onMouseUpCallback: onPieceGroupMouseUpCallback,
+							});
+
+							savePiecePositions(piecePositions, combinedPiecesLookup);
+							// TODO: Check if puzzle is finished
+						} else {
+							const combinedPieceData = combinedPiecesLookup.get(res.id)!;
+							combinedPieceData.position = { left, top };
+							savePiecePositions(piecePositions, combinedPiecesLookup);
+						}
+					};
 
 					pieceDragger.makePieceDraggable({
 						divElement: res.newCombinedDiv,
-						onMouseUpCallback: (_) => {
-							const result = onPieceGroupDropped({
-								boardContainer,
-								pieceDragger,
-								savedBoard,
-								groupId: res.id,
-								combinedParentDiv: res.newCombinedDiv,
-								piece: { ...piece, definition },
-								combinedPiecesLookup,
-								pieceSize,
-							});
-							if (!!result && "mergedGroups" in result) {
-								pieceDragger.makePieceDraggable({
-									divElement: result.newCombinedDiv,
-								});
-							}
-						},
+						onMouseUpCallback: onPieceGroupMouseUpCallback,
 					});
 				},
 			});
@@ -117,7 +167,8 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 }).pipe(Logger.withMinimumLogLevel(LogLevel.Debug));
 
 export const resumeSavedPuzzle = () =>
-	Effect.runPromise(resumePuzzleProgram).catch(() => {
+	Effect.runPromise(resumePuzzleProgram).catch((error) => {
+		console.log({ error });
 		createPuzzle();
 	});
 export const createPuzzle = () => Effect.runPromise(createPuzzleProgram);

@@ -1,7 +1,7 @@
 import { PIECE_DIMENSIONS } from "./pieceDefintions";
 import type { PieceEntity } from "./makeBoard";
 import { loadImage } from "./utils";
-import { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./clickPieceInPlace";
 
 const canvasForCropping = document.createElement("canvas");
 canvasForCropping.width = 300;
@@ -127,10 +127,10 @@ export const cutPiece = async ({
 		newPiece.style.marginTop = `-${shiftTopBy}px`;
 	}
 	newPiece.classList.add("piece");
-	console.log({ coords: piece.coords });
+	// console.log({ coords: piece.coords });
 	newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
-	newPiece.setAttribute("data-boundingbox", JSON.stringify(piece.boundingBox));
-	newPiece.setAttribute("draggable", "");
+	// newPiece.setAttribute("data-boundingbox", JSON.stringify(piece.boundingBox));
+	// newPiece.setAttribute("draggable", "");
 
 	return newPiece as HtmlPieceElement;
 };

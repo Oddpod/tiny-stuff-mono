@@ -142,6 +142,7 @@ export function checkOverLapOnTop({
 	hitOffsetForEar,
 }: CheckOverlapParams): CheckOverlapReturnType {
 	const wantedPieceId = connections.top!;
+	console.log({ wantedPieceId });
 
 	const wantedPiece = document.getElementById(
 		`piece-${wantedPieceId}`,
