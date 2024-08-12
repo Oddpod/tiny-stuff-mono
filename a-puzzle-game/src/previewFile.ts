@@ -9,7 +9,6 @@ const previewImageElement = (document.getElementById(
 	"image",
 ) as HTMLImageElement)!;
 
-let caption: HTMLElement | null = null;
 export function previewFile(): Promise<string> {
 	const file = fileInput.files?.[0];
 	return new Promise((res, _) => {
@@ -28,6 +27,7 @@ export function previewFile(): Promise<string> {
 			if (!reader.result) return;
 			const loadedImage = reader.result as string;
 			previewImageElement.src = loadedImage;
+			const caption = imageFigureElement?.querySelector("figcaption")
 			if (caption) {
 				imageFigureElement?.removeChild(caption);
 			}
@@ -39,13 +39,14 @@ export function previewFile(): Promise<string> {
 }
 
 export function resetToDefaultImage() {
+	const caption = imageFigureElement?.querySelector("figcaption")
 	if (caption) {
 		imageFigureElement?.removeChild(caption);
 	}
 	if (previewImageElement.src === DEFAULT_IMAGE_SRC) return DEFAULT_IMAGE_SRC;
 	previewImageElement.src = DEFAULT_IMAGE_SRC;
-	caption = document.createElement("figcaption");
-	caption.innerHTML = `
+	const newCaption = document.createElement("figcaption");
+	newCaption.innerHTML = `
 		Photo by
 		<a
 		  href="https://unsplash.com/@mrnuclear?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash"
@@ -57,6 +58,6 @@ export function resetToDefaultImage() {
 		  >Unsplash</a
 		>
 		`;
-	imageFigureElement!.appendChild(caption);
+	imageFigureElement!.appendChild(newCaption);
 	return DEFAULT_IMAGE_SRC
 }

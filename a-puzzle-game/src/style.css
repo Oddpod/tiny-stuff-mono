@@ -38,3 +38,8 @@ body {
 figure > figcaption {
   text-align: center;
 }
+
+.combined-piece {
+  cursor: pointer;
+  display: grid;
+}

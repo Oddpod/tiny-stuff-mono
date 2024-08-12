@@ -48,7 +48,7 @@ export const pieceDefinitions = {
 		width: 65,
 	},
 	centerPiece3: {
-		height: 65,
+		height: 50,
 		id: 2,
 		path: "M 0 0 H 15 C 10 20 40 20 35 0 H 50 V 15 C 30 10 30 40 50 35 V 50 H 35 C 40 30 10 30 15 50 H 0 V 35 C 20 40 20 10 0 15 Z",
 		sides: {
@@ -57,7 +57,7 @@ export const pieceDefinitions = {
 			right: "hole",
 			top: "hole",
 		},
-		width: 65,
+		width: 50,
 	},
 	centerPiece4: {
 		height: 65,
@@ -564,7 +564,7 @@ export const pieceDefinitions = {
 		width: 50,
 	},
 	sidePieceRight6: {
-		height: 65,
+		height: 50,
 		id: 44,
 		path: "M 50 0 V 50 H 35 C 40 30 10 30 15 50 H 0 V 35 C 20 40 20 10 0 15 V 0 H 15 C 10 20 40 20 35 0 Z",
 		sides: {

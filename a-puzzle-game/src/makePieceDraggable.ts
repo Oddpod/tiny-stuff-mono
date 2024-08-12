@@ -41,7 +41,6 @@ const mouseDown = ({
 			divElement.style.top = `${top}px`;
 		}
 
-		// move our absolutely positioned ball under the pointer
 		if ("targetTouches" in event) {
 			moveAt(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
 		} else {
@@ -56,11 +55,9 @@ const mouseDown = ({
 			}
 		}
 
-		// (2) move the ball on mousemove
 		boardElement.addEventListener("touchmove", onMouseMove);
 		boardElement.addEventListener("mousemove", onMouseMove);
 
-		// (3) drop the ball, remove unneeded handlers
 		document.onmouseup = () => {
 			boardElement.removeEventListener("mousemove", onMouseMove);
 			onMouseUpCallback({ left, top });
@@ -76,11 +73,9 @@ const mouseDown = ({
 
 export interface MakePieceDraggableParams
 	extends Pick<MouseDownParams, "divElement"> {
-	pieceId: number;
-	onMouseUpCallback: (_: {
+	onMouseUpCallback?: (_: {
 		left: number;
 		top: number;
-		pieceId: number;
 	}) => void;
 }
 export function PieceDragger({
@@ -88,7 +83,6 @@ export function PieceDragger({
 	boardContainer,
 }: { boardElement: HTMLElement; boardContainer: HTMLElement }) {
 	const makePieceDraggable = ({
-		pieceId,
 		divElement,
 		onMouseUpCallback,
 	}: MakePieceDraggableParams) => {
@@ -96,8 +90,11 @@ export function PieceDragger({
 			boardContainer,
 			boardElement,
 			divElement,
-			onMouseUpCallback: ({ left, top }) =>
-				onMouseUpCallback({ left, top, pieceId }),
+			onMouseUpCallback: ({ left, top }) => {
+				if (onMouseUpCallback) {
+					onMouseUpCallback({ left, top });
+				}
+			},
 		});
 		divElement.ondragstart = () => false;
 		divElement.onmousedown = mouseDownCallback;

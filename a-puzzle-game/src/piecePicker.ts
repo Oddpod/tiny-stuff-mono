@@ -1,4 +1,4 @@
-import { pieceDefinitions, type PieceDefinition } from "./pieceDefintions";
+import { pieceDefinitions, type PieceDefinition } from "./pieceDefinitions";
 import { getRandom } from "./utils";
 
 interface FindFittingPieceParams {
