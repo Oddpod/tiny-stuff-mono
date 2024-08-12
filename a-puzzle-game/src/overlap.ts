@@ -1,4 +1,4 @@
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 import type { PieceEntity } from "./makeBoard";
 import { isWithinRangeInclusive } from "./utils";
 

@@ -7,7 +7,7 @@ interface CreateBoardInput extends Omit<InputConfig, "imageSrc"> {
 	pieceSize: number;
 }
 
-import type { Piece } from "./pieceDefintions";
+import type { Piece } from "./pieceDefinitions";
 
 export interface PieceEntity {
 	id: number;

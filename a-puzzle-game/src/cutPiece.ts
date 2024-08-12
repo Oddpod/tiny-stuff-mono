@@ -1,7 +1,7 @@
-import { PIECE_DIMENSIONS } from "./pieceDefintions";
+import { PIECE_DIMENSIONS } from "./pieceDefinitions";
 import type { PieceEntity } from "./makeBoard";
 import { loadImage } from "./utils";
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 
 const canvasForCropping = document.createElement("canvas");
 canvasForCropping.width = 300;
@@ -108,16 +108,6 @@ export const cutPiece = async ({
 	const newPiece = document.createElement("div");
 	newPiece.appendChild(svgElement);
 	newPiece.appendChild(croppedImage);
-	const numberElement = document.createElement("div");
-	numberElement.style.position = "absolute";
-	numberElement.style.zIndex = "100";
-	numberElement.style.top = "50%";
-	numberElement.style.left = "50%";
-	numberElement.style.transform = "translate(-50%, -50%)";
-	numberElement.style.fontSize = "2rem";
-	numberElement.style.textAlign = "center";
-	numberElement.innerText = piece.id.toString();
-	newPiece.appendChild(numberElement);
 	newPiece.setAttribute("data-piece-id", piece.id.toString());
 	newPiece.setAttribute("style", style);
 	if (shiftLeftBy >= 0) {
@@ -127,10 +117,7 @@ export const cutPiece = async ({
 		newPiece.style.marginTop = `-${shiftTopBy}px`;
 	}
 	newPiece.classList.add("piece");
-	// console.log({ coords: piece.coords });
 	newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
-	// newPiece.setAttribute("data-boundingbox", JSON.stringify(piece.boundingBox));
-	// newPiece.setAttribute("draggable", "");
 
 	return newPiece as HtmlPieceElement;
 };

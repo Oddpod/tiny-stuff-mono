@@ -4,11 +4,7 @@ import {
 	addPieceToGroupRightConnection,
 	addPieceToGroupTopConnection,
 } from "./addPieceToGroup";
-import {
-	PlaceAndCombineResult,
-	getCombineParams,
-} from "./clickIntoPlaceAndCombine";
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import { HIT_OFFSET, type HtmlPieceElement } from "./constants";
 import {
 	combineUsingBottomConnection,
 	combineUsingLeftConnection,
@@ -23,6 +19,13 @@ import {
 	checkOverlapOnLeft,
 	checkOverlapOnRight,
 } from "./overlap";
+import { PIECE_DIMENSIONS } from "./pieceDefinitions";
+
+export enum PlaceAndCombineResult {
+	Combined = 0,
+	ExpandedGroup = 1,
+	Nothing = 2,
+}
 
 export interface ClickIntoPlaceAndCombineParams {
 	piece: PieceEntity;
@@ -218,4 +221,14 @@ export function adjustPiecesAndAddToCombined(
 	boardContainer.removeChild(pieceDiv);
 	newCombinedDiv.appendChild(pieceDiv);
 	newCombinedDiv.appendChild(wantedPiece);
+}
+
+export function getCombineParams(piece: PieceEntity, pieceSize: number) {
+	const pieceDiv = document.getElementById(
+		`piece-${piece.id}`,
+	) as HtmlPieceElement;
+
+	const pieceDomRect = pieceDiv.getBoundingClientRect();
+	const hitOffsetForEar = (15 * pieceSize) / PIECE_DIMENSIONS + HIT_OFFSET;
+	return { pieceDomRect, hitOffsetForEar, pieceDiv };
 }

@@ -1,7 +1,7 @@
-import { PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 import {
 	type CombinedPieceResult,
+	PlaceAndCombineResult,
 	adjustPiecesAndAddToCombined,
 } from "./clickIntoPlaceAndCombineGridApproach";
 

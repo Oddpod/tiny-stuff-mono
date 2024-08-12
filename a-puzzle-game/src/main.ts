@@ -1,16 +1,26 @@
 import "./style.css";
-import 'virtual:uno.css'
-import './settings'
+import "virtual:uno.css";
+import "./settings";
 
-import { createPuzzle, resumeSavedPuzzle } from "./boardUsingEffect";
+import { resumePuzzleProgram } from "./resumePuzzleProgram";
 import { clearBoardContainer } from "./board";
+import { Effect } from "effect";
+import { createPuzzle } from "./createPuzzleProgram";
 
-const dimensionsConfig = document.getElementById("select-piece-dimensions") as HTMLFormElement
+const dimensionsConfig = document.getElementById(
+	"select-piece-dimensions",
+) as HTMLFormElement;
+
+const resumeSavedPuzzle = () =>
+	Effect.runPromise(resumePuzzleProgram).catch((error) => {
+		console.log({ error });
+		createPuzzle();
+	});
 
 dimensionsConfig.addEventListener("submit", (event: SubmitEvent) => {
 	event.preventDefault();
 	clearBoardContainer();
-	createPuzzle()
-})
+	createPuzzle();
+});
 
-resumeSavedPuzzle()
+resumeSavedPuzzle();

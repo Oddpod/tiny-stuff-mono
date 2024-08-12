@@ -1,4 +1,4 @@
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 import {
 	type PieceGroupDivElement,
 	createCombinedPieceDiv,
@@ -43,32 +43,7 @@ export function combinePieceGroups({
 }: CombinePieceGroupsParams): ReturnType {
 	console.log("oi");
 	// TODO: combine group divs
-	const isOverlapping =
-		(pieceToTry.connections.top &&
-			checkOverLapOnTop({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.right &&
-			checkOverlapOnRight({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.bottom &&
-			checkOverlapOnBottom({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.left &&
-			checkOverlapOnLeft({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping);
-	if (!isOverlapping) {
+	if (!isOverlapping(pieceToTry, hitOffsetForEar, pieceDomRect)) {
 		return { noOverLap: true } as const;
 	}
 
@@ -146,4 +121,37 @@ export function combinePieceGroups({
 			Number.parseInt(droppedPieceGroupDiv.dataset.id),
 		] as const,
 	} as const;
+}
+
+function isOverlapping(
+	pieceToTry: SavedBoard[number][number],
+	hitOffsetForEar: number,
+	pieceDomRect: DOMRect,
+) {
+	return (
+		(pieceToTry.connections.top &&
+			checkOverLapOnTop({
+				connections: pieceToTry.connections,
+				hitOffsetForEar,
+				pieceDomRect,
+			}).isOverlapping) ||
+		(pieceToTry.connections.right &&
+			checkOverlapOnRight({
+				connections: pieceToTry.connections,
+				hitOffsetForEar,
+				pieceDomRect,
+			}).isOverlapping) ||
+		(pieceToTry.connections.bottom &&
+			checkOverlapOnBottom({
+				connections: pieceToTry.connections,
+				hitOffsetForEar,
+				pieceDomRect,
+			}).isOverlapping) ||
+		(pieceToTry.connections.left &&
+			checkOverlapOnLeft({
+				connections: pieceToTry.connections,
+				hitOffsetForEar,
+				pieceDomRect,
+			}).isOverlapping)
+	);
 }

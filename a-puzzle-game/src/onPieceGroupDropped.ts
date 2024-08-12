@@ -4,18 +4,16 @@ import {
 	addPieceToGroupRightConnection,
 	addPieceToGroupTopConnection,
 } from "./addPieceToGroup";
-import { HIT_OFFSET, type HtmlPieceElement } from "./clickPieceInPlace";
+import { HIT_OFFSET, type HtmlPieceElement } from "./constants";
 import { combinePieceGroups } from "./combinePieceGroups";
 import type { PieceGroupDivElement } from "./createCombinedUsingConnection";
-import type { PieceEntity } from "./makeBoard";
-import type { PieceDragger } from "./makePieceDraggable";
 import {
 	checkOverLapOnTop,
 	checkOverlapOnRight,
 	checkOverlapOnBottom,
 	checkOverlapOnLeft,
 } from "./overlap";
-import { PIECE_DIMENSIONS } from "./pieceDefintions";
+import { PIECE_DIMENSIONS } from "./pieceDefinitions";
 import type { SavedBoard } from "./storeState";
 import { checkCollision } from "./utils";
 
@@ -59,30 +57,22 @@ export function findAllPiecesTouchingCombinedDiv(
 	return piecesInside;
 }
 interface OnPieceDroppedParams {
-	piece: PieceEntity;
 	pieceSize: number;
-	groupId: number;
 	combinedParentDiv: PieceGroupDivElement;
-	combinedPiecesLookup: Map<number, { pieceIds: Set<number> }>;
 	savedBoard: SavedBoard;
-	pieceDragger: ReturnType<typeof PieceDragger>;
 	boardContainer: HTMLDivElement;
 }
 export function onPieceGroupDropped({
 	pieceSize,
-	combinedPiecesLookup,
 	savedBoard,
 	combinedParentDiv: droppedPieceGroupDiv,
-	groupId,
 	boardContainer,
 }: OnPieceDroppedParams) {
-	const combinedPiece = combinedPiecesLookup.get(groupId)!;
 	const hitOffsetForEar = (15 * pieceSize) / PIECE_DIMENSIONS + HIT_OFFSET;
 	const pieces = findAllPiecesTouchingCombinedDiv(
 		droppedPieceGroupDiv,
 		hitOffsetForEar,
 	);
-	console.log("dropped group", { pieces });
 
 	for (const pieceToTryDiv of pieces) {
 		const pieceToTry = savedBoard
@@ -95,7 +85,7 @@ export function onPieceGroupDropped({
 		const hasCombinedParent =
 			!!combinedParentDiv &&
 			combinedParentDiv?.classList.contains("combined-piece");
-		console.log({ combinedParentDiv });
+		
 		if (hasCombinedParent) {
 			const res = combinePieceGroups({
 				boardContainer,
@@ -110,12 +100,11 @@ export function onPieceGroupDropped({
 			return res;
 		}
 		if (pieceToTry.connections.top !== null) {
-			const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =
-				checkOverLapOnTop({
-					connections: pieceToTry.connections,
-					pieceDomRect,
-					hitOffsetForEar,
-				});
+			const { isOverlapping, wantedPiece } = checkOverLapOnTop({
+				connections: pieceToTry.connections,
+				pieceDomRect,
+				hitOffsetForEar,
+			});
 			if (isOverlapping) {
 				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceSize}px`;
 				return addPieceToGroupTopConnection({
@@ -127,12 +116,11 @@ export function onPieceGroupDropped({
 			}
 		}
 		if (pieceToTry.connections.right !== null) {
-			const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =
-				checkOverlapOnRight({
-					connections: pieceToTry.connections,
-					pieceDomRect,
-					hitOffsetForEar,
-				});
+			const { isOverlapping, wantedPiece } = checkOverlapOnRight({
+				connections: pieceToTry.connections,
+				pieceDomRect,
+				hitOffsetForEar,
+			});
 			if (isOverlapping) {
 				droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupRightConnection({
@@ -144,12 +132,11 @@ export function onPieceGroupDropped({
 			}
 		}
 		if (pieceToTry.connections.bottom !== null) {
-			const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =
-				checkOverlapOnBottom({
-					connections: pieceToTry.connections,
-					pieceDomRect,
-					hitOffsetForEar,
-				});
+			const { isOverlapping, wantedPiece } = checkOverlapOnBottom({
+				connections: pieceToTry.connections,
+				pieceDomRect,
+				hitOffsetForEar,
+			});
 			if (isOverlapping) {
 				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceSize}px`;
 				droppedPieceGroupDiv.style.top = pieceToTryDiv.style.top;
@@ -162,12 +149,11 @@ export function onPieceGroupDropped({
 			}
 		}
 		if (pieceToTry.connections.left !== null) {
-			const { isOverlapping, wantedPiece, wantedPieceDomRect, wantedPieceId } =
-				checkOverlapOnLeft({
-					connections: pieceToTry.connections,
-					pieceDomRect,
-					hitOffsetForEar,
-				});
+			const { isOverlapping, wantedPiece } = checkOverlapOnLeft({
+				connections: pieceToTry.connections,
+				pieceDomRect,
+				hitOffsetForEar,
+			});
 			if (isOverlapping) {
 				droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupLeftConnection({

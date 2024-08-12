@@ -1,6 +1,6 @@
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 import type { PieceEntity } from "./makeBoard";
-import { PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefintions";
+import { PIECE_DIMENSIONS, pieceDefinitionLookup } from "./pieceDefinitions";
 
 interface BottomConnectionCalcPosParams {
     combinedParentDiv: HTMLElement,

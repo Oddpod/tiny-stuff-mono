@@ -1,6 +1,8 @@
-import { PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
-import type { HtmlPieceElement } from "./clickPieceInPlace";
-import type { ExpandPieceGroupResult } from "./clickIntoPlaceAndCombineGridApproach";
+import type { HtmlPieceElement } from "./constants";
+import {
+	PlaceAndCombineResult,
+	type ExpandPieceGroupResult,
+} from "./clickIntoPlaceAndCombineGridApproach";
 
 interface AddPieceToGroupParams {
 	wantedPiece: HtmlPieceElement;

@@ -1,6 +1,6 @@
-import type { HtmlPieceElement } from "./clickPieceInPlace";
+import type { HtmlPieceElement } from "./constants";
 import type { PieceEntity } from "./makeBoard";
-import { type Piece, PIECE_DIMENSIONS, pieceDefinitionLookup, type Side } from "./pieceDefintions";
+import { type Piece, PIECE_DIMENSIONS, pieceDefinitionLookup, type Side } from "./pieceDefinitions";
 
 interface CombineWithTopConnectionParams {
     boardContainer: HTMLDivElement;

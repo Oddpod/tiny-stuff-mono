@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type PieceDefinition, pieceDefinitions } from "./pieceDefintions";
+import { type PieceDefinition, pieceDefinitions } from "./pieceDefinitions";
 import { findFittingPiece } from "./piecePicker";
 
 describe("piecePicker", () => {

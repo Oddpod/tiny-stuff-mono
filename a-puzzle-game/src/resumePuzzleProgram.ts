@@ -2,7 +2,7 @@ import { Effect, LogLevel, Logger } from "effect";
 import { cutPiece } from "./cutPiece";
 import { setChosenImage } from "./input";
 import { loadImage } from "./utils";
-import { pieceDefinitionLookup } from "./pieceDefintions";
+import { pieceDefinitionLookup } from "./pieceDefinitions";
 import { PieceDragger } from "./makePieceDraggable";
 import { resetToDefaultImage } from "./previewFile";
 import {
@@ -13,18 +13,19 @@ import {
 	savePiecePositions,
 } from "./storeState";
 import { calculateBoardDimensions, setBoardDimensions } from "./board";
-import { PlaceAndCombineResult } from "./clickIntoPlaceAndCombine";
-import { onPieceGroupDropped } from "./onPieceGroupDropped";
-import { clickIntoPlaceAndCombineWithGrid } from "./clickIntoPlaceAndCombineGridApproach";
-import { createPuzzleProgram } from "./createPuzzleProgram";
+import {
+	clickIntoPlaceAndCombineWithGrid,
+	PlaceAndCombineResult,
+} from "./clickIntoPlaceAndCombineGridApproach";
 import { createAndPlacePieceGroups } from "./createAndPlacePieceGroups";
+import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
 
 export const boardContainer = document.getElementById(
 	"board-container",
 ) as HTMLDivElement;
 export const appElement = document.getElementById("app") as HTMLDivElement;
 
-const resumePuzzleProgram = Effect.gen(function* (_) {
+export const resumePuzzleProgram = Effect.gen(function* (_) {
 	let savedImageSrc = yield* Effect.try(() => getSavedImage());
 	if (!savedImageSrc) {
 		savedImageSrc = resetToDefaultImage();
@@ -47,8 +48,6 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 		throw new Error("Old format");
 	}
 
-	yield* Effect.logDebug({ boardHeight, boardWidth, pieceSize });
-
 	const pieceDragger = PieceDragger({
 		boardContainer,
 		boardElement: appElement,
@@ -65,6 +64,13 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 		boardWidth,
 		pieceDragger,
 		piecePositions,
+	});
+
+	const onPieceGroupMouseUpCallback = PieceGroupCallbackHandler({
+		boardContainer,
+		pieceDragger,
+		pieceSize,
+		savedBoard,
 	});
 
 	for (const row of savedBoard) {
@@ -99,7 +105,6 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 					if (res.result === PlaceAndCombineResult.Nothing) return;
 
 					if (res.result === PlaceAndCombineResult.ExpandedGroup) {
-						// TODO
 						const parent = combinedPiecesLookup.get(res.groupDivId)!;
 						parent.pieceIds.add(piece.id);
 						piecePositions.delete(piece.id);
@@ -111,64 +116,24 @@ const resumePuzzleProgram = Effect.gen(function* (_) {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
 						position: { left, top },
 					});
-					console.log({ pieceId: piece.id, otherId: res.combinedWithPieceId });
+
 					piecePositions.delete(piece.id);
 					piecePositions.delete(res.combinedWithPieceId);
 					savePiecePositions(piecePositions, combinedPiecesLookup);
 
-					const onPieceGroupMouseUpCallback = ({
-						left,
-						top,
-					}: { left: number; top: number }) => {
-						// TODO: refactor into own method
-						const result = onPieceGroupDropped({
-							boardContainer,
-							pieceDragger,
-							savedBoard,
-							groupId: res.id,
-							combinedParentDiv: res.newCombinedDiv,
-							piece: { ...piece, definition },
-							combinedPiecesLookup,
-							pieceSize,
-						});
-						if (!!result && "mergedGroups" in result) {
-							const { newCombinedDiv, removedIds, newCombinedDivId } = result;
-							const ids1 = combinedPiecesLookup.get(removedIds[0])!.pieceIds;
-							const ids2 = combinedPiecesLookup.get(removedIds[1])!.pieceIds;
-
-							combinedPiecesLookup.set(newCombinedDivId, {
-								pieceIds: new Set([...ids1, ...ids2]),
-								position: { left, top },
-							});
-							combinedPiecesLookup.delete(removedIds[0]);
-							combinedPiecesLookup.delete(removedIds[1]);
-							pieceDragger.makePieceDraggable({
-								divElement: newCombinedDiv,
-								onMouseUpCallback: onPieceGroupMouseUpCallback,
-							});
-
-							savePiecePositions(piecePositions, combinedPiecesLookup);
-							// TODO: Check if puzzle is finished
-						} else {
-							const combinedPieceData = combinedPiecesLookup.get(res.id)!;
-							combinedPieceData.position = { left, top };
-							savePiecePositions(piecePositions, combinedPiecesLookup);
-						}
-					};
-
 					pieceDragger.makePieceDraggable({
 						divElement: res.newCombinedDiv,
-						onMouseUpCallback: onPieceGroupMouseUpCallback,
+						onMouseUpCallback: (p) =>
+							onPieceGroupMouseUpCallback({
+								...p,
+								combinedParentDiv: res.newCombinedDiv,
+								combinedPiecesLookup,
+								groupId: res.id,
+								piecePositions,
+							}),
 					});
 				},
 			});
 		}
 	}
 }).pipe(Logger.withMinimumLogLevel(LogLevel.Debug));
-
-export const resumeSavedPuzzle = () =>
-	Effect.runPromise(resumePuzzleProgram).catch((error) => {
-		console.log({ error });
-		createPuzzle();
-	});
-export const createPuzzle = () => Effect.runPromise(createPuzzleProgram);
