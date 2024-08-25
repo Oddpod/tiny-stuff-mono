@@ -28,7 +28,7 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 	yield* Effect.logDebug("Running createPuzzleProgram");
 	const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig();
 	yield* Effect.tryPromise(() => loadChosenImage());
-	savePuzzleDimensions([widthInPieces, heightInPieces]);
+	savePuzzleDimensions({ widthInPieces, heightInPieces });
 
 	const image = yield* Effect.tryPromise(() => loadImage(imageSrc));
 	saveImage(imageSrc);
@@ -122,6 +122,10 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 			});
 		}
 	}
-}).pipe(Logger.withMinimumLogLevel(LogLevel.Debug));
+}).pipe(
+	Logger.withMinimumLogLevel(
+		import.meta.env.MODE === "dev" ? LogLevel.Debug : LogLevel.Error,
+	),
+);
 
 export const createPuzzle = () => Effect.runPromise(createPuzzleProgram);

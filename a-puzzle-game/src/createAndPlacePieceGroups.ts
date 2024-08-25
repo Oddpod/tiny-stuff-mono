@@ -30,10 +30,7 @@ export function* createAndPlacePieceGroups({
 	piecePositions,
 }: CreateAndPlacePieceGroupsParams) {
 	for (const [combinedPieceId, combinedPieceData] of combinedPiecesLookup) {
-		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(
-			pieceSize,
-			combinedPieceId,
-		);
+		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(pieceSize, combinedPieceId);
 		newCombinedDiv.style.left = `${combinedPieceData.position.left}px`;
 		newCombinedDiv.style.top = `${combinedPieceData.position.top}px`;
 		const { piecesToAppend, minRow, minCol } = yield* cutPiecesForGroup({

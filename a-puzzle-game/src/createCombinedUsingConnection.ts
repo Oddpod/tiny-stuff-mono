@@ -5,8 +5,6 @@ import {
 	adjustPiecesAndAddToCombined,
 } from "./clickIntoPlaceAndCombineGridApproach";
 
-let uniqueCounterCombined = 0;
-
 interface CombineUsingBottomConnectionParams {
 	pieceSize: number;
 	wantedPiece: HtmlPieceElement;
@@ -30,8 +28,8 @@ export function combineUsingTopConnection(
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
 
-	newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	newCombinedDiv.style.width = `${pieceSize}px`;
+	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
+	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -66,8 +64,8 @@ export function combineUsingRightConnection(
 	newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDomRect.left - marginLeft}px`;
 
-	newCombinedDiv.style.height = `${pieceSize}px`;
-	newCombinedDiv.style.width = `${pieceSize * 2}px`;
+	// newCombinedDiv.style.height = `${pieceSize}px`;
+	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "2";
@@ -101,8 +99,8 @@ export function combineUsingBottomConnection({
 	newCombinedDiv.style.top = `${pieceDiv.getBoundingClientRect().top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDiv.getBoundingClientRect().left - marginLeft}px`;
 
-	newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	newCombinedDiv.style.width = `${pieceSize}px`;
+	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
+	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "2";
 	wantedPiece.style.gridColumnStart = "1";
@@ -137,8 +135,8 @@ export function combineUsingLeftConnection({
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
 
-	newCombinedDiv.style.height = `${pieceSize}px`;
-	newCombinedDiv.style.width = `${pieceSize * 2}px`;
+	// newCombinedDiv.style.height = `${pieceSize}px`;
+	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -176,7 +174,7 @@ export interface PieceGroupDivElement extends HTMLDivElement {
 }
 export function createCombinedPieceDiv(
 	pieceSize: number,
-	id: number = uniqueCounterCombined++,
+	id: string = crypto.randomUUID(),
 ) {
 	const newCombinedDiv = document.createElement("div") as PieceGroupDivElement;
 	newCombinedDiv.classList.add("combined-piece");

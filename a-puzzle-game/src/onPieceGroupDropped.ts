@@ -27,10 +27,7 @@ export function findAllPiecesTouchingCombinedDiv(
 	const rect = combinedPieceDiv.getBoundingClientRect();
 	for (const element of allPieces) {
 		const box = element.getBoundingClientRect();
-		console.log({
-			divId: combinedPieceDiv.id,
-			otherId: element.parentElement?.id,
-		});
+
 		const alreadyInCombinedDiv =
 			combinedPieceDiv.id === element.parentElement?.id;
 		if (alreadyInCombinedDiv) continue;
@@ -78,27 +75,28 @@ export function onPieceGroupDropped({
 		const pieceToTry = savedBoard
 			.flat()
 			.find((p) => p.id === Number.parseInt(pieceToTryDiv.dataset.pieceId))!;
-		const pieceDomRect = pieceToTryDiv.getBoundingClientRect();
 
 		const combinedParentDiv =
 			pieceToTryDiv.parentElement as PieceGroupDivElement;
 		const hasCombinedParent =
 			!!combinedParentDiv &&
 			combinedParentDiv?.classList.contains("combined-piece");
-		
+
 		if (hasCombinedParent) {
 			const res = combinePieceGroups({
 				boardContainer,
 				combinedParentDiv,
 				droppedPieceGroupDiv,
 				hitOffsetForEar,
-				pieceDomRect,
+				pieceToTryDiv,
 				pieceSize,
 				pieceToTry,
 			});
 			if ("noOverLap" in res) continue;
 			return res;
 		}
+		const pieceDomRect = pieceToTryDiv.getBoundingClientRect();
+
 		if (pieceToTry.connections.top !== null) {
 			const { isOverlapping, wantedPiece } = checkOverLapOnTop({
 				connections: pieceToTry.connections,
@@ -122,7 +120,7 @@ export function onPieceGroupDropped({
 				hitOffsetForEar,
 			});
 			if (isOverlapping) {
-				droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
+				// droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupRightConnection({
 					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,
@@ -155,7 +153,7 @@ export function onPieceGroupDropped({
 				hitOffsetForEar,
 			});
 			if (isOverlapping) {
-				droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
+				// droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupLeftConnection({
 					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,

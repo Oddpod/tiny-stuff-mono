@@ -20,7 +20,7 @@ interface OnPieceGroupMouseUpCallbackParams {
 	top: number;
 	combinedParentDiv: PieceGroupDivElement;
 	combinedPiecesLookup: CombinedPiecePositionLookup;
-	groupId: number;
+	groupId: string;
 	piecePositions: PiecePositionLookup;
 }
 export function PieceGroupCallbackHandler({
@@ -62,7 +62,7 @@ export function PieceGroupCallbackHandler({
 						...p,
 						combinedParentDiv,
 						combinedPiecesLookup,
-						groupId,
+						groupId: newCombinedDivId,
 						piecePositions,
 					}),
 			});

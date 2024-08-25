@@ -26,6 +26,7 @@ export const boardContainer = document.getElementById(
 export const appElement = document.getElementById("app") as HTMLDivElement;
 
 export const resumePuzzleProgram = Effect.gen(function* (_) {
+	yield* Effect.logDebug("Running Resume Puzzle Program");
 	let savedImageSrc = yield* Effect.try(() => getSavedImage());
 	if (!savedImageSrc) {
 		savedImageSrc = resetToDefaultImage();
@@ -33,19 +34,29 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 
 	const image = yield* Effect.tryPromise(() => loadImage(savedImageSrc));
 
-	const [widthInPieces] = yield* Effect.try(() => loadSavedPuzzleDimensions());
-	const heightInPieces = setChosenImage(image, widthInPieces);
+	const { widthInPieces } = yield* Effect.try(() =>
+		loadSavedPuzzleDimensions(),
+	);
+	const heightInPieces = yield* Effect.tryPromise(() =>
+		setChosenImage(image, widthInPieces),
+	);
+
+	yield* Effect.logDebug(JSON.stringify({ heightInPieces }));
 
 	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
 		image,
 		widthInPieces,
 		heightInPieces,
 	});
+
+	yield* Effect.logDebug(
+		JSON.stringify({ boardHeight, boardWidth, pieceSize }),
+	);
 	setBoardDimensions({ boardHeight, boardWidth });
 
 	const savedBoard = yield* Effect.try(() => loadSavedBoard());
 	if (!savedBoard[0][0].connections) {
-		throw new Error("Old format");
+		Effect.fail(new Error("Old format"));
 	}
 
 	const pieceDragger = PieceDragger({
@@ -136,4 +147,8 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 			});
 		}
 	}
-}).pipe(Logger.withMinimumLogLevel(LogLevel.Debug));
+}).pipe(
+	Logger.withMinimumLogLevel(
+		import.meta.env.MODE === "dev" ? LogLevel.Debug : LogLevel.Error,
+	),
+);

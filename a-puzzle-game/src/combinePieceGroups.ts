@@ -17,7 +17,7 @@ import { groupBy } from "./utils";
 interface CombinePieceGroupsParams {
 	pieceToTry: SavedBoard[number][number];
 	hitOffsetForEar: number;
-	pieceDomRect: DOMRect;
+	pieceToTryDiv: HtmlPieceElement;
 	combinedParentDiv: PieceGroupDivElement;
 	droppedPieceGroupDiv: PieceGroupDivElement;
 	pieceSize: number;
@@ -29,21 +29,28 @@ type ReturnType =
 	| {
 			mergedGroups: true;
 			newCombinedDiv: PieceGroupDivElement;
-			newCombinedDivId: number;
-			removedIds: [number, number];
+			newCombinedDivId: string;
+			removedIds: [string, string];
 	  };
 export function combinePieceGroups({
 	pieceToTry,
 	hitOffsetForEar,
-	pieceDomRect,
+	pieceToTryDiv,
 	combinedParentDiv,
 	droppedPieceGroupDiv,
 	pieceSize,
 	boardContainer,
 }: CombinePieceGroupsParams): ReturnType {
-	console.log("oi");
-	// TODO: combine group divs
-	if (!isOverlapping(pieceToTry, hitOffsetForEar, pieceDomRect)) {
+	const pieceDomRect = pieceToTryDiv.getBoundingClientRect();
+
+	const { isOverlapping } = checkOverlap(
+		pieceToTry,
+		hitOffsetForEar,
+		pieceDomRect,
+		pieceToTryDiv,
+	);
+
+	if (!isOverlapping) {
 		return { noOverLap: true } as const;
 	}
 
@@ -108,50 +115,64 @@ export function combinePieceGroups({
 	boardContainer.removeChild(combinedParentDiv);
 	boardContainer.removeChild(droppedPieceGroupDiv);
 	boardContainer.appendChild(newCombinedDiv);
-	console.log({
-		dataset1: combinedParentDiv.dataset,
-		dataset2: droppedPieceGroupDiv.dataset,
-	});
+
 	return {
 		mergedGroups: true,
 		newCombinedDiv,
 		newCombinedDivId: id,
 		removedIds: [
-			Number.parseInt(combinedParentDiv.dataset.id),
-			Number.parseInt(droppedPieceGroupDiv.dataset.id),
+			combinedParentDiv.dataset.id,
+			droppedPieceGroupDiv.dataset.id,
 		] as const,
 	} as const;
 }
 
-function isOverlapping(
+function hasSameParent(pieceOne: HtmlPieceElement, pieceTwo: HtmlPieceElement) {
+	return pieceOne?.parentElement?.id === pieceTwo.parentElement?.id;
+}
+
+function checkOverlap(
 	pieceToTry: SavedBoard[number][number],
 	hitOffsetForEar: number,
 	pieceDomRect: DOMRect,
+	pieceToTryDiv: HtmlPieceElement,
 ) {
-	return (
-		(pieceToTry.connections.top &&
-			checkOverLapOnTop({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.right &&
-			checkOverlapOnRight({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.bottom &&
-			checkOverlapOnBottom({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping) ||
-		(pieceToTry.connections.left &&
-			checkOverlapOnLeft({
-				connections: pieceToTry.connections,
-				hitOffsetForEar,
-				pieceDomRect,
-			}).isOverlapping)
-	);
+	if (pieceToTry.connections.top) {
+		const { isOverlapping, wantedPiece } = checkOverLapOnTop({
+			connections: pieceToTry.connections,
+			hitOffsetForEar,
+			pieceDomRect,
+		});
+		if (isOverlapping && !hasSameParent(pieceToTryDiv, wantedPiece))
+			return { isOverlapping, wantedPiece };
+	}
+
+	if (pieceToTry.connections.right) {
+		const { isOverlapping, wantedPiece } = checkOverlapOnRight({
+			connections: pieceToTry.connections,
+			hitOffsetForEar,
+			pieceDomRect,
+		});
+		if (isOverlapping && !hasSameParent(pieceToTryDiv, wantedPiece))
+			return { isOverlapping, wantedPiece };
+	}
+	if (pieceToTry.connections.bottom) {
+		const { isOverlapping, wantedPiece } = checkOverlapOnBottom({
+			connections: pieceToTry.connections,
+			hitOffsetForEar,
+			pieceDomRect,
+		});
+		if (isOverlapping && !hasSameParent(pieceToTryDiv, wantedPiece))
+			return { isOverlapping, wantedPiece };
+	}
+	if (pieceToTry.connections.left) {
+		const { isOverlapping, wantedPiece } = checkOverlapOnLeft({
+			connections: pieceToTry.connections,
+			hitOffsetForEar,
+			pieceDomRect,
+		});
+		if (isOverlapping && !hasSameParent(pieceToTryDiv, wantedPiece))
+			return { isOverlapping, wantedPiece };
+	}
+	return { isOverlapping: false };
 }

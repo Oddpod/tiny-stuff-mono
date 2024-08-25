@@ -39,14 +39,6 @@ export function checkOverlapOnLeft({
 		(-3 / 2) * hitOffsetForEar,
 		hitOffsetForEar,
 	);
-	console.log({
-		isOverLappingOnX,
-		isOverLappingOnY,
-		hitOffsetForEar,
-		diffX,
-		diffY,
-		case: "left",
-	});
 
 	return {
 		isOverlapping: isOverLappingOnX && isOverLappingOnY,
@@ -78,14 +70,6 @@ export function checkOverlapOnBottom({
 		-hitOffsetForEar,
 		hitOffsetForEar,
 	);
-	console.log({
-		isOverLappingOnX,
-		isOverLappingOnY,
-		hitOffsetForEar,
-		diffX,
-		diffY,
-		case: "bottom",
-	});
 
 	return {
 		isOverlapping: isOverLappingOnX && isOverLappingOnY,
@@ -119,15 +103,6 @@ export function checkOverlapOnRight({
 		hitOffsetForEar,
 	);
 
-	console.log(connections);
-	console.log({
-		isOverLappingOnX,
-		isOverLappingOnY,
-		hitOffsetForEar,
-		diffX,
-		diffY,
-		case: "right",
-	});
 	return {
 		isOverlapping: isOverLappingOnX && isOverLappingOnY,
 		wantedPiece,
@@ -142,7 +117,6 @@ export function checkOverLapOnTop({
 	hitOffsetForEar,
 }: CheckOverlapParams): CheckOverlapReturnType {
 	const wantedPieceId = connections.top!;
-	console.log({ wantedPieceId });
 
 	const wantedPiece = document.getElementById(
 		`piece-${wantedPieceId}`,
@@ -161,15 +135,6 @@ export function checkOverLapOnTop({
 		-hitOffsetForEar,
 		hitOffsetForEar,
 	);
-
-	console.log({
-		isOverLappingOnX,
-		isOverLappingOnY,
-		hitOffsetForEar,
-		diffX,
-		diffY,
-		case: "top",
-	});
 
 	return {
 		isOverlapping: isOverLappingOnX && isOverLappingOnY,

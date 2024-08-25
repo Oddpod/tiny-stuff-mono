@@ -24,7 +24,7 @@ export function addPieceToGroupTopConnection({
 
 	return {
 		result: PlaceAndCombineResult.ExpandedGroup,
-		groupDivId: Number.parseInt(combinedParentDiv.dataset.id!),
+		groupDivId: combinedParentDiv.dataset.id!,
 	};
 }
 
@@ -51,7 +51,7 @@ export function addPieceToGroupRightConnection({
 
 	return {
 		result: PlaceAndCombineResult.ExpandedGroup,
-		groupDivId: Number.parseInt(combinedParentDiv.dataset.id!),
+		groupDivId: combinedParentDiv.dataset.id!,
 	};
 }
 
@@ -78,7 +78,7 @@ export function addPieceToGroupBottomConnection({
 
 	return {
 		result: PlaceAndCombineResult.ExpandedGroup,
-		groupDivId: Number.parseInt(combinedParentDiv.dataset.id!),
+		groupDivId: combinedParentDiv.dataset.id!,
 	};
 }
 
@@ -95,7 +95,7 @@ export function addPieceToGroupLeftConnection({
 
 	return {
 		result: PlaceAndCombineResult.ExpandedGroup,
-		groupDivId: Number.parseInt(combinedParentDiv.dataset.id!),
+		groupDivId: combinedParentDiv.dataset.id!,
 	};
 }
 

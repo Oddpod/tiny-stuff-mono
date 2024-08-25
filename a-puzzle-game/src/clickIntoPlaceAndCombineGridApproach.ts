@@ -36,12 +36,12 @@ export type CombinedPieceResult = {
 	result: PlaceAndCombineResult.Combined;
 	newCombinedDiv: PieceGroupDivElement;
 	combinedWithPieceId: number;
-	id: number;
+	id: string;
 };
 
 export type ExpandPieceGroupResult = {
 	result: PlaceAndCombineResult.ExpandedGroup;
-	groupDivId: number;
+	groupDivId: string;
 };
 type ReturnType =
 	| { result: PlaceAndCombineResult.Nothing }
@@ -76,7 +76,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
 
 				return addPieceToGroupTopConnection({
 					wantedPiece,
@@ -109,7 +109,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
+				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
 				combinedParentDiv.style.left = pieceDiv.style.left;
 				return addPieceToGroupRightConnection({
 					boardContainer,
@@ -143,7 +143,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 
 			if (hasCombinedParent) {
 				// TODO:
-				combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
+				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
 				combinedParentDiv.style.top = pieceDiv.style.top;
 				return addPieceToGroupBottomConnection({
 					boardContainer,
@@ -217,8 +217,8 @@ export function adjustPiecesAndAddToCombined(
 	wantedPiece.classList.remove("piece");
 	wantedPiece.ontouchstart = null;
 	wantedPiece.onmousedown = null;
-	boardContainer.removeChild(wantedPiece);
-	boardContainer.removeChild(pieceDiv);
+	// boardContainer.removeChild(wantedPiece);
+	// boardContainer.removeChild(pieceDiv);
 	newCombinedDiv.appendChild(pieceDiv);
 	newCombinedDiv.appendChild(wantedPiece);
 }

@@ -11,7 +11,7 @@ export type SavedBoard = {
 }[][];
 
 export type CombinedPiecePositionLookup = Map<
-	number,
+	string,
 	{ pieceIds: Set<number>; position: { top: number; left: number } }
 >;
 
@@ -40,9 +40,9 @@ export function loadPiecePositions() {
 	};
 }
 
-type SavedDimensions = [number, number];
+type SavedDimensions = { heightInPieces: number; widthInPieces: number };
 
-export function savePuzzleDimensions(dimensions: [number, number]) {
+export function savePuzzleDimensions(dimensions: SavedDimensions) {
 	localStorage.setItem("saved-dimensions", serialize(dimensions));
 }
 

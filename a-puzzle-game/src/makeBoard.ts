@@ -25,13 +25,12 @@ export interface PieceEntity {
 	};
 }
 
-let uniqueCounter = 0;
-
 export const createBoard = ({
 	widthInPieces: width,
 	heightInPieces: height,
 	pieceSize,
 }: CreateBoardInput): Effect.Effect<PieceEntity[][], Error> => {
+	let uniqueCounter = 0;
 	const pieces: PieceEntity[][] = [];
 	for (let j = 0; j < height; j++) {
 		const row: PieceEntity[] = [];
