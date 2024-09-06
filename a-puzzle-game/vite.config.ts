@@ -1,9 +1,10 @@
 // vite.config.ts
-import UnoCSS from 'unocss/vite'
-import { defineConfig } from 'vite'
+import UnoCSS from "unocss/vite";
+import { defineConfig } from "vite";
 
 export default defineConfig({
-    plugins: [
-        UnoCSS(),
-    ],
-})
+	plugins: [UnoCSS()],
+	build: {
+		sourcemap: true,
+	},
+});
