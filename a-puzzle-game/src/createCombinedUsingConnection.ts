@@ -35,12 +35,11 @@ export function combineUsingTopConnection(
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "2";
 	pieceDiv.style.gridColumnStart = "1";
-	adjustPiecesAndAddToCombined(
+	adjustPiecesAndAddToCombined({
 		pieceDiv,
 		wantedPiece,
-		boardContainer,
 		newCombinedDiv,
-	);
+	});
 	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
@@ -71,12 +70,11 @@ export function combineUsingRightConnection(
 	wantedPiece.style.gridColumnStart = "2";
 	pieceDiv.style.gridRowStart = "1";
 	pieceDiv.style.gridColumnStart = "1";
-	adjustPiecesAndAddToCombined(
+	adjustPiecesAndAddToCombined({
 		pieceDiv,
 		wantedPiece,
-		boardContainer,
 		newCombinedDiv,
-	);
+	});
 	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
@@ -106,12 +104,11 @@ export function combineUsingBottomConnection({
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "1";
 	pieceDiv.style.gridColumnStart = "1";
-	adjustPiecesAndAddToCombined(
+	adjustPiecesAndAddToCombined({
 		pieceDiv,
 		wantedPiece,
-		boardContainer,
 		newCombinedDiv,
-	);
+	});
 	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
@@ -142,12 +139,11 @@ export function combineUsingLeftConnection({
 	wantedPiece.style.gridColumnStart = "1";
 	pieceDiv.style.gridRowStart = "1";
 	pieceDiv.style.gridColumnStart = "2";
-	adjustPiecesAndAddToCombined(
+	adjustPiecesAndAddToCombined({
 		pieceDiv,
 		wantedPiece,
-		boardContainer,
 		newCombinedDiv,
-	);
+	});
 	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,

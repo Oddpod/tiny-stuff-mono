@@ -199,12 +199,17 @@ export function clickIntoPlaceAndCombineWithGrid({
 	return { result: PlaceAndCombineResult.Nothing };
 }
 
-export function adjustPiecesAndAddToCombined(
-	pieceDiv: HtmlPieceElement,
-	wantedPiece: HtmlPieceElement,
-	boardContainer: HTMLDivElement,
-	newCombinedDiv: HTMLDivElement,
-) {
+interface AdjustPiecesAndAddToCombinedParams {
+	pieceDiv: HtmlPieceElement;
+	wantedPiece: HtmlPieceElement;
+	newCombinedDiv: HTMLDivElement;
+}
+
+export function adjustPiecesAndAddToCombined({
+	pieceDiv,
+	wantedPiece,
+	newCombinedDiv,
+}: AdjustPiecesAndAddToCombinedParams) {
 	pieceDiv.style.removeProperty("left");
 	pieceDiv.style.removeProperty("top");
 	pieceDiv.style.removeProperty("z-index");
@@ -217,8 +222,6 @@ export function adjustPiecesAndAddToCombined(
 	wantedPiece.classList.remove("piece");
 	wantedPiece.ontouchstart = null;
 	wantedPiece.onmousedown = null;
-	// boardContainer.removeChild(wantedPiece);
-	// boardContainer.removeChild(pieceDiv);
 	newCombinedDiv.appendChild(pieceDiv);
 	newCombinedDiv.appendChild(wantedPiece);
 }

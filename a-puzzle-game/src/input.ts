@@ -69,7 +69,7 @@ export function setChosenImage(
 	puzzleWidth: number,
 ): Promise<number> {
 	imageElement.src = image.src;
-	return new Promise((res, rej) => {
+	return new Promise((res, _) => {
 		imageElement.addEventListener("load", () => {
 			const aspectRatio = setAspectRatio(image);
 			inputWidthElement.value = puzzleWidth.toString();
