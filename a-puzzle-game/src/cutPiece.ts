@@ -33,10 +33,10 @@ const cutPiece = async ({
 			? (15 * pieceSize) / PIECE_DIMENSIONS
 			: 0;
 	const shiftedLeftX =
-		(Math.max(0, piece.boundingBox[0].x - shiftLeftBy) * image.width) /
+		(Math.max(0, piece.coords.col * pieceSize - shiftLeftBy) * image.width) /
 		boardWidth;
 	const shiftedTopY =
-		(Math.max(0, piece.boundingBox[0].y - shiftTopBy) * image.height) /
+		(Math.max(0, piece.coords.row * pieceSize - shiftTopBy) * image.height) /
 		boardHeight;
 
 	const scaledUpWidth =

@@ -6,7 +6,6 @@ export type SavedBoard = {
 	id: number;
 	definitionId: number;
 	coords: PieceEntity["coords"];
-	boundingBox: PieceEntity["boundingBox"];
 	connections: PieceEntity["connections"];
 }[][];
 
@@ -52,11 +51,10 @@ export function loadSavedPuzzleDimensions() {
 
 export function saveBoard(board: PieceEntity[][]) {
 	const savedBoard: SavedBoard = board.map((row) =>
-		row.map(({ id, definition, boundingBox, connections, coords }) => ({
+		row.map(({ id, definition, connections, coords }) => ({
 			id,
 			coords,
 			definitionId: definition.id,
-			boundingBox,
 			connections,
 		})),
 	);
