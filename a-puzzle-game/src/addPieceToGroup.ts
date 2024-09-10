@@ -34,7 +34,7 @@ export function addPieceToGroupRightConnection({
 }: AddPieceToGroupParams): ExpandPieceGroupResult {
 	let gridColumnStart = +wantedPiece.style.gridColumnStart - 1;
 	if (gridColumnStart <= 0) {
-		// TODO: Shove all pieces in group right
+		// Shove all pieces in group right
 		for (const piece of combinedParentDiv.children) {
 			const pieceElement = piece as HtmlPieceElement;
 			pieceElement.style.gridColumnStart = (
@@ -60,7 +60,7 @@ export function addPieceToGroupBottomConnection({
 }: AddPieceToGroupParams): ExpandPieceGroupResult {
 	let gridRowStart = +wantedPiece.style.gridRowStart - 1;
 	if (gridRowStart <= 0) {
-		// TODO: Shove all pieces in group down
+		// Shove all pieces in group down
 		for (const piece of combinedParentDiv.children) {
 			const pieceElement = piece as HtmlPieceElement;
 			pieceElement.style.gridRowStart = (

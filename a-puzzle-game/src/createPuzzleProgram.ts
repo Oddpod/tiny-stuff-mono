@@ -1,5 +1,5 @@
 import { Effect, LogLevel, Logger } from "effect";
-import { cutPiece } from "./cutPiece";
+import { cutPiece, PieceCutter } from "./cutPiece";
 import { loadChosenImage, readConfig } from "./input";
 import { loadImage } from "./utils";
 import { createBoard } from "./makeBoard";
@@ -62,11 +62,10 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 		pieceSize,
 		savedBoard,
 	});
+	const cutPiece = PieceCutter({ image, pieceSize, boardHeight, boardWidth });
 	for (const row of board) {
 		for (const piece of row) {
-			const newPiece = yield* Effect.promise(() =>
-				cutPiece({ piece, image, pieceSize, boardHeight, boardWidth }),
-			);
+			const newPiece = yield* Effect.promise(() => cutPiece(piece));
 			const placement = getRandomBoardCoordinates(
 				pieceSize,
 				piece.definition.sides,
@@ -94,7 +93,7 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 						return;
 					}
 
-					boardContainer.appendChild(res.newCombinedDiv)
+					boardContainer.appendChild(res.newCombinedDiv);
 					combinedPiecesLookup.set(res.id, {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
 						position: { left, top },

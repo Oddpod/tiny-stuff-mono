@@ -17,7 +17,7 @@ export interface CutPieceParams {
 	boardWidth: number;
 	boardHeight: number;
 }
-export const cutPiece = async ({
+const cutPiece = async ({
 	piece,
 	pieceSize,
 	image,
@@ -122,3 +122,14 @@ export const cutPiece = async ({
 
 	return newPiece as HtmlPieceElement;
 };
+
+interface PieceCutterParams {
+	pieceSize: number;
+	image: HTMLImageElement;
+	boardWidth: number;
+	boardHeight: number;
+}
+
+export function PieceCutter(params: PieceCutterParams) {
+	return (piece: PieceEntity) => cutPiece({ piece, ...params });
+}

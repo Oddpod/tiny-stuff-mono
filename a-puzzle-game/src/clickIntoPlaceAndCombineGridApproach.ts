@@ -48,14 +48,30 @@ type ReturnType =
 	| ExpandPieceGroupResult
 	| CombinedPieceResult;
 
+type FindCombinedParentReturn =
+	| {
+			hasCombinedParent: true;
+			combinedParentDiv: HTMLElement;
+	  }
+	| { hasCombinedParent: false; combinedParentDiv: null };
+
+function findCombinedParent(
+	pieceElement: HtmlPieceElement,
+): FindCombinedParentReturn {
+	const combinedParentDiv = pieceElement.parentElement;
+	const hasCombinedParent =
+		!!combinedParentDiv &&
+		combinedParentDiv?.classList.contains("combined-piece");
+	if (!hasCombinedParent) {
+		return { hasCombinedParent: false, combinedParentDiv: null };
+	}
+	return { combinedParentDiv, hasCombinedParent };
+}
+
 export function clickIntoPlaceAndCombineWithGrid({
 	piece,
 	pieceSize,
 }: ClickIntoPlaceAndCombineParams): ReturnType {
-	const boardContainer = document.getElementById(
-		"board-container",
-	) as HTMLDivElement;
-
 	const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams(
 		piece,
 		pieceSize,
@@ -69,10 +85,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
 				return addPieceToGroupTopConnection({
@@ -81,14 +95,13 @@ export function clickIntoPlaceAndCombineWithGrid({
 					combinedParentDiv,
 				});
 			}
-			return combineUsingTopConnection(
+			return combineUsingTopConnection({
 				pieceSize,
 				wantedPiece,
 				pieceDiv,
 				wantedPieceDomRect,
-				boardContainer,
 				wantedPieceId,
-			);
+			});
 		}
 	}
 	if (piece.connections.right !== null) {
@@ -98,10 +111,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 			hitOffsetForEar,
 		});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
 				combinedParentDiv.style.left = pieceDiv.style.left;
@@ -111,14 +122,13 @@ export function clickIntoPlaceAndCombineWithGrid({
 					wantedPiece,
 				});
 			}
-			return combineUsingRightConnection(
+			return combineUsingRightConnection({
 				pieceSize,
 				pieceDomRect,
 				pieceDiv,
 				wantedPiece,
-				boardContainer,
 				wantedPieceId,
-			);
+			});
 		}
 	}
 	if (piece.connections.bottom !== null) {
@@ -129,14 +139,10 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				// TODO:
-				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
 				combinedParentDiv.style.top = pieceDiv.style.top;
 				return addPieceToGroupBottomConnection({
 					combinedParentDiv,
@@ -145,7 +151,6 @@ export function clickIntoPlaceAndCombineWithGrid({
 				});
 			}
 			return combineUsingBottomConnection({
-				boardContainer,
 				pieceDiv,
 				pieceSize,
 				wantedPiece,
@@ -163,10 +168,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
 				return addPieceToGroupLeftConnection({
@@ -176,7 +179,6 @@ export function clickIntoPlaceAndCombineWithGrid({
 				});
 			}
 			return combineUsingLeftConnection({
-				boardContainer,
 				pieceDiv,
 				pieceSize,
 				wantedPiece,

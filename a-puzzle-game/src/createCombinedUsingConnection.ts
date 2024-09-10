@@ -10,18 +10,16 @@ interface CombineUsingBottomConnectionParams {
 	wantedPiece: HtmlPieceElement;
 	pieceDiv: HtmlPieceElement;
 	wantedPieceDomRect: DOMRect;
-	boardContainer: HTMLDivElement;
 	wantedPieceId: number;
 }
 
-export function combineUsingTopConnection(
-	pieceSize: number,
-	wantedPiece: HtmlPieceElement,
-	pieceDiv: HtmlPieceElement,
-	wantedPieceDomRect: DOMRect,
-	boardContainer: HTMLDivElement,
-	wantedPieceId: number,
-): CombinedPieceResult {
+export function combineUsingTopConnection({
+	pieceSize,
+	wantedPiece,
+	pieceDiv,
+	wantedPieceDomRect,
+	wantedPieceId,
+}: CombineUsingBottomConnectionParams): CombinedPieceResult {
 	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
@@ -37,7 +35,7 @@ export function combineUsingTopConnection(
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
+
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -46,14 +44,20 @@ export function combineUsingTopConnection(
 	};
 }
 
-export function combineUsingRightConnection(
-	pieceSize: number,
-	pieceDomRect: DOMRect,
-	pieceDiv: HtmlPieceElement,
-	wantedPiece: HtmlPieceElement,
-	boardContainer: HTMLDivElement,
-	wantedPieceId: number,
-): CombinedPieceResult {
+interface CombineUsingRightConnection {
+	pieceSize: number;
+	pieceDomRect: DOMRect;
+	pieceDiv: HtmlPieceElement;
+	wantedPiece: HtmlPieceElement;
+	wantedPieceId: number;
+}
+export function combineUsingRightConnection({
+	pieceSize,
+	pieceDomRect,
+	pieceDiv,
+	wantedPiece,
+	wantedPieceId,
+}: CombineUsingRightConnection): CombinedPieceResult {
 	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
@@ -69,7 +73,6 @@ export function combineUsingRightConnection(
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -82,7 +85,6 @@ export function combineUsingBottomConnection({
 	pieceSize,
 	wantedPiece,
 	pieceDiv,
-	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
 	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
@@ -100,7 +102,6 @@ export function combineUsingBottomConnection({
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -114,7 +115,6 @@ export function combineUsingLeftConnection({
 	wantedPiece,
 	pieceDiv,
 	wantedPieceDomRect,
-	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
 	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
@@ -132,7 +132,7 @@ export function combineUsingLeftConnection({
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
+
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,

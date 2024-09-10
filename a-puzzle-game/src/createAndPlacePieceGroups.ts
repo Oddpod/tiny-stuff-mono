@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import type { PiecePositionLookup } from "./board";
 import { boardContainer } from "./resumePuzzleProgram";
 import { createCombinedPieceDiv } from "./createCombinedUsingConnection";
-import { cutPiece } from "./cutPiece";
+import { PieceCutter } from "./cutPiece";
 import { pieceDefinitionLookup } from "./pieceDefinitions";
 import type { CombinedPiecePositionLookup, SavedBoard } from "./storeState";
 import type { PieceDragger } from "./makePieceDraggable";
@@ -99,17 +99,12 @@ function* cutPiecesForGroup({
 	let minCol = MAX_DIM_XY + 1;
 	let minRow = MAX_DIM_XY + 1;
 	const piecesToAppend = [];
+	const cutPiece = PieceCutter({ image, pieceSize, boardHeight, boardWidth });
 	for (const pieceId of combinedPieceData.pieceIds) {
 		const piece = savedBoard.flat().find((p) => p.id === pieceId)!;
 		const definition = pieceDefinitionLookup.get(piece.definitionId)!;
 		const newPiece = yield* Effect.promise(() =>
-			cutPiece({
-				piece: { ...piece, definition },
-				image,
-				pieceSize,
-				boardHeight,
-				boardWidth,
-			}),
+			cutPiece({ ...piece, definition }),
 		);
 		newPiece.id = `piece-${piece.id}`;
 		newPiece.removeAttribute("class");

@@ -1,5 +1,5 @@
 import { Effect, LogLevel, Logger } from "effect";
-import { cutPiece } from "./cutPiece";
+import { cutPiece, PieceCutter } from "./cutPiece";
 import { setChosenImage } from "./input";
 import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefinitions";
@@ -84,6 +84,12 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 		savedBoard,
 	});
 
+	const cutPiece = PieceCutter({
+		boardHeight,
+		boardWidth,
+		image,
+		pieceSize,
+	});
 	for (const row of savedBoard) {
 		for (const piece of row) {
 			const placement = piecePositions.get(piece.id)!;
@@ -92,13 +98,7 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 
 			const definition = pieceDefinitionLookup.get(piece.definitionId)!;
 			const newPiece = yield* Effect.promise(() =>
-				cutPiece({
-					piece: { ...piece, definition },
-					image,
-					pieceSize,
-					boardHeight,
-					boardWidth,
-				}),
+				cutPiece({ ...piece, definition }),
 			);
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
@@ -122,6 +122,7 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 						return;
 					}
 
+					boardContainer.appendChild(res.newCombinedDiv);
 					combinedPiecesLookup.set(res.id, {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
 						position: { left, top },
@@ -146,7 +147,6 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 			});
 		}
 	}
-	console.log(import.meta.env.MODE);
 }).pipe(
 	Logger.withMinimumLogLevel(
 		import.meta.env.MODE === "development" ? LogLevel.Debug : LogLevel.Error,
