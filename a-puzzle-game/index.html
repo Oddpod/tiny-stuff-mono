@@ -1,64 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A puzzle game</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A puzzle game</title>
-</head>
-
-<body class="m-0">
-  <button id="settings-button" class="z-60 fixed top-4 right-4 p-2 cursor-pointer rounded-full animate-bounce">
-    <div class="i-heroicons-cog-8-tooth-20-solid text-xl" />
-  </button>
-
-  <div id="settings-drawer"
-    class="fixed hidden w-screen top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800">
-    <button id="settings-close-button" class="icon-btn absolute top-4 right-4">
-      <div class="i-heroicons-x-mark dark:text-white"></div>
+  <body class="m-0">
+    <button
+      id="settings-button"
+      class="z-60 fixed top-4 right-4 p-2 cursor-pointer rounded-full animate-bounce"
+    >
+      <div class="i-heroicons-cog-8-tooth-20-solid text-xl" />
     </button>
-    <div class="flex flex-col items-center p-4 mt-5">
-      <figure id="image-figure">
-        <img id="image" />
-      </figure>
-      <label id="file-upload"
-        class="p-6 cursor-pointer flex flex-col items-center justify-center text-center text-2xl border-dashed border-gray-400 rounded-xl">
-        <span>
-          <div class="i-heroicons-photo"></div>
-          Upload or drop an image
-        </span>
-        <input type="file" accept="image/*"
-          class="cursor-pointer file:rounded-full file:py-2 file:px-4 file:border-0 file:bg-primary-600">
-      </label>
-      <div class="flex flex-col">
-        <form id="select-piece-dimensions" class="flex flex-col">
-          <fieldset class="mb-2 rounded-lg border-gray-600 flex items-center">
-            <legend class="text-2xl">Dimensions:</legend>
-            <!-- TODO: Buttons instead? -->
-            <input id="dim-width" type="number" inputmode="numeric" value="4" max="50" min="2" class="mr-4 p-1 rounded" pattern="[0-9]">
-            <input id="dim-height" type="number" inputmode="numeric" value="3" max="50" min="2" class="p-1 rounded" pattern="[0-9]">
-            <output name="pieces" for="dim-width dim-height" class="ml-4 flex items-center text-2xl">
-              <span id="piece-count" class="text-4xl">
-                12
-              </span>
-              <div class="i-heroicons-puzzle-piece"></div>
-            </output>
-          </fieldset>
-          <button type="submit" id="load-button"
-            class="self-end text-xl rounded-lg px-2 py-1 bg-primary-700 cursor-pointer">Load</button>
-        </form>
+
+    <div
+      id="settings-drawer"
+      class="fixed hidden w-screen top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800"
+    >
+      <button
+        id="settings-close-button"
+        class="icon-btn absolute top-4 right-4"
+      >
+        <div class="i-heroicons-x-mark dark:text-white"></div>
+      </button>
+      <div class="flex flex-col items-center p-4 mt-5">
+        <figure id="image-figure">
+          <img id="image" />
+        </figure>
+        <label
+          id="file-upload"
+          class="p-6 cursor-pointer flex flex-col items-center justify-center text-center text-2xl border-dashed border-gray-400 rounded-xl"
+        >
+          <span>
+            <div class="i-heroicons-photo"></div>
+            Upload or drop an image
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            class="cursor-pointer file:rounded-full file:py-2 file:px-4 file:border-0 file:bg-primary-600"
+          />
+        </label>
+        <div class="flex flex-col">
+          <form id="select-piece-dimensions" class="flex flex-col">
+            <fieldset class="mb-2 rounded-lg border-gray-600 flex items-center">
+              <legend class="text-2xl">Dimensions:</legend>
+              <!-- TODO: Buttons instead, with + and - -->
+              <input
+                id="dim-width"
+                max="50"
+                min="2"
+                readonly
+                class="mr-4 p-1 rounded"
+              />
+              <input
+                id="dim-height"
+                readonly
+                max="50"
+                min="2"
+                class="p-1 rounded"
+              />
+              <output
+                name="pieces"
+                for="dim-width dim-height"
+                class="ml-4 flex items-center text-2xl"
+              >
+                <span id="piece-count" class="text-4xl"> 12 </span>
+                <div class="i-heroicons-puzzle-piece"></div>
+              </output>
+            </fieldset>
+            <button
+              type="submit"
+              id="load-button"
+              class="self-end text-xl rounded-lg px-2 py-1 bg-primary-700 cursor-pointer"
+            >
+              Load
+            </button>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="app" class="w-screen min-h-screen flex items-stretch">
-    <div id="board-container" class="w-full pt-10 bg-gray-400">
-      <!-- <div id="board" class="mx-auto"></div> -->
+    <div id="app" class="w-screen min-h-screen flex items-stretch">
+      <div id="board-container" class="w-full pt-10 bg-gray-400">
+        <!-- <div id="board" class="mx-auto"></div> -->
+      </div>
     </div>
-
-  </div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
-
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

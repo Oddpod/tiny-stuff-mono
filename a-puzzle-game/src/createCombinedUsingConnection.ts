@@ -1,4 +1,4 @@
-import type { HtmlPieceElement } from "./constants";
+import { COMBINED_PIECE_ZINDEX, type HtmlPieceElement } from "./constants";
 import {
 	type CombinedPieceResult,
 	PlaceAndCombineResult,
@@ -27,9 +27,6 @@ export function combineUsingTopConnection(
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -63,9 +60,6 @@ export function combineUsingRightConnection(
 	newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDomRect.left - marginLeft}px`;
 
-	// newCombinedDiv.style.height = `${pieceSize}px`;
-	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
-
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "2";
 	pieceDiv.style.gridRowStart = "1";
@@ -96,9 +90,6 @@ export function combineUsingBottomConnection({
 
 	newCombinedDiv.style.top = `${pieceDiv.getBoundingClientRect().top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDiv.getBoundingClientRect().left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "2";
 	wantedPiece.style.gridColumnStart = "1";
@@ -131,9 +122,6 @@ export function combineUsingLeftConnection({
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize}px`;
-	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -179,6 +167,6 @@ export function createCombinedPieceDiv(
 	newCombinedDiv.style.position = "absolute";
 	newCombinedDiv.setAttribute("id", `combine-piece-${id}`);
 	newCombinedDiv.setAttribute("data-id", `${id}`);
-	newCombinedDiv.style.zIndex = "100";
+	newCombinedDiv.style.zIndex = COMBINED_PIECE_ZINDEX;
 	return { newCombinedDiv, id };
 }

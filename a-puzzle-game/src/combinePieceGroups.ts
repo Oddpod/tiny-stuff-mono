@@ -1,4 +1,4 @@
-import type { HtmlPieceElement } from "./constants";
+import { MAX_DIM_XY, type HtmlPieceElement } from "./constants";
 import {
 	type PieceGroupDivElement,
 	createCombinedPieceDiv,
@@ -81,8 +81,8 @@ export function combinePieceGroups({
 	newCombinedDiv.style.top = topMostGroupDiv.style.top;
 
 	// Start at a higher number than puzzle dimensions
-	let minCol = 10000;
-	let minRow = 10000;
+	let minCol = MAX_DIM_XY + 1;
+	let minRow = MAX_DIM_XY + 1;
 	const pieceByRow = groupBy(
 		allRelevantPieces.map((p) => ({
 			pieceDiv: p,

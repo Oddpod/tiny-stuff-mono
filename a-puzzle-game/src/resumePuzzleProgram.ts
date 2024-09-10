@@ -103,7 +103,6 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
-			newPiece.setAttribute("data-definition-id", definition.id.toString());
 			boardContainer.appendChild(newPiece);
 			pieceDragger.makePieceDraggable({
 				divElement: newPiece,
@@ -147,8 +146,9 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 			});
 		}
 	}
+	console.log(import.meta.env.MODE);
 }).pipe(
 	Logger.withMinimumLogLevel(
-		import.meta.env.MODE === "dev" ? LogLevel.Debug : LogLevel.Error,
+		import.meta.env.MODE === "development" ? LogLevel.Debug : LogLevel.Error,
 	),
 );

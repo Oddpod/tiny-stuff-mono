@@ -1,6 +1,7 @@
 import { Effect } from "effect";
 import { previewFile } from "./previewFile";
 import { clamp, gcd, loadImage } from "./utils";
+import { MAX_DIM_XY } from "./constants";
 
 const dimensionsConfig = document.getElementById(
 	"select-piece-dimensions",
@@ -54,8 +55,7 @@ function setAspectRatio(image: HTMLImageElement) {
 	return aspectRatio;
 }
 
-export async function loadChosenImage() {
-	const imageSrc = await previewFile();
+export async function loadChosenImage(imageSrc: string) {
 	const image = await loadImage(imageSrc);
 	setAspectRatio(image);
 	inputHeightElement.value = Math.round(
@@ -76,11 +76,11 @@ export function setChosenImage(
 			const adjustedHeight = Math.round(
 				(puzzleWidth * aspectRatio.height) / aspectRatio.width,
 			);
+
 			inputHeightElement.value = adjustedHeight.toString();
 
 			if (aspectRatio.height < aspectRatio.width) {
-				const width =
-					Math.floor(MAX_DIM_XY / aspectRatio.width) * aspectRatio.width;
+				const width = Math.floor(image.width / MAX_DIM_XY);
 				const height = Math.floor(
 					(width * aspectRatio.height) / aspectRatio.width,
 				);
@@ -89,8 +89,7 @@ export function setChosenImage(
 				inputHeightElement.setAttribute("max", height.toString());
 				inputWidthElement.setAttribute("max", width.toString());
 			} else {
-				const height =
-					Math.floor(MAX_DIM_XY / aspectRatio.height) * aspectRatio.height;
+				const height = Math.floor(image.height / MAX_DIM_XY);
 				const width = Math.floor(
 					(height * aspectRatio.width) / aspectRatio.height,
 				);
@@ -127,9 +126,6 @@ export const readConfig = (): Effect.Effect<InputConfig, Error> => {
 		imageSrc,
 	});
 };
-
-export const MIN_PIECE_SIZE = Object.freeze(50);
-const MAX_DIM_XY = Object.freeze(50);
 
 inputWidthElement.addEventListener("change", (event: Event) => {
 	const newValue = (event.target as HTMLInputElement).value;
@@ -198,7 +194,10 @@ inputHeightElement.addEventListener("blur", () => {
 	loadButton.removeAttribute("disabled");
 });
 
-fileInput.addEventListener("change", loadChosenImage);
+fileInput.addEventListener("change", async () => {
+	const imageSrc = await previewFile();
+	loadChosenImage(imageSrc);
+});
 fileUpload.addEventListener("dragover", (event) => {
 	// TODO: Styling when file is dragged over
 	event.preventDefault();

@@ -27,7 +27,7 @@ import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
 export const createPuzzleProgram = Effect.gen(function* (_) {
 	yield* Effect.logDebug("Running createPuzzleProgram");
 	const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig();
-	yield* Effect.tryPromise(() => loadChosenImage());
+	yield* Effect.tryPromise(() => loadChosenImage(imageSrc));
 	savePuzzleDimensions({ widthInPieces, heightInPieces });
 
 	const image = yield* Effect.tryPromise(() => loadImage(imageSrc));
@@ -74,10 +74,6 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
-			newPiece.setAttribute(
-				"data-definition-id",
-				piece.definition.id.toString(),
-			);
 			boardContainer.appendChild(newPiece);
 			piecePositions.set(piece.id, placement);
 			pieceDragger.makePieceDraggable({
@@ -98,6 +94,7 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 						return;
 					}
 
+					boardContainer.appendChild(res.newCombinedDiv)
 					combinedPiecesLookup.set(res.id, {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
 						position: { left, top },
@@ -124,7 +121,7 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 	}
 }).pipe(
 	Logger.withMinimumLogLevel(
-		import.meta.env.MODE === "dev" ? LogLevel.Debug : LogLevel.Error,
+		import.meta.env.MODE === "development" ? LogLevel.Debug : LogLevel.Error,
 	),
 );
 

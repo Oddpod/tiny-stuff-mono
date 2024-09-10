@@ -1,7 +1,7 @@
 import { PIECE_DIMENSIONS } from "./pieceDefinitions";
 import type { PieceEntity } from "./makeBoard";
 import { loadImage } from "./utils";
-import type { HtmlPieceElement } from "./constants";
+import { SINGLE_PIECE_ZINDEX, type HtmlPieceElement } from "./constants";
 
 const canvasForCropping = document.createElement("canvas");
 canvasForCropping.width = 300;
@@ -118,6 +118,7 @@ export const cutPiece = async ({
 	}
 	newPiece.classList.add("piece");
 	newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
+	newPiece.style.zIndex = SINGLE_PIECE_ZINDEX;
 
 	return newPiece as HtmlPieceElement;
 };

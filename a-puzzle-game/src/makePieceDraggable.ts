@@ -1,3 +1,4 @@
+import { SINGLE_PIECE_ZINDEX } from "./constants";
 import { clamp } from "./utils";
 
 interface MouseDownParams {
@@ -16,7 +17,6 @@ const mouseDown = ({
 	let left: number;
 	let top: number;
 	return (event: MouseEvent | TouchEvent) => {
-		divElement.style.zIndex = "40";
 		event.preventDefault();
 
 		const shiftX =

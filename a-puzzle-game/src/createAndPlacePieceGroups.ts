@@ -7,6 +7,7 @@ import { pieceDefinitionLookup } from "./pieceDefinitions";
 import type { CombinedPiecePositionLookup, SavedBoard } from "./storeState";
 import type { PieceDragger } from "./makePieceDraggable";
 import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
+import { MAX_DIM_XY } from "./constants";
 
 interface CreateAndPlacePieceGroupsParams {
 	combinedPiecesLookup: CombinedPiecePositionLookup;
@@ -30,7 +31,10 @@ export function* createAndPlacePieceGroups({
 	piecePositions,
 }: CreateAndPlacePieceGroupsParams) {
 	for (const [combinedPieceId, combinedPieceData] of combinedPiecesLookup) {
-		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(pieceSize, combinedPieceId);
+		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(
+			pieceSize,
+			combinedPieceId,
+		);
 		newCombinedDiv.style.left = `${combinedPieceData.position.left}px`;
 		newCombinedDiv.style.top = `${combinedPieceData.position.top}px`;
 		const { piecesToAppend, minRow, minCol } = yield* cutPiecesForGroup({
@@ -92,8 +96,8 @@ function* cutPiecesForGroup({
 	boardWidth,
 }: CutPiecesForGroupParams) {
 	// Start at a higher number than puzzle dimensions
-	let minCol = 10000;
-	let minRow = 10000;
+	let minCol = MAX_DIM_XY + 1;
+	let minRow = MAX_DIM_XY + 1;
 	const piecesToAppend = [];
 	for (const pieceId of combinedPieceData.pieceIds) {
 		const piece = savedBoard.flat().find((p) => p.id === pieceId)!;
@@ -108,7 +112,6 @@ function* cutPiecesForGroup({
 			}),
 		);
 		newPiece.id = `piece-${piece.id}`;
-		newPiece.setAttribute("data-definition-id", definition.id.toString());
 		newPiece.removeAttribute("class");
 
 		minCol = Math.min(piece.coords.col, minCol);
