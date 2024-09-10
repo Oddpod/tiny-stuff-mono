@@ -2,10 +2,8 @@ import { Effect } from "effect";
 import { findFittingPiece } from "./piecePicker";
 import type { InputConfig } from "./input";
 
-interface CreateBoardInput extends Omit<InputConfig, "imageSrc"> {
-	image: HTMLImageElement;
-	pieceSize: number;
-}
+interface CreateBoardInput
+	extends Pick<InputConfig, "widthInPieces" | "heightInPieces"> {}
 
 import type { Piece } from "./pieceDefinitions";
 
@@ -27,7 +25,6 @@ export interface PieceEntity {
 export const createBoard = ({
 	widthInPieces: width,
 	heightInPieces: height,
-	pieceSize,
 }: CreateBoardInput): Effect.Effect<PieceEntity[][], Error> => {
 	let uniqueCounter = 0;
 	const pieces: PieceEntity[][] = [];

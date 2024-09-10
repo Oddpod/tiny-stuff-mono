@@ -116,9 +116,12 @@ const cutPiece = async ({
 	if (shiftTopBy >= 0) {
 		newPiece.style.marginTop = `-${shiftTopBy}px`;
 	}
+	// TODO: Not needed for pieces in combinedDiv
+	// ----
 	newPiece.classList.add("piece");
 	newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
 	newPiece.style.zIndex = SINGLE_PIECE_ZINDEX;
+	// ----
 
 	return newPiece as HtmlPieceElement;
 };

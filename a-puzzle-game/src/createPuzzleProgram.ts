@@ -1,5 +1,5 @@
 import { Effect, LogLevel, Logger } from "effect";
-import { cutPiece, PieceCutter } from "./cutPiece";
+import { PieceCutter } from "./cutPiece";
 import { loadChosenImage, readConfig } from "./input";
 import { loadImage } from "./utils";
 import { createBoard } from "./makeBoard";
@@ -26,26 +26,20 @@ import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
 
 export const createPuzzleProgram = Effect.gen(function* (_) {
 	yield* Effect.logDebug("Running createPuzzleProgram");
-	const { heightInPieces, widthInPieces, imageSrc } = yield* readConfig();
+	const { imageSrc, ...dimensions } = yield* readConfig();
 	yield* Effect.tryPromise(() => loadChosenImage(imageSrc));
-	savePuzzleDimensions({ widthInPieces, heightInPieces });
+	savePuzzleDimensions(dimensions);
 
 	const image = yield* Effect.tryPromise(() => loadImage(imageSrc));
 	saveImage(imageSrc);
 
 	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
 		image,
-		widthInPieces,
-		heightInPieces,
+		...dimensions,
 	});
 	setBoardDimensions({ boardWidth, boardHeight });
 
-	const board = yield* createBoard({
-		image,
-		heightInPieces,
-		widthInPieces,
-		pieceSize,
-	});
+	const board = yield* createBoard(dimensions);
 	const savedBoard = saveBoard(board);
 
 	const piecePositions: PiecePositionLookup = new Map();

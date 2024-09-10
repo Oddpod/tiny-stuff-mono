@@ -1,5 +1,5 @@
 import { Effect, LogLevel, Logger } from "effect";
-import { cutPiece, PieceCutter } from "./cutPiece";
+import { PieceCutter } from "./cutPiece";
 import { setChosenImage } from "./input";
 import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefinitions";
@@ -41,17 +41,12 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 		setChosenImage(image, widthInPieces),
 	);
 
-	yield* Effect.logDebug(JSON.stringify({ heightInPieces }));
-
 	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
 		image,
 		widthInPieces,
 		heightInPieces,
 	});
 
-	yield* Effect.logDebug(
-		JSON.stringify({ boardHeight, boardWidth, pieceSize }),
-	);
 	setBoardDimensions({ boardHeight, boardWidth });
 
 	const savedBoard = yield* Effect.try(() => loadSavedBoard());
