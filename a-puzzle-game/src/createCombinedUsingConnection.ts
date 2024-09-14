@@ -120,8 +120,8 @@ export function combineUsingLeftConnection({
 	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
-	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
-	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
+	newCombinedDiv.style.top = `${wantedPieceDomRect.top}px`;
+	newCombinedDiv.style.left = `${wantedPieceDomRect.left}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";

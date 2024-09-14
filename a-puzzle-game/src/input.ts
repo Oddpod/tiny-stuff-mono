@@ -16,6 +16,18 @@ const inputHeightElement = dimensionsConfig.querySelector(
 const imageElement = (document.getElementById("image") as HTMLImageElement)!;
 const fileUpload = document.getElementById("file-upload") as HTMLInputElement;
 const loadButton = document.getElementById("load-button") as HTMLButtonElement;
+const dimWidthButtonPlus = document.getElementById(
+	"dim-width-button-plus",
+) as HTMLButtonElement;
+const dimWidthButtonMinus = document.getElementById(
+	"dim-width-button-minus",
+) as HTMLButtonElement;
+const dimHeightButtonPlus = document.getElementById(
+	"dim-height-button-plus",
+) as HTMLButtonElement;
+const dimHeightButtonMinus = document.getElementById(
+	"dim-height-button-minus",
+) as HTMLButtonElement;
 
 export const fileInput = fileUpload.querySelector("input") as HTMLInputElement;
 const pieceCountElement = dimensionsConfig.querySelector(
@@ -57,7 +69,9 @@ function setAspectRatio(image: HTMLImageElement) {
 
 export async function loadChosenImage(imageSrc: string) {
 	const image = await loadImage(imageSrc);
-	setAspectRatio(image);
+	const aspectRatio = setAspectRatio(image);
+	console.log({ aspectRatio });
+	inputWidthElement.value = aspectRatio.width.toString();
 	inputHeightElement.value = Math.round(
 		(Number.parseInt(inputWidthElement.value) * aspectRatio.height) /
 			aspectRatio.width,
@@ -76,6 +90,8 @@ export function setChosenImage(
 			const adjustedHeight = Math.round(
 				(puzzleWidth * aspectRatio.height) / aspectRatio.width,
 			);
+			inputHeightElement.min = aspectRatio.height.toString();
+			inputWidthElement.min = aspectRatio.width.toString();
 
 			inputHeightElement.value = adjustedHeight.toString();
 
@@ -84,8 +100,6 @@ export function setChosenImage(
 				const height = Math.floor(
 					(width * aspectRatio.height) / aspectRatio.width,
 				);
-				oldHeightValue = height;
-				oldWidthValue = width;
 				inputHeightElement.setAttribute("max", height.toString());
 				inputWidthElement.setAttribute("max", width.toString());
 			} else {
@@ -93,8 +107,6 @@ export function setChosenImage(
 				const width = Math.floor(
 					(height * aspectRatio.width) / aspectRatio.height,
 				);
-				oldHeightValue = height;
-				oldWidthValue = width;
 				inputHeightElement.setAttribute("max", height.toString());
 				inputWidthElement.setAttribute("max", width.toString());
 			}
@@ -127,15 +139,12 @@ export const readConfig = (): Effect.Effect<InputConfig, Error> => {
 	});
 };
 
-inputWidthElement.addEventListener("change", (event: Event) => {
-	const newValue = (event.target as HTMLInputElement).value;
-	let newWidthInPieces = Number.parseInt(newValue);
-	if (Number.isNaN(newWidthInPieces)) {
-		inputWidthElement.value = oldWidthValue.toString();
-		return;
-	}
+dimWidthButtonPlus.addEventListener("click", () => {
+	let newWidthInPieces = +inputWidthElement.value + 1;
+
 	newWidthInPieces =
 		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
+
 	const inputMin = Number.parseInt(inputWidthElement.min);
 	const inputMax = Number.parseInt(inputWidthElement.max);
 	if (newWidthInPieces > inputMax) {
@@ -149,22 +158,58 @@ inputWidthElement.addEventListener("change", (event: Event) => {
 	}
 	const adjustedHeight =
 		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
+
+	console.log({ adjustedHeight, newWidthInPieces });
+	inputHeightElement.value = adjustedHeight.toString();
+	inputWidthElement.value = newWidthInPieces.toString();
+	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
+});
+dimWidthButtonMinus.addEventListener("click", () => {
+	let newWidthInPieces = +inputWidthElement.value - 1;
+
+	if (Number.isNaN(newWidthInPieces)) {
+		return;
+	}
+	newWidthInPieces =
+		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
+	const inputMin = Number.parseInt(inputWidthElement.min);
+	if (newWidthInPieces < inputMin) {
+		return;
+	}
+	const adjustedHeight =
+		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
 	inputHeightElement.value = adjustedHeight.toString();
 	inputWidthElement.value = newWidthInPieces.toString();
 	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
 });
 
-inputHeightElement.addEventListener("change", (event: Event) => {
-	const newValue = (event.target as HTMLInputElement).value;
-	let newHeightInPieces = Number.parseInt(newValue);
+dimHeightButtonMinus.addEventListener("click", () => {
+	let newHeightInPieces = +inputWidthElement.value - 1;
 	if (Number.isNaN(newHeightInPieces)) {
-		inputHeightElement.value = oldHeightValue.toString();
 		return;
 	}
 	newHeightInPieces =
 		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
 	const inputMin = Number.parseInt(inputHeightElement.min);
+	if (newHeightInPieces < inputMin) {
+		return;
+	}
+	const adjustedWidth =
+		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
+	inputWidthElement.value = adjustedWidth.toString();
+	inputHeightElement.value = newHeightInPieces.toString();
+	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
+});
+
+dimHeightButtonPlus.addEventListener("click", () => {
+	let newHeightInPieces = +inputWidthElement.value + 1;
+	if (Number.isNaN(newHeightInPieces)) {
+		return;
+	}
+	newHeightInPieces =
+		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
 	const inputMax = Number.parseInt(inputHeightElement.max);
+	const inputMin = Number.parseInt(inputHeightElement.min);
 	if (newHeightInPieces > inputMax) {
 		newHeightInPieces = clamp(newHeightInPieces, inputMin, inputMax);
 		inputHeightElement.value = newHeightInPieces.toString();
@@ -177,6 +222,57 @@ inputHeightElement.addEventListener("change", (event: Event) => {
 	inputHeightElement.value = newHeightInPieces.toString();
 	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
 });
+
+// inputWidthElement.addEventListener("change", (event: Event) => {
+// 	const newValue = (event.target as HTMLInputElement).value;
+// 	let newWidthInPieces = Number.parseInt(newValue);
+// 	if (Number.isNaN(newWidthInPieces)) {
+// 		inputWidthElement.value = oldWidthValue.toString();
+// 		return;
+// 	}
+// 	newWidthInPieces =
+// 		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
+// 	const inputMin = Number.parseInt(inputWidthElement.min);
+// 	const inputMax = Number.parseInt(inputWidthElement.max);
+// 	if (newWidthInPieces > inputMax) {
+// 		newWidthInPieces = clamp(newWidthInPieces, inputMin, inputMax);
+// 		inputWidthElement.value = newWidthInPieces.toString();
+// 		inputHeightElement.value = inputHeightElement.max;
+// 		pieceCountElement.innerText = (
+// 			newWidthInPieces * Number.parseInt(inputHeightElement.value)
+// 		).toString();
+// 		return;
+// 	}
+// 	const adjustedHeight =
+// 		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
+// 	inputHeightElement.value = adjustedHeight.toString();
+// 	inputWidthElement.value = newWidthInPieces.toString();
+// 	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
+// });
+
+// inputHeightElement.addEventListener("change", (event: Event) => {
+// 	const newValue = (event.target as HTMLInputElement).value;
+// 	let newHeightInPieces = Number.parseInt(newValue);
+// 	if (Number.isNaN(newHeightInPieces)) {
+// 		inputHeightElement.value = oldHeightValue.toString();
+// 		return;
+// 	}
+// 	newHeightInPieces =
+// 		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
+// 	const inputMin = Number.parseInt(inputHeightElement.min);
+// 	const inputMax = Number.parseInt(inputHeightElement.max);
+// 	if (newHeightInPieces > inputMax) {
+// 		newHeightInPieces = clamp(newHeightInPieces, inputMin, inputMax);
+// 		inputHeightElement.value = newHeightInPieces.toString();
+// 		inputWidthElement.value = inputWidthElement.max;
+// 		return;
+// 	}
+// 	const adjustedWidth =
+// 		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
+// 	inputWidthElement.value = adjustedWidth.toString();
+// 	inputHeightElement.value = newHeightInPieces.toString();
+// 	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
+// });
 
 inputWidthElement.addEventListener("focus", () => {
 	loadButton.setAttribute("disabled", "");

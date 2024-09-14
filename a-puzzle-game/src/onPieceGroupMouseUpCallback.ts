@@ -37,7 +37,6 @@ export function PieceGroupCallbackHandler({
 		piecePositions,
 		groupId,
 	}: OnPieceGroupMouseUpCallbackParams) => {
-		// TODO: refactor into own method
 		const result = onPieceGroupDropped({
 			boardContainer,
 			savedBoard,

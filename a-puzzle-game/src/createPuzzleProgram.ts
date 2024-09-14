@@ -88,26 +88,26 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 					}
 
 					boardContainer.appendChild(res.newCombinedDiv);
-					combinedPiecesLookup.set(res.id, {
-						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
-						position: { left, top },
-					});
+					// combinedPiecesLookup.set(res.id, {
+					// 	pieceIds: new Set([piece.id, res.combinedWithPieceId]),
+					// 	position: { left, top },
+					// });
 
-					piecePositions.delete(piece.id);
-					piecePositions.delete(res.combinedWithPieceId);
-					savePiecePositions(piecePositions, combinedPiecesLookup);
+					// piecePositions.delete(piece.id);
+					// piecePositions.delete(res.combinedWithPieceId);
+					// savePiecePositions(piecePositions, combinedPiecesLookup);
 
-					pieceDragger.makePieceDraggable({
-						divElement: res.newCombinedDiv,
-						onMouseUpCallback: (p) =>
-							onPieceGroupMouseUpCallback({
-								...p,
-								combinedParentDiv: res.newCombinedDiv,
-								combinedPiecesLookup,
-								groupId: res.id,
-								piecePositions,
-							}),
-					});
+					// pieceDragger.makePieceDraggable({
+					// 	divElement: res.newCombinedDiv,
+					// 	onMouseUpCallback: (p) =>
+					// 		onPieceGroupMouseUpCallback({
+					// 			...p,
+					// 			combinedParentDiv: res.newCombinedDiv,
+					// 			combinedPiecesLookup,
+					// 			groupId: res.id,
+					// 			piecePositions,
+					// 		}),
+					// });
 				},
 			});
 		}

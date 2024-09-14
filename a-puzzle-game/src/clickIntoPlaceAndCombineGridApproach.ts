@@ -115,7 +115,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				combinedParentDiv.style.left = pieceDiv.style.left;
+				combinedParentDiv.style.top = `${Math.min(pieceDomRect.top, combinedParentDiv.getBoundingClientRect().top)}px`;
+				combinedParentDiv.style.left = `${Math.min(pieceDomRect.left, combinedParentDiv.getBoundingClientRect().left)}px`;
 				return addPieceToGroupRightConnection({
 					combinedParentDiv,
 					pieceDiv,
@@ -143,7 +144,8 @@ export function clickIntoPlaceAndCombineWithGrid({
 				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				combinedParentDiv.style.top = pieceDiv.style.top;
+				combinedParentDiv.style.top = `${Math.min(pieceDomRect.top, combinedParentDiv.getBoundingClientRect().top)}px`;
+				combinedParentDiv.style.left = `${Math.min(pieceDomRect.left, combinedParentDiv.getBoundingClientRect().left)}px`;
 				return addPieceToGroupBottomConnection({
 					combinedParentDiv,
 					pieceDiv,

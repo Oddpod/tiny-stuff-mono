@@ -17,7 +17,7 @@
 
     <div
       id="settings-drawer"
-      class="fixed hidden w-screen top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800"
+      class="fixed w-screen top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800"
     >
       <button
         id="settings-close-button"
@@ -45,27 +45,63 @@
         </label>
         <div class="flex flex-col">
           <form id="select-piece-dimensions" class="flex flex-col">
-            <fieldset class="mb-2 rounded-lg border-gray-600 flex items-center">
+            <fieldset
+              class="mb-2 rounded-lg max-w-2xl border-gray-600 grid grid-cols-[max-content_1fr] grid-rows-[max-content_1fr]"
+            >
               <legend class="text-2xl">Dimensions:</legend>
               <!-- TODO: Buttons instead, with + and - -->
-              <input
-                id="dim-width"
-                max="50"
-                min="2"
-                readonly
-                class="mr-4 p-1 rounded"
-              />
-              <input
-                id="dim-height"
-                readonly
-                max="50"
-                min="2"
-                class="p-1 rounded"
-              />
+              <div class="flex items-center grid-col-start-2 gap-10 py-3">
+                <button
+                  id="dim-width-button-minus"
+                  type="button"
+                  class="rounded w-10 h-10 cursor-pointer"
+                >
+                  <div class="i-heroicons-minus-16-solid"></div>
+                </button>
+                <input
+                  id="dim-width"
+                  max="50"
+                  min="2"
+                  readonly
+                  class="p-1 rounded w-8 h-8 text-center text-2xl border-none bg-transparent pointer-events-none"
+                />
+                <button
+                  id="dim-width-button-plus"
+                  type="button"
+                  class="rounded w-10 h-10 cursor-pointer"
+                >
+                  <div class="i-heroicons-plus-16-solid"></div>
+                </button>
+              </div>
+              <div
+                class="flex flex-col items-center grid-row-start-2 gap-10 px-3"
+              >
+                <button
+                  id="dim-height-button-plus"
+                  type="button"
+                  class="rounded w-10 h-10 cursor-pointer"
+                >
+                  <div class="i-heroicons-plus-16-solid"></div>
+                </button>
+                <input
+                  id="dim-height"
+                  readonly
+                  max="50"
+                  min="2"
+                  class="p-1 rounded w-8 h-8 text-center text-2xl border-none bg-transparent pointer-events-none"
+                />
+                <button
+                  type="button"
+                  id="dim-height-button-minus"
+                  class="rounded w-10 h-10 cursor-pointer"
+                >
+                  <div class="i-heroicons-minus-16-solid"></div>
+                </button>
+              </div>
               <output
                 name="pieces"
                 for="dim-width dim-height"
-                class="ml-4 flex items-center text-2xl"
+                class="flex items-center justify-center text-2xl grid-row-start-2 grid-col-start-2 border-amber border-solid p-6 rounded-2xl"
               >
                 <span id="piece-count" class="text-4xl"> 12 </span>
                 <div class="i-heroicons-puzzle-piece"></div>
