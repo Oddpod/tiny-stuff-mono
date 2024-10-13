@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { previewFile } from "./previewFile";
-import { clamp, gcd, loadImage } from "./utils";
+import { loadImage } from "./utils";
 
 const dimensionsConfig = document.getElementById(
 	"select-piece-dimensions",
