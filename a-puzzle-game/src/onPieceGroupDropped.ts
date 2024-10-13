@@ -16,6 +16,7 @@ import {
 import { PIECE_DIMENSIONS } from "./pieceDefinitions";
 import type { SavedBoard } from "./storeState";
 import { checkCollision } from "./utils";
+import type { PieceDimensions } from "./board";
 
 export function findAllPiecesTouchingCombinedDiv(
 	combinedPieceDiv: HTMLDivElement,
@@ -54,18 +55,19 @@ export function findAllPiecesTouchingCombinedDiv(
 	return piecesInside;
 }
 interface OnPieceDroppedParams {
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	combinedParentDiv: PieceGroupDivElement;
 	savedBoard: SavedBoard;
 	boardContainer: HTMLDivElement;
 }
 export function onPieceGroupDropped({
-	pieceSize,
+	pieceDimensions: { pieceHeight, pieceWidth },
 	savedBoard,
 	combinedParentDiv: droppedPieceGroupDiv,
 	boardContainer,
 }: OnPieceDroppedParams) {
-	const hitOffsetForEar = (15 * pieceSize) / PIECE_DIMENSIONS + HIT_OFFSET;
+	const hitOffsetForEar =
+		(15 * Math.min(pieceHeight, pieceWidth)) / PIECE_DIMENSIONS + HIT_OFFSET;
 	const pieces = findAllPiecesTouchingCombinedDiv(
 		droppedPieceGroupDiv,
 		hitOffsetForEar,
@@ -89,7 +91,7 @@ export function onPieceGroupDropped({
 				droppedPieceGroupDiv,
 				hitOffsetForEar,
 				pieceToTryDiv,
-				pieceSize,
+				pieceDimensions: { pieceHeight, pieceWidth },
 				pieceToTry,
 			});
 			if ("noOverLap" in res) continue;
@@ -104,9 +106,8 @@ export function onPieceGroupDropped({
 				hitOffsetForEar,
 			});
 			if (isOverlapping) {
-				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceSize}px`;
+				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceHeight}px`;
 				return addPieceToGroupTopConnection({
-					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,
 					pieceDiv: pieceToTryDiv,
 					wantedPiece,
@@ -122,7 +123,6 @@ export function onPieceGroupDropped({
 			if (isOverlapping) {
 				// droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupRightConnection({
-					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,
 					pieceDiv: pieceToTryDiv,
 					wantedPiece,
@@ -136,10 +136,9 @@ export function onPieceGroupDropped({
 				hitOffsetForEar,
 			});
 			if (isOverlapping) {
-				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceSize}px`;
+				droppedPieceGroupDiv.style.height = `${droppedPieceGroupDiv.getBoundingClientRect().height + pieceHeight}px`;
 				droppedPieceGroupDiv.style.top = pieceToTryDiv.style.top;
 				return addPieceToGroupBottomConnection({
-					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,
 					pieceDiv: pieceToTryDiv,
 					wantedPiece,
@@ -155,7 +154,6 @@ export function onPieceGroupDropped({
 			if (isOverlapping) {
 				// droppedPieceGroupDiv.style.width = `${droppedPieceGroupDiv.getBoundingClientRect().width + pieceSize}px`;
 				return addPieceToGroupLeftConnection({
-					boardContainer,
 					combinedParentDiv: droppedPieceGroupDiv,
 					pieceDiv: pieceToTryDiv,
 					wantedPiece,

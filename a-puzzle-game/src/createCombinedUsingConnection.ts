@@ -1,35 +1,31 @@
-import type { HtmlPieceElement } from "./constants";
+import { COMBINED_PIECE_ZINDEX, type HtmlPieceElement } from "./constants";
 import {
 	type CombinedPieceResult,
 	PlaceAndCombineResult,
 	adjustPiecesAndAddToCombined,
 } from "./clickIntoPlaceAndCombineGridApproach";
+import type { PieceDimensions } from "./board";
 
 interface CombineUsingBottomConnectionParams {
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	wantedPiece: HtmlPieceElement;
 	pieceDiv: HtmlPieceElement;
 	wantedPieceDomRect: DOMRect;
-	boardContainer: HTMLDivElement;
 	wantedPieceId: number;
 }
 
-export function combineUsingTopConnection(
-	pieceSize: number,
-	wantedPiece: HtmlPieceElement,
-	pieceDiv: HtmlPieceElement,
-	wantedPieceDomRect: DOMRect,
-	boardContainer: HTMLDivElement,
-	wantedPieceId: number,
-): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+export function combineUsingTopConnection({
+	pieceDimensions,
+	wantedPiece,
+	pieceDiv,
+	wantedPieceDomRect,
+	wantedPieceId,
+}: CombineUsingBottomConnectionParams): CombinedPieceResult {
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -40,7 +36,7 @@ export function combineUsingTopConnection(
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
+
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -49,22 +45,25 @@ export function combineUsingTopConnection(
 	};
 }
 
-export function combineUsingRightConnection(
-	pieceSize: number,
-	pieceDomRect: DOMRect,
-	pieceDiv: HtmlPieceElement,
-	wantedPiece: HtmlPieceElement,
-	boardContainer: HTMLDivElement,
-	wantedPieceId: number,
-): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+interface CombineUsingRightConnection {
+	pieceDimensions: PieceDimensions;
+	pieceDomRect: DOMRect;
+	pieceDiv: HtmlPieceElement;
+	wantedPiece: HtmlPieceElement;
+	wantedPieceId: number;
+}
+export function combineUsingRightConnection({
+	pieceDimensions,
+	pieceDomRect,
+	pieceDiv,
+	wantedPiece,
+	wantedPieceId,
+}: CombineUsingRightConnection): CombinedPieceResult {
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDomRect.left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize}px`;
-	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "2";
@@ -75,7 +74,6 @@ export function combineUsingRightConnection(
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -85,20 +83,16 @@ export function combineUsingRightConnection(
 }
 
 export function combineUsingBottomConnection({
-	pieceSize,
+	pieceDimensions,
 	wantedPiece,
 	pieceDiv,
-	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${pieceDiv.getBoundingClientRect().top - marginTop}px`;
 	newCombinedDiv.style.left = `${pieceDiv.getBoundingClientRect().left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize * 2}px`;
-	// newCombinedDiv.style.width = `${pieceSize}px`;
 
 	wantedPiece.style.gridRowStart = "2";
 	wantedPiece.style.gridColumnStart = "1";
@@ -109,7 +103,6 @@ export function combineUsingBottomConnection({
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -119,21 +112,17 @@ export function combineUsingBottomConnection({
 }
 
 export function combineUsingLeftConnection({
-	pieceSize,
+	pieceDimensions,
 	wantedPiece,
 	pieceDiv,
 	wantedPieceDomRect,
-	boardContainer,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
-	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
-	newCombinedDiv.style.left = `${wantedPieceDomRect.left - marginLeft}px`;
-
-	// newCombinedDiv.style.height = `${pieceSize}px`;
-	// newCombinedDiv.style.width = `${pieceSize * 2}px`;
+	newCombinedDiv.style.top = `${wantedPieceDomRect.top}px`;
+	newCombinedDiv.style.left = `${wantedPieceDomRect.left}px`;
 
 	wantedPiece.style.gridRowStart = "1";
 	wantedPiece.style.gridColumnStart = "1";
@@ -144,7 +133,7 @@ export function combineUsingLeftConnection({
 		wantedPiece,
 		newCombinedDiv,
 	});
-	boardContainer.appendChild(newCombinedDiv);
+
 	return {
 		result: PlaceAndCombineResult.Combined,
 		newCombinedDiv,
@@ -169,16 +158,16 @@ export interface PieceGroupDivElement extends HTMLDivElement {
 	};
 }
 export function createCombinedPieceDiv(
-	pieceSize: number,
+	{ pieceHeight, pieceWidth }: PieceDimensions,
 	id: string = crypto.randomUUID(),
 ) {
 	const newCombinedDiv = document.createElement("div") as PieceGroupDivElement;
 	newCombinedDiv.classList.add("combined-piece");
-	newCombinedDiv.style.gridAutoColumns = `${pieceSize}px`;
-	newCombinedDiv.style.gridAutoRows = `${pieceSize}px`;
+	newCombinedDiv.style.gridAutoColumns = `${pieceWidth}px`;
+	newCombinedDiv.style.gridAutoRows = `${pieceHeight}px`;
 	newCombinedDiv.style.position = "absolute";
 	newCombinedDiv.setAttribute("id", `combine-piece-${id}`);
 	newCombinedDiv.setAttribute("data-id", `${id}`);
-	newCombinedDiv.style.zIndex = "100";
+	newCombinedDiv.style.zIndex = COMBINED_PIECE_ZINDEX;
 	return { newCombinedDiv, id };
 }

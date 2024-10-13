@@ -1,5 +1,9 @@
-import { PIECE_DIMENSIONS, PIECE_EAR_SIZE, type Side } from "./pieceDefinitions";
-import { clamp, getRndInteger } from "./utils";
+import {
+	PIECE_DIMENSIONS,
+	PIECE_EAR_SIZE,
+	type Side,
+} from "./pieceDefinitions";
+import { getRndInteger } from "./utils";
 
 const boardContainer = document.getElementById("board-container")!;
 
@@ -15,32 +19,26 @@ interface CalculateBoardDimensions {
 	heightInPieces: number;
 }
 
-const MAX_PIECE_SIZE = Object.freeze(150);
-const MIN_PIECE_SIZE = Object.freeze(50);
 export function calculateBoardDimensions({
 	image,
 	widthInPieces,
 	heightInPieces,
 }: CalculateBoardDimensions) {
-	let pieceSize = 50;
-
 	const initialBoardWidth = Math.min(image.width, (window.innerWidth * 3) / 4);
 	const initialBoardHeight = Math.min(
 		image.height,
 		(window.innerHeight * 3) / 4,
 	);
 
-	pieceSize =
-		initialBoardWidth > initialBoardHeight
-			? initialBoardWidth / widthInPieces
-			: initialBoardHeight / heightInPieces;
+	// TODO: Should this clamp logic be here or should it happen on input instead?
+	//  Keep numbers nice and whole
+	const pieceWidth = Math.floor(initialBoardWidth / widthInPieces);
+	const pieceHeight = Math.floor(initialBoardHeight / heightInPieces);
 
-	pieceSize = clamp(pieceSize, MIN_PIECE_SIZE, MAX_PIECE_SIZE);
+	const boardWidth = pieceWidth * widthInPieces;
+	const boardHeight = pieceHeight * heightInPieces;
 
-	const boardWidth = pieceSize * widthInPieces;
-	const boardHeight = pieceSize * heightInPieces;
-
-	return { boardHeight, boardWidth, pieceSize };
+	return { boardHeight, boardWidth, pieceWidth, pieceHeight };
 }
 
 export function setBoardDimensions({
@@ -57,25 +55,43 @@ export function setBoardDimensions({
 	);
 }
 
-export function getRandomBoardCoordinates(
-	pieceSize: number,
-	sides: { bottom: Side; top: Side; left: Side; right: Side },
-) {
+export type PieceDimensions = Pick<
+	ReturnType<typeof calculateBoardDimensions>,
+	"pieceHeight" | "pieceWidth"
+>;
+interface GetRandomBoardCoordinatesParams extends PieceDimensions {
+	sides: { bottom: Side; top: Side; left: Side; right: Side };
+}
+
+export function getRandomBoardCoordinates({
+	pieceWidth,
+	pieceHeight,
+	sides,
+}: GetRandomBoardCoordinatesParams) {
 	const shiftXForRightEar =
-		sides.right === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0;
+		sides.right === "ear"
+			? (PIECE_EAR_SIZE * pieceWidth) / PIECE_DIMENSIONS
+			: 0;
 	const shiftXForLeftEar =
-		sides.left === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0;
-	const pieceWidth = pieceSize + shiftXForLeftEar + shiftXForRightEar;
+		sides.left === "ear" ? (PIECE_EAR_SIZE * pieceWidth) / PIECE_DIMENSIONS : 0;
+	const pieceWidthWithEars = pieceWidth + shiftXForLeftEar + shiftXForRightEar;
 
 	const shiftYForTopEar =
-		sides.top === "ear" ? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS : 0;
+		sides.top === "ear" ? (PIECE_EAR_SIZE * pieceHeight) / PIECE_DIMENSIONS : 0;
 	const shiftYForBottomEar =
 		sides.bottom === "ear"
-			? (PIECE_EAR_SIZE * pieceSize) / PIECE_DIMENSIONS
+			? (PIECE_EAR_SIZE * pieceHeight) / PIECE_DIMENSIONS
 			: 0;
-	const pieceHeight = pieceSize + shiftYForBottomEar + shiftYForTopEar;
+	const pieceHeightWithEars =
+		pieceHeight + shiftYForBottomEar + shiftYForTopEar;
 
-	const left = getRndInteger(pieceWidth, window.innerWidth - pieceWidth);
-	const top = getRndInteger(pieceHeight, window.innerHeight - pieceHeight);
+	const left = getRndInteger(
+		pieceWidthWithEars,
+		window.innerWidth - pieceWidthWithEars,
+	);
+	const top = getRndInteger(
+		pieceHeightWithEars,
+		window.innerHeight - pieceHeightWithEars,
+	);
 	return { left, top };
 }

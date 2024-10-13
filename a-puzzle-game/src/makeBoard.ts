@@ -2,16 +2,13 @@ import { Effect } from "effect";
 import { findFittingPiece } from "./piecePicker";
 import type { InputConfig } from "./input";
 
-interface CreateBoardInput extends Omit<InputConfig, "imageSrc"> {
-	image: HTMLImageElement;
-	pieceSize: number;
-}
+interface CreateBoardInput
+	extends Pick<InputConfig, "widthInPieces" | "heightInPieces"> {}
 
 import type { Piece } from "./pieceDefinitions";
 
 export interface PieceEntity {
 	id: number;
-	boundingBox: [{ x: number; y: number }, { x: number; y: number }];
 	definition: Piece;
 	coords: {
 		row: number;
@@ -28,7 +25,6 @@ export interface PieceEntity {
 export const createBoard = ({
 	widthInPieces: width,
 	heightInPieces: height,
-	pieceSize,
 }: CreateBoardInput): Effect.Effect<PieceEntity[][], Error> => {
 	let uniqueCounter = 0;
 	const pieces: PieceEntity[][] = [];
@@ -51,16 +47,6 @@ export const createBoard = ({
 					row: j,
 					col: i,
 				},
-				boundingBox: [
-					{
-						x: i * pieceSize,
-						y: j * pieceSize,
-					},
-					{
-						x: (i + 1) * pieceSize,
-						y: (j + 1) * pieceSize,
-					},
-				],
 				connections: {
 					top: uniqueCounter - width >= 0 ? uniqueCounter - width : null,
 					left: row.length !== 0 ? uniqueCounter - 1 : null,

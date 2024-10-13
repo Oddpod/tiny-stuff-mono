@@ -1,4 +1,5 @@
-import type { HtmlPieceElement } from "./constants";
+import type { PieceDimensions } from "./board";
+import { MAX_DIM_XY, type HtmlPieceElement } from "./constants";
 import {
 	type PieceGroupDivElement,
 	createCombinedPieceDiv,
@@ -20,7 +21,7 @@ interface CombinePieceGroupsParams {
 	pieceToTryDiv: HtmlPieceElement;
 	combinedParentDiv: PieceGroupDivElement;
 	droppedPieceGroupDiv: PieceGroupDivElement;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	boardContainer: HTMLDivElement;
 }
 
@@ -38,7 +39,7 @@ export function combinePieceGroups({
 	pieceToTryDiv,
 	combinedParentDiv,
 	droppedPieceGroupDiv,
-	pieceSize,
+	pieceDimensions,
 	boardContainer,
 }: CombinePieceGroupsParams): ReturnType {
 	const pieceDomRect = pieceToTryDiv.getBoundingClientRect();
@@ -75,14 +76,14 @@ export function combinePieceGroups({
 		...bottomMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]"),
 		...topMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]"),
 	];
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 
 	newCombinedDiv.style.left = leftMostGroupDiv.style.left;
 	newCombinedDiv.style.top = topMostGroupDiv.style.top;
 
 	// Start at a higher number than puzzle dimensions
-	let minCol = 10000;
-	let minRow = 10000;
+	let minCol = MAX_DIM_XY + 1;
+	let minRow = MAX_DIM_XY + 1;
 	const pieceByRow = groupBy(
 		allRelevantPieces.map((p) => ({
 			pieceDiv: p,

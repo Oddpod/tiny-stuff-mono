@@ -14,93 +14,67 @@ const inputHeightElement = dimensionsConfig.querySelector(
 ) as HTMLInputElement;
 const imageElement = (document.getElementById("image") as HTMLImageElement)!;
 const fileUpload = document.getElementById("file-upload") as HTMLInputElement;
-const loadButton = document.getElementById("load-button") as HTMLButtonElement;
+const dimWidthButtonPlus = document.getElementById(
+	"dim-width-button-plus",
+) as HTMLButtonElement;
+const dimWidthButtonMinus = document.getElementById(
+	"dim-width-button-minus",
+) as HTMLButtonElement;
+const dimHeightButtonPlus = document.getElementById(
+	"dim-height-button-plus",
+) as HTMLButtonElement;
+const dimHeightButtonMinus = document.getElementById(
+	"dim-height-button-minus",
+) as HTMLButtonElement;
 
 export const fileInput = fileUpload.querySelector("input") as HTMLInputElement;
 const pieceCountElement = dimensionsConfig.querySelector(
 	"#piece-count",
 ) as HTMLOutputElement;
 
-let oldWidthValue = 2;
-let oldHeightValue = 2;
-dimensionsConfig.addEventListener("input", () => {
-	const width = Number.parseInt(inputWidthElement.value);
-	const height = Number.parseInt(inputHeightElement.value);
-	if (!Number.isNaN(width)) {
-		oldWidthValue = width;
-	}
-	if (!Number.isNaN(height)) {
-		oldHeightValue = height;
-	}
-});
-
-let aspectRatio = {
-	width: 1,
-	height: 1,
-};
+// let aspectRatio = {
+// 	width: 1,
+// 	height: 1,
+// };
 
 export interface InputConfig {
 	widthInPieces: number;
+
 	heightInPieces: number;
 	imageSrc: string;
 }
 
-function setAspectRatio(image: HTMLImageElement) {
-	const greatestCommonDivisor = gcd(image.height, image.width);
-	aspectRatio = {
-		width: image.width / greatestCommonDivisor,
-		height: image.height / greatestCommonDivisor,
-	};
-	return aspectRatio;
-}
+// TODO: Setting for maintaining aspect ratio
+// function setAspectRatio(image: HTMLImageElement) {
+// 	const greatestCommonDivisor = gcd(image.height, image.width);
+// 	aspectRatio = {
+// 		width: image.width / greatestCommonDivisor,
+// 		height: image.height / greatestCommonDivisor,
+// 	};
+// 	return aspectRatio;
+// }
 
-export async function loadChosenImage() {
-	const imageSrc = await previewFile();
-	const image = await loadImage(imageSrc);
-	setAspectRatio(image);
-	inputHeightElement.value = Math.round(
-		(Number.parseInt(inputWidthElement.value) * aspectRatio.height) /
-			aspectRatio.width,
-	).toString();
+export async function loadChosenImage(imageSrc: string) {
+	await loadImage(imageSrc);
+	// TODO: Setting for maintaining aspect ratio
+	// const aspectRatio = setAspectRatio(image);
 }
 
 export function setChosenImage(
 	image: HTMLImageElement,
 	puzzleWidth: number,
-): Promise<number> {
+	puzzleHeight: number,
+): Promise<void> {
 	imageElement.src = image.src;
 	return new Promise((res, _) => {
 		imageElement.addEventListener("load", () => {
-			const aspectRatio = setAspectRatio(image);
+			// const aspectRatio = setAspectRatio(image);
 			inputWidthElement.value = puzzleWidth.toString();
-			const adjustedHeight = Math.round(
-				(puzzleWidth * aspectRatio.height) / aspectRatio.width,
-			);
-			inputHeightElement.value = adjustedHeight.toString();
 
-			if (aspectRatio.height < aspectRatio.width) {
-				const width =
-					Math.floor(MAX_DIM_XY / aspectRatio.width) * aspectRatio.width;
-				const height = Math.floor(
-					(width * aspectRatio.height) / aspectRatio.width,
-				);
-				oldHeightValue = height;
-				oldWidthValue = width;
-				inputHeightElement.setAttribute("max", height.toString());
-				inputWidthElement.setAttribute("max", width.toString());
-			} else {
-				const height =
-					Math.floor(MAX_DIM_XY / aspectRatio.height) * aspectRatio.height;
-				const width = Math.floor(
-					(height * aspectRatio.width) / aspectRatio.height,
-				);
-				oldHeightValue = height;
-				oldWidthValue = width;
-				inputHeightElement.setAttribute("max", height.toString());
-				inputWidthElement.setAttribute("max", width.toString());
-			}
-			pieceCountElement.innerText = (puzzleWidth * adjustedHeight).toString();
-			return res(adjustedHeight);
+			inputHeightElement.value = puzzleHeight.toString();
+
+			pieceCountElement.innerText = (puzzleWidth * puzzleHeight).toString();
+			return res();
 		});
 	});
 }
@@ -128,77 +102,74 @@ export const readConfig = (): Effect.Effect<InputConfig, Error> => {
 	});
 };
 
-export const MIN_PIECE_SIZE = Object.freeze(50);
-const MAX_DIM_XY = Object.freeze(50);
+dimWidthButtonPlus.addEventListener("click", () => {
+	const newWidthInPieces = +inputWidthElement.value + 1;
 
-inputWidthElement.addEventListener("change", (event: Event) => {
-	const newValue = (event.target as HTMLInputElement).value;
-	let newWidthInPieces = Number.parseInt(newValue);
-	if (Number.isNaN(newWidthInPieces)) {
-		inputWidthElement.value = oldWidthValue.toString();
-		return;
-	}
-	newWidthInPieces =
-		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
-	const inputMin = Number.parseInt(inputWidthElement.min);
 	const inputMax = Number.parseInt(inputWidthElement.max);
 	if (newWidthInPieces > inputMax) {
-		newWidthInPieces = clamp(newWidthInPieces, inputMin, inputMax);
-		inputWidthElement.value = newWidthInPieces.toString();
-		inputHeightElement.value = inputHeightElement.max;
-		pieceCountElement.innerText = (
-			newWidthInPieces * Number.parseInt(inputHeightElement.value)
-		).toString();
 		return;
 	}
-	const adjustedHeight =
-		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
-	inputHeightElement.value = adjustedHeight.toString();
+
 	inputWidthElement.value = newWidthInPieces.toString();
-	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
+	pieceCountElement.innerText = (
+		newWidthInPieces * +inputHeightElement.value
+	).toString();
+});
+dimWidthButtonMinus.addEventListener("click", () => {
+	const newWidthInPieces = +inputWidthElement.value - 1;
+
+	if (Number.isNaN(newWidthInPieces)) {
+		return;
+	}
+
+	const inputMin = Number.parseInt(inputWidthElement.min);
+	if (newWidthInPieces < inputMin) {
+		return;
+	}
+
+	inputWidthElement.value = newWidthInPieces.toString();
+	pieceCountElement.innerText = (
+		newWidthInPieces * +inputHeightElement.value
+	).toString();
 });
 
-inputHeightElement.addEventListener("change", (event: Event) => {
-	const newValue = (event.target as HTMLInputElement).value;
-	let newHeightInPieces = Number.parseInt(newValue);
+dimHeightButtonMinus.addEventListener("click", () => {
+	const newHeightInPieces = +inputHeightElement.value - 1;
 	if (Number.isNaN(newHeightInPieces)) {
-		inputHeightElement.value = oldHeightValue.toString();
 		return;
 	}
-	newHeightInPieces =
-		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
+
 	const inputMin = Number.parseInt(inputHeightElement.min);
+	if (newHeightInPieces < inputMin) {
+		return;
+	}
+
+	inputHeightElement.value = newHeightInPieces.toString();
+	pieceCountElement.innerText = (
+		newHeightInPieces * +inputWidthElement.value
+	).toString();
+});
+
+dimHeightButtonPlus.addEventListener("click", () => {
+	const newHeightInPieces = +inputHeightElement.value + 1;
+	if (Number.isNaN(newHeightInPieces)) {
+		return;
+	}
 	const inputMax = Number.parseInt(inputHeightElement.max);
 	if (newHeightInPieces > inputMax) {
-		newHeightInPieces = clamp(newHeightInPieces, inputMin, inputMax);
-		inputHeightElement.value = newHeightInPieces.toString();
-		inputWidthElement.value = inputWidthElement.max;
 		return;
 	}
-	const adjustedWidth =
-		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
-	inputWidthElement.value = adjustedWidth.toString();
+
 	inputHeightElement.value = newHeightInPieces.toString();
-	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
+	pieceCountElement.innerText = (
+		newHeightInPieces * +inputWidthElement.value
+	).toString();
 });
 
-inputWidthElement.addEventListener("focus", () => {
-	loadButton.setAttribute("disabled", "");
+fileInput.addEventListener("change", async () => {
+	const imageSrc = await previewFile();
+	loadChosenImage(imageSrc);
 });
-
-inputWidthElement.addEventListener("blur", () => {
-	loadButton.removeAttribute("disabled");
-});
-
-inputHeightElement.addEventListener("focus", () => {
-	loadButton.setAttribute("disabled", "");
-});
-
-inputHeightElement.addEventListener("blur", () => {
-	loadButton.removeAttribute("disabled");
-});
-
-fileInput.addEventListener("change", loadChosenImage);
 fileUpload.addEventListener("dragover", (event) => {
 	// TODO: Styling when file is dragged over
 	event.preventDefault();

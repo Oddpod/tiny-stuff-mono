@@ -4,6 +4,7 @@ import {
 	addPieceToGroupRightConnection,
 	addPieceToGroupTopConnection,
 } from "./addPieceToGroup";
+import type { PieceDimensions } from "./board";
 import { HIT_OFFSET, type HtmlPieceElement } from "./constants";
 import {
 	combineUsingBottomConnection,
@@ -29,7 +30,7 @@ export enum PlaceAndCombineResult {
 
 export interface ClickIntoPlaceAndCombineParams {
 	piece: PieceEntity;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 }
 
 export type CombinedPieceResult = {
@@ -48,17 +49,33 @@ type ReturnType =
 	| ExpandPieceGroupResult
 	| CombinedPieceResult;
 
+type FindCombinedParentReturn =
+	| {
+			hasCombinedParent: true;
+			combinedParentDiv: HTMLElement;
+	  }
+	| { hasCombinedParent: false; combinedParentDiv: null };
+
+function findCombinedParent(
+	pieceElement: HtmlPieceElement,
+): FindCombinedParentReturn {
+	const combinedParentDiv = pieceElement.parentElement;
+	const hasCombinedParent =
+		!!combinedParentDiv &&
+		combinedParentDiv?.classList.contains("combined-piece");
+	if (!hasCombinedParent) {
+		return { hasCombinedParent: false, combinedParentDiv: null };
+	}
+	return { combinedParentDiv, hasCombinedParent };
+}
+
 export function clickIntoPlaceAndCombineWithGrid({
 	piece,
-	pieceSize,
+	pieceDimensions,
 }: ClickIntoPlaceAndCombineParams): ReturnType {
-	const boardContainer = document.getElementById(
-		"board-container",
-	) as HTMLDivElement;
-
 	const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams(
 		piece,
-		pieceSize,
+		pieceDimensions,
 	);
 
 	if (piece.connections.top !== null) {
@@ -69,30 +86,23 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				// TODO:
-				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
-
 				return addPieceToGroupTopConnection({
 					wantedPiece,
 					pieceDiv,
-					boardContainer,
 					combinedParentDiv,
 				});
 			}
-			return combineUsingTopConnection(
-				pieceSize,
+			return combineUsingTopConnection({
+				pieceDimensions,
 				wantedPiece,
 				pieceDiv,
 				wantedPieceDomRect,
-				boardContainer,
 				wantedPieceId,
-			);
+			});
 		}
 	}
 	if (piece.connections.right !== null) {
@@ -102,30 +112,25 @@ export function clickIntoPlaceAndCombineWithGrid({
 			hitOffsetForEar,
 		});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				// TODO:
-				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
-				combinedParentDiv.style.left = pieceDiv.style.left;
+				combinedParentDiv.style.top = `${Math.min(pieceDomRect.top, combinedParentDiv.getBoundingClientRect().top)}px`;
+				combinedParentDiv.style.left = `${Math.min(pieceDomRect.left, combinedParentDiv.getBoundingClientRect().left)}px`;
 				return addPieceToGroupRightConnection({
-					boardContainer,
 					combinedParentDiv,
 					pieceDiv,
 					wantedPiece,
 				});
 			}
-			return combineUsingRightConnection(
-				pieceSize,
+			return combineUsingRightConnection({
+				pieceDimensions,
 				pieceDomRect,
 				pieceDiv,
 				wantedPiece,
-				boardContainer,
 				wantedPieceId,
-			);
+			});
 		}
 	}
 	if (piece.connections.bottom !== null) {
@@ -136,26 +141,21 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				// TODO:
-				// combinedParentDiv.style.height = `${combinedParentDiv.getBoundingClientRect().height + pieceSize}px`;
-				combinedParentDiv.style.top = pieceDiv.style.top;
+				combinedParentDiv.style.top = `${Math.min(pieceDomRect.top, combinedParentDiv.getBoundingClientRect().top)}px`;
+				combinedParentDiv.style.left = `${Math.min(pieceDomRect.left, combinedParentDiv.getBoundingClientRect().left)}px`;
 				return addPieceToGroupBottomConnection({
-					boardContainer,
 					combinedParentDiv,
 					pieceDiv,
 					wantedPiece,
 				});
 			}
 			return combineUsingBottomConnection({
-				boardContainer,
 				pieceDiv,
-				pieceSize,
+				pieceDimensions,
 				wantedPiece,
 				wantedPieceDomRect,
 				wantedPieceId,
@@ -171,25 +171,19 @@ export function clickIntoPlaceAndCombineWithGrid({
 				hitOffsetForEar,
 			});
 		if (isOverlapping) {
-			const combinedParentDiv = wantedPiece.parentElement;
-			const hasCombinedParent =
-				!!combinedParentDiv &&
-				combinedParentDiv?.classList.contains("combined-piece");
+			const { combinedParentDiv, hasCombinedParent } =
+				findCombinedParent(wantedPiece);
 
 			if (hasCombinedParent) {
-				// TODO:
-				// combinedParentDiv.style.width = `${combinedParentDiv.getBoundingClientRect().width + pieceSize}`;
 				return addPieceToGroupLeftConnection({
-					boardContainer,
 					combinedParentDiv,
 					pieceDiv,
 					wantedPiece,
 				});
 			}
 			return combineUsingLeftConnection({
-				boardContainer,
 				pieceDiv,
-				pieceSize,
+				pieceDimensions,
 				wantedPiece,
 				wantedPieceDomRect,
 				wantedPieceId,
@@ -226,12 +220,16 @@ export function adjustPiecesAndAddToCombined({
 	newCombinedDiv.appendChild(wantedPiece);
 }
 
-export function getCombineParams(piece: PieceEntity, pieceSize: number) {
+export function getCombineParams(
+	piece: PieceEntity,
+	{ pieceHeight, pieceWidth }: PieceDimensions,
+) {
 	const pieceDiv = document.getElementById(
 		`piece-${piece.id}`,
 	) as HtmlPieceElement;
 
 	const pieceDomRect = pieceDiv.getBoundingClientRect();
-	const hitOffsetForEar = (15 * pieceSize) / PIECE_DIMENSIONS + HIT_OFFSET;
+	const hitOffsetForEar =
+		(15 * Math.min(pieceHeight, pieceWidth)) / PIECE_DIMENSIONS + HIT_OFFSET;
 	return { pieceDomRect, hitOffsetForEar, pieceDiv };
 }

@@ -1,51 +1,52 @@
 import { Effect } from "effect";
-import type { PiecePositionLookup } from "./board";
+import type { PieceDimensions, PiecePositionLookup } from "./board";
 import { boardContainer } from "./resumePuzzleProgram";
 import { createCombinedPieceDiv } from "./createCombinedUsingConnection";
-import { cutPiece } from "./cutPiece";
+import { PieceCutter, type PuzzleDimensions } from "./cutPiece";
 import { pieceDefinitionLookup } from "./pieceDefinitions";
 import type { CombinedPiecePositionLookup, SavedBoard } from "./storeState";
 import type { PieceDragger } from "./makePieceDraggable";
 import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
+import { MAX_DIM_XY } from "./constants";
 
 interface CreateAndPlacePieceGroupsParams {
 	combinedPiecesLookup: CombinedPiecePositionLookup;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	savedBoard: SavedBoard;
 	image: HTMLImageElement;
-	boardHeight: number;
-	boardWidth: number;
+	puzzleDimensions: PuzzleDimensions;
 	pieceDragger: ReturnType<typeof PieceDragger>;
 	piecePositions: PiecePositionLookup;
 }
 
 export function* createAndPlacePieceGroups({
 	combinedPiecesLookup,
-	pieceSize,
+	pieceDimensions,
 	savedBoard,
 	image,
-	boardHeight,
-	boardWidth,
+	puzzleDimensions,
 	pieceDragger,
 	piecePositions,
 }: CreateAndPlacePieceGroupsParams) {
 	for (const [combinedPieceId, combinedPieceData] of combinedPiecesLookup) {
-		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(pieceSize, combinedPieceId);
+		const { newCombinedDiv, id: groupId } = createCombinedPieceDiv(
+			pieceDimensions,
+			combinedPieceId,
+		);
 		newCombinedDiv.style.left = `${combinedPieceData.position.left}px`;
 		newCombinedDiv.style.top = `${combinedPieceData.position.top}px`;
 		const { piecesToAppend, minRow, minCol } = yield* cutPiecesForGroup({
 			combinedPieceData,
 			savedBoard,
 			image,
-			pieceSize,
-			boardHeight,
-			boardWidth,
+			pieceDimensions,
+			puzzleDimensions,
 		});
 
 		const onPieceGroupMouseUpCallback = PieceGroupCallbackHandler({
 			boardContainer,
 			pieceDragger,
-			pieceSize,
+			pieceDimensions,
 			savedBoard,
 		});
 		for (const {
@@ -78,37 +79,29 @@ interface CutPiecesForGroupParams {
 	};
 	savedBoard: SavedBoard;
 	image: HTMLImageElement;
-	pieceSize: number;
-	boardHeight: number;
-	boardWidth: number;
+	pieceDimensions: PieceDimensions;
+	puzzleDimensions: PuzzleDimensions;
 }
 
 function* cutPiecesForGroup({
 	combinedPieceData,
 	savedBoard,
 	image,
-	pieceSize,
-	boardHeight,
-	boardWidth,
+	pieceDimensions,
+	puzzleDimensions,
 }: CutPiecesForGroupParams) {
 	// Start at a higher number than puzzle dimensions
-	let minCol = 10000;
-	let minRow = 10000;
+	let minCol = MAX_DIM_XY + 1;
+	let minRow = MAX_DIM_XY + 1;
 	const piecesToAppend = [];
+	const cutPiece = PieceCutter({ image, pieceDimensions, puzzleDimensions });
 	for (const pieceId of combinedPieceData.pieceIds) {
 		const piece = savedBoard.flat().find((p) => p.id === pieceId)!;
 		const definition = pieceDefinitionLookup.get(piece.definitionId)!;
 		const newPiece = yield* Effect.promise(() =>
-			cutPiece({
-				piece: { ...piece, definition },
-				image,
-				pieceSize,
-				boardHeight,
-				boardWidth,
-			}),
+			cutPiece({ ...piece, definition }),
 		);
 		newPiece.id = `piece-${piece.id}`;
-		newPiece.setAttribute("data-definition-id", definition.id.toString());
 		newPiece.removeAttribute("class");
 
 		minCol = Math.min(piece.coords.col, minCol);

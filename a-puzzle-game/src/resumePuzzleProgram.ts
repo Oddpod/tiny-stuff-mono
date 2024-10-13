@@ -1,5 +1,5 @@
 import { Effect, LogLevel, Logger } from "effect";
-import { cutPiece } from "./cutPiece";
+import { PieceCutter } from "./cutPiece";
 import { setChosenImage } from "./input";
 import { loadImage } from "./utils";
 import { pieceDefinitionLookup } from "./pieceDefinitions";
@@ -19,6 +19,7 @@ import {
 } from "./clickIntoPlaceAndCombineGridApproach";
 import { createAndPlacePieceGroups } from "./createAndPlacePieceGroups";
 import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
+import { SINGLE_PIECE_ZINDEX } from "./constants";
 
 export const boardContainer = document.getElementById(
 	"board-container",
@@ -34,24 +35,22 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 
 	const image = yield* Effect.tryPromise(() => loadImage(savedImageSrc));
 
-	const { widthInPieces } = yield* Effect.try(() =>
+	const { widthInPieces, heightInPieces } = yield* Effect.try(() =>
 		loadSavedPuzzleDimensions(),
 	);
-	const heightInPieces = yield* Effect.tryPromise(() =>
-		setChosenImage(image, widthInPieces),
+	yield* Effect.tryPromise(() =>
+		setChosenImage(image, widthInPieces, heightInPieces),
 	);
 
-	yield* Effect.logDebug(JSON.stringify({ heightInPieces }));
+	const { boardHeight, boardWidth, ...pieceDimensions } =
+		calculateBoardDimensions({
+			image,
+			widthInPieces,
+			heightInPieces,
+		});
 
-	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
-		image,
-		widthInPieces,
-		heightInPieces,
-	});
+	yield* Effect.logDebug({ boardHeight, boardWidth });
 
-	yield* Effect.logDebug(
-		JSON.stringify({ boardHeight, boardWidth, pieceSize }),
-	);
 	setBoardDimensions({ boardHeight, boardWidth });
 
 	const savedBoard = yield* Effect.try(() => loadSavedBoard());
@@ -68,11 +67,10 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 
 	yield* createAndPlacePieceGroups({
 		combinedPiecesLookup,
-		pieceSize,
+		pieceDimensions,
 		savedBoard,
 		image,
-		boardHeight,
-		boardWidth,
+		puzzleDimensions: { heightInPieces, widthInPieces },
 		pieceDragger,
 		piecePositions,
 	});
@@ -80,10 +78,15 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 	const onPieceGroupMouseUpCallback = PieceGroupCallbackHandler({
 		boardContainer,
 		pieceDragger,
-		pieceSize,
+		pieceDimensions,
 		savedBoard,
 	});
 
+	const cutPiece = PieceCutter({
+		puzzleDimensions: { widthInPieces, heightInPieces },
+		image,
+		pieceDimensions,
+	});
 	for (const row of savedBoard) {
 		for (const piece of row) {
 			const placement = piecePositions.get(piece.id)!;
@@ -92,25 +95,22 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 
 			const definition = pieceDefinitionLookup.get(piece.definitionId)!;
 			const newPiece = yield* Effect.promise(() =>
-				cutPiece({
-					piece: { ...piece, definition },
-					image,
-					pieceSize,
-					boardHeight,
-					boardWidth,
-				}),
+				cutPiece({ ...piece, definition }),
 			);
+			newPiece.classList.add("piece");
+			newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
+			newPiece.setAttribute("data-piece-id", piece.id.toString());
+			newPiece.style.zIndex = SINGLE_PIECE_ZINDEX;
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
-			newPiece.setAttribute("data-definition-id", definition.id.toString());
 			boardContainer.appendChild(newPiece);
 			pieceDragger.makePieceDraggable({
 				divElement: newPiece,
 				onMouseUpCallback: ({ left, top }) => {
 					const res = clickIntoPlaceAndCombineWithGrid({
 						piece: { ...piece, definition },
-						pieceSize,
+						pieceDimensions,
 					});
 
 					if (res.result === PlaceAndCombineResult.Nothing) return;
@@ -123,6 +123,7 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 						return;
 					}
 
+					boardContainer.appendChild(res.newCombinedDiv);
 					combinedPiecesLookup.set(res.id, {
 						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
 						position: { left, top },
@@ -149,6 +150,6 @@ export const resumePuzzleProgram = Effect.gen(function* (_) {
 	}
 }).pipe(
 	Logger.withMinimumLogLevel(
-		import.meta.env.MODE === "dev" ? LogLevel.Debug : LogLevel.Error,
+		import.meta.env.MODE === "development" ? LogLevel.Debug : LogLevel.Error,
 	),
 );

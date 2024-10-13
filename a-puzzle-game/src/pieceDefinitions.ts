@@ -22,6 +22,8 @@ interface PiecesLookup {
 export type PieceDefinition =
 	(typeof pieceDefinitions)[keyof typeof pieceDefinitions];
 
+export const PIECE_DEFINITION_MAX_XY = Object.freeze(80);
+
 export const pieceDefinitions = {
 	centerPiece1: {
 		height: 80,
