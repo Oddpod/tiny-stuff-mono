@@ -10,20 +10,20 @@
   <body class="m-0">
     <button
       id="settings-button"
-      class="z-60 fixed top-4 right-4 p-2 cursor-pointer rounded-full animate-bounce"
+      class="z-60 fixed top-4 right-4 p-2 cursor-pointer rounded-full animate-bounce text-xl"
     >
-      <div class="i-heroicons-cog-8-tooth-20-solid text-xl" />
+      <div class="i-heroicons-cog-8-tooth-20-solid" />
     </button>
 
     <div
       id="settings-drawer"
-      class="fixed w-screen top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800"
+      class="fixed hidden w-screen lg:w-2xl top-0 right-0 z-150 h-screen overflow-y-auto transition-transform bg-gray-800"
     >
       <button
         id="settings-close-button"
-        class="icon-btn absolute top-4 right-4"
+        class="absolute top-4 right-4 p-2 icon-btn rounded-full hover:bg-bluegray-600 text-xl"
       >
-        <div class="i-heroicons-x-mark dark:text-white"></div>
+        <div class="i-heroicons-x-mark text-white dark:text-white"></div>
       </button>
       <div class="flex flex-col items-center p-4 mt-5">
         <figure id="image-figure">
@@ -103,13 +103,12 @@
                 for="dim-width dim-height"
                 class="flex items-center justify-center text-2xl grid-row-start-2 grid-col-start-2 border-amber border-solid p-6 rounded-2xl"
               >
-                <span id="piece-count" class="text-4xl"> 12 </span>
+                <span id="piece-count" class="text-4xl"></span>
                 <div class="i-heroicons-puzzle-piece"></div>
               </output>
             </fieldset>
             <button
               type="submit"
-              id="load-button"
               class="self-end text-xl rounded-lg px-2 py-1 bg-primary-700 cursor-pointer"
             >
               Load

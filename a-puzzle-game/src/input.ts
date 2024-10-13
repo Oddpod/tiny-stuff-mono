@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 import { previewFile } from "./previewFile";
 import { clamp, gcd, loadImage } from "./utils";
-import { MAX_DIM_XY } from "./constants";
 
 const dimensionsConfig = document.getElementById(
 	"select-piece-dimensions",
@@ -15,7 +14,6 @@ const inputHeightElement = dimensionsConfig.querySelector(
 ) as HTMLInputElement;
 const imageElement = (document.getElementById("image") as HTMLImageElement)!;
 const fileUpload = document.getElementById("file-upload") as HTMLInputElement;
-const loadButton = document.getElementById("load-button") as HTMLButtonElement;
 const dimWidthButtonPlus = document.getElementById(
 	"dim-width-button-plus",
 ) as HTMLButtonElement;
@@ -34,84 +32,49 @@ const pieceCountElement = dimensionsConfig.querySelector(
 	"#piece-count",
 ) as HTMLOutputElement;
 
-let oldWidthValue = 2;
-let oldHeightValue = 2;
-dimensionsConfig.addEventListener("input", () => {
-	const width = Number.parseInt(inputWidthElement.value);
-	const height = Number.parseInt(inputHeightElement.value);
-	if (!Number.isNaN(width)) {
-		oldWidthValue = width;
-	}
-	if (!Number.isNaN(height)) {
-		oldHeightValue = height;
-	}
-});
-
-let aspectRatio = {
-	width: 1,
-	height: 1,
-};
+// let aspectRatio = {
+// 	width: 1,
+// 	height: 1,
+// };
 
 export interface InputConfig {
 	widthInPieces: number;
+
 	heightInPieces: number;
 	imageSrc: string;
 }
 
-function setAspectRatio(image: HTMLImageElement) {
-	const greatestCommonDivisor = gcd(image.height, image.width);
-	aspectRatio = {
-		width: image.width / greatestCommonDivisor,
-		height: image.height / greatestCommonDivisor,
-	};
-	return aspectRatio;
-}
+// TODO: Setting for maintaining aspect ratio
+// function setAspectRatio(image: HTMLImageElement) {
+// 	const greatestCommonDivisor = gcd(image.height, image.width);
+// 	aspectRatio = {
+// 		width: image.width / greatestCommonDivisor,
+// 		height: image.height / greatestCommonDivisor,
+// 	};
+// 	return aspectRatio;
+// }
 
 export async function loadChosenImage(imageSrc: string) {
-	const image = await loadImage(imageSrc);
-	const aspectRatio = setAspectRatio(image);
-	console.log({ aspectRatio });
-	inputWidthElement.value = aspectRatio.width.toString();
-	inputHeightElement.value = Math.round(
-		(Number.parseInt(inputWidthElement.value) * aspectRatio.height) /
-			aspectRatio.width,
-	).toString();
+	await loadImage(imageSrc);
+	// TODO: Setting for maintaining aspect ratio
+	// const aspectRatio = setAspectRatio(image);
 }
 
 export function setChosenImage(
 	image: HTMLImageElement,
 	puzzleWidth: number,
-): Promise<number> {
+	puzzleHeight: number,
+): Promise<void> {
 	imageElement.src = image.src;
 	return new Promise((res, _) => {
 		imageElement.addEventListener("load", () => {
-			const aspectRatio = setAspectRatio(image);
+			// const aspectRatio = setAspectRatio(image);
 			inputWidthElement.value = puzzleWidth.toString();
-			const adjustedHeight = Math.round(
-				(puzzleWidth * aspectRatio.height) / aspectRatio.width,
-			);
-			inputHeightElement.min = aspectRatio.height.toString();
-			inputWidthElement.min = aspectRatio.width.toString();
 
-			inputHeightElement.value = adjustedHeight.toString();
+			inputHeightElement.value = puzzleHeight.toString();
 
-			if (aspectRatio.height < aspectRatio.width) {
-				const width = Math.floor(image.width / MAX_DIM_XY);
-				const height = Math.floor(
-					(width * aspectRatio.height) / aspectRatio.width,
-				);
-				inputHeightElement.setAttribute("max", height.toString());
-				inputWidthElement.setAttribute("max", width.toString());
-			} else {
-				const height = Math.floor(image.height / MAX_DIM_XY);
-				const width = Math.floor(
-					(height * aspectRatio.width) / aspectRatio.height,
-				);
-				inputHeightElement.setAttribute("max", height.toString());
-				inputWidthElement.setAttribute("max", width.toString());
-			}
-			pieceCountElement.innerText = (puzzleWidth * adjustedHeight).toString();
-			return res(adjustedHeight);
+			pieceCountElement.innerText = (puzzleWidth * puzzleHeight).toString();
+			return res();
 		});
 	});
 }
@@ -140,154 +103,67 @@ export const readConfig = (): Effect.Effect<InputConfig, Error> => {
 };
 
 dimWidthButtonPlus.addEventListener("click", () => {
-	let newWidthInPieces = +inputWidthElement.value + 1;
+	const newWidthInPieces = +inputWidthElement.value + 1;
 
-	newWidthInPieces =
-		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
-
-	const inputMin = Number.parseInt(inputWidthElement.min);
 	const inputMax = Number.parseInt(inputWidthElement.max);
 	if (newWidthInPieces > inputMax) {
-		newWidthInPieces = clamp(newWidthInPieces, inputMin, inputMax);
-		inputWidthElement.value = newWidthInPieces.toString();
-		inputHeightElement.value = inputHeightElement.max;
-		pieceCountElement.innerText = (
-			newWidthInPieces * Number.parseInt(inputHeightElement.value)
-		).toString();
 		return;
 	}
-	const adjustedHeight =
-		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
 
-	console.log({ adjustedHeight, newWidthInPieces });
-	inputHeightElement.value = adjustedHeight.toString();
 	inputWidthElement.value = newWidthInPieces.toString();
-	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
+	pieceCountElement.innerText = (
+		newWidthInPieces * +inputHeightElement.value
+	).toString();
 });
 dimWidthButtonMinus.addEventListener("click", () => {
-	let newWidthInPieces = +inputWidthElement.value - 1;
+	const newWidthInPieces = +inputWidthElement.value - 1;
 
 	if (Number.isNaN(newWidthInPieces)) {
 		return;
 	}
-	newWidthInPieces =
-		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
+
 	const inputMin = Number.parseInt(inputWidthElement.min);
 	if (newWidthInPieces < inputMin) {
 		return;
 	}
-	const adjustedHeight =
-		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
-	inputHeightElement.value = adjustedHeight.toString();
+
 	inputWidthElement.value = newWidthInPieces.toString();
-	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
+	pieceCountElement.innerText = (
+		newWidthInPieces * +inputHeightElement.value
+	).toString();
 });
 
 dimHeightButtonMinus.addEventListener("click", () => {
-	let newHeightInPieces = +inputWidthElement.value - 1;
+	const newHeightInPieces = +inputHeightElement.value - 1;
 	if (Number.isNaN(newHeightInPieces)) {
 		return;
 	}
-	newHeightInPieces =
-		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
+
 	const inputMin = Number.parseInt(inputHeightElement.min);
 	if (newHeightInPieces < inputMin) {
 		return;
 	}
-	const adjustedWidth =
-		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
-	inputWidthElement.value = adjustedWidth.toString();
+
 	inputHeightElement.value = newHeightInPieces.toString();
-	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
+	pieceCountElement.innerText = (
+		newHeightInPieces * +inputWidthElement.value
+	).toString();
 });
 
 dimHeightButtonPlus.addEventListener("click", () => {
-	let newHeightInPieces = +inputWidthElement.value + 1;
+	const newHeightInPieces = +inputHeightElement.value + 1;
 	if (Number.isNaN(newHeightInPieces)) {
 		return;
 	}
-	newHeightInPieces =
-		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
 	const inputMax = Number.parseInt(inputHeightElement.max);
-	const inputMin = Number.parseInt(inputHeightElement.min);
 	if (newHeightInPieces > inputMax) {
-		newHeightInPieces = clamp(newHeightInPieces, inputMin, inputMax);
-		inputHeightElement.value = newHeightInPieces.toString();
-		inputWidthElement.value = inputWidthElement.max;
 		return;
 	}
-	const adjustedWidth =
-		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
-	inputWidthElement.value = adjustedWidth.toString();
+
 	inputHeightElement.value = newHeightInPieces.toString();
-	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
-});
-
-// inputWidthElement.addEventListener("change", (event: Event) => {
-// 	const newValue = (event.target as HTMLInputElement).value;
-// 	let newWidthInPieces = Number.parseInt(newValue);
-// 	if (Number.isNaN(newWidthInPieces)) {
-// 		inputWidthElement.value = oldWidthValue.toString();
-// 		return;
-// 	}
-// 	newWidthInPieces =
-// 		Math.floor(newWidthInPieces / aspectRatio.width) * aspectRatio.width;
-// 	const inputMin = Number.parseInt(inputWidthElement.min);
-// 	const inputMax = Number.parseInt(inputWidthElement.max);
-// 	if (newWidthInPieces > inputMax) {
-// 		newWidthInPieces = clamp(newWidthInPieces, inputMin, inputMax);
-// 		inputWidthElement.value = newWidthInPieces.toString();
-// 		inputHeightElement.value = inputHeightElement.max;
-// 		pieceCountElement.innerText = (
-// 			newWidthInPieces * Number.parseInt(inputHeightElement.value)
-// 		).toString();
-// 		return;
-// 	}
-// 	const adjustedHeight =
-// 		(newWidthInPieces * aspectRatio.height) / aspectRatio.width;
-// 	inputHeightElement.value = adjustedHeight.toString();
-// 	inputWidthElement.value = newWidthInPieces.toString();
-// 	pieceCountElement.innerText = (newWidthInPieces * adjustedHeight).toString();
-// });
-
-// inputHeightElement.addEventListener("change", (event: Event) => {
-// 	const newValue = (event.target as HTMLInputElement).value;
-// 	let newHeightInPieces = Number.parseInt(newValue);
-// 	if (Number.isNaN(newHeightInPieces)) {
-// 		inputHeightElement.value = oldHeightValue.toString();
-// 		return;
-// 	}
-// 	newHeightInPieces =
-// 		Math.floor(newHeightInPieces / aspectRatio.height) * aspectRatio.height;
-// 	const inputMin = Number.parseInt(inputHeightElement.min);
-// 	const inputMax = Number.parseInt(inputHeightElement.max);
-// 	if (newHeightInPieces > inputMax) {
-// 		newHeightInPieces = clamp(newHeightInPieces, inputMin, inputMax);
-// 		inputHeightElement.value = newHeightInPieces.toString();
-// 		inputWidthElement.value = inputWidthElement.max;
-// 		return;
-// 	}
-// 	const adjustedWidth =
-// 		(newHeightInPieces * aspectRatio.width) / aspectRatio.height;
-// 	inputWidthElement.value = adjustedWidth.toString();
-// 	inputHeightElement.value = newHeightInPieces.toString();
-// 	pieceCountElement.innerText = (newHeightInPieces * adjustedWidth).toString();
-// });
-
-inputWidthElement.addEventListener("focus", () => {
-	loadButton.setAttribute("disabled", "");
-});
-
-inputWidthElement.addEventListener("blur", () => {
-	loadButton.removeAttribute("disabled");
-});
-
-inputHeightElement.addEventListener("focus", () => {
-	loadButton.setAttribute("disabled", "");
-});
-
-inputHeightElement.addEventListener("blur", () => {
-	loadButton.removeAttribute("disabled");
+	pieceCountElement.innerText = (
+		newHeightInPieces * +inputWidthElement.value
+	).toString();
 });
 
 fileInput.addEventListener("change", async () => {

@@ -13,7 +13,7 @@ const dimensionsConfig = document.getElementById(
 
 const resumeSavedPuzzle = () =>
 	Effect.runPromise(resumePuzzleProgram).catch((error) => {
-		console.log({ error });
+		Effect.logDebug(error);
 		createPuzzle();
 	});
 

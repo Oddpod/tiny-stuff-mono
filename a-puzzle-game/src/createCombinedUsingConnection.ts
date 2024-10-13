@@ -4,9 +4,10 @@ import {
 	PlaceAndCombineResult,
 	adjustPiecesAndAddToCombined,
 } from "./clickIntoPlaceAndCombineGridApproach";
+import type { PieceDimensions } from "./board";
 
 interface CombineUsingBottomConnectionParams {
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	wantedPiece: HtmlPieceElement;
 	pieceDiv: HtmlPieceElement;
 	wantedPieceDomRect: DOMRect;
@@ -14,13 +15,13 @@ interface CombineUsingBottomConnectionParams {
 }
 
 export function combineUsingTopConnection({
-	pieceSize,
+	pieceDimensions,
 	wantedPiece,
 	pieceDiv,
 	wantedPieceDomRect,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top - marginTop}px`;
@@ -45,20 +46,20 @@ export function combineUsingTopConnection({
 }
 
 interface CombineUsingRightConnection {
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	pieceDomRect: DOMRect;
 	pieceDiv: HtmlPieceElement;
 	wantedPiece: HtmlPieceElement;
 	wantedPieceId: number;
 }
 export function combineUsingRightConnection({
-	pieceSize,
+	pieceDimensions,
 	pieceDomRect,
 	pieceDiv,
 	wantedPiece,
 	wantedPieceId,
 }: CombineUsingRightConnection): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${pieceDomRect.top - marginTop}px`;
@@ -82,12 +83,12 @@ export function combineUsingRightConnection({
 }
 
 export function combineUsingBottomConnection({
-	pieceSize,
+	pieceDimensions,
 	wantedPiece,
 	pieceDiv,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${pieceDiv.getBoundingClientRect().top - marginTop}px`;
@@ -111,13 +112,13 @@ export function combineUsingBottomConnection({
 }
 
 export function combineUsingLeftConnection({
-	pieceSize,
+	pieceDimensions,
 	wantedPiece,
 	pieceDiv,
 	wantedPieceDomRect,
 	wantedPieceId,
 }: CombineUsingBottomConnectionParams): CombinedPieceResult {
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 	const { marginTop, marginLeft } = getMargins(pieceDiv);
 
 	newCombinedDiv.style.top = `${wantedPieceDomRect.top}px`;
@@ -157,13 +158,13 @@ export interface PieceGroupDivElement extends HTMLDivElement {
 	};
 }
 export function createCombinedPieceDiv(
-	pieceSize: number,
+	{ pieceHeight, pieceWidth }: PieceDimensions,
 	id: string = crypto.randomUUID(),
 ) {
 	const newCombinedDiv = document.createElement("div") as PieceGroupDivElement;
 	newCombinedDiv.classList.add("combined-piece");
-	newCombinedDiv.style.gridAutoColumns = `${pieceSize}px`;
-	newCombinedDiv.style.gridAutoRows = `${pieceSize}px`;
+	newCombinedDiv.style.gridAutoColumns = `${pieceWidth}px`;
+	newCombinedDiv.style.gridAutoRows = `${pieceHeight}px`;
 	newCombinedDiv.style.position = "absolute";
 	newCombinedDiv.setAttribute("id", `combine-piece-${id}`);
 	newCombinedDiv.setAttribute("data-id", `${id}`);

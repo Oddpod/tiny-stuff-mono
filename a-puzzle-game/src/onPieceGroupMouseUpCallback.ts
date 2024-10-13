@@ -1,4 +1,4 @@
-import type { PiecePositionLookup } from "./board";
+import type { PieceDimensions, PiecePositionLookup } from "./board";
 import type { PieceGroupDivElement } from "./createCombinedUsingConnection";
 import type { PieceDragger } from "./makePieceDraggable";
 import { onPieceGroupDropped } from "./onPieceGroupDropped";
@@ -12,7 +12,7 @@ interface PieceGroupCallbackHandlerParams {
 	pieceDragger: ReturnType<typeof PieceDragger>;
 	boardContainer: HTMLDivElement;
 	savedBoard: SavedBoard;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 }
 
 interface OnPieceGroupMouseUpCallbackParams {
@@ -26,7 +26,7 @@ interface OnPieceGroupMouseUpCallbackParams {
 export function PieceGroupCallbackHandler({
 	pieceDragger,
 	boardContainer,
-	pieceSize,
+	pieceDimensions,
 	savedBoard,
 }: PieceGroupCallbackHandlerParams) {
 	const onPieceGroupMouseUpCallback = ({
@@ -41,7 +41,7 @@ export function PieceGroupCallbackHandler({
 			boardContainer,
 			savedBoard,
 			combinedParentDiv,
-			pieceSize,
+			pieceDimensions,
 		});
 		if (!!result && "mergedGroups" in result) {
 			const { newCombinedDiv, removedIds, newCombinedDivId } = result;

@@ -1,4 +1,3 @@
-import { SINGLE_PIECE_ZINDEX } from "./constants";
 import { clamp } from "./utils";
 
 interface MouseDownParams {

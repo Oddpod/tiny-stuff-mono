@@ -1,3 +1,4 @@
+import type { PieceDimensions } from "./board";
 import { MAX_DIM_XY, type HtmlPieceElement } from "./constants";
 import {
 	type PieceGroupDivElement,
@@ -20,7 +21,7 @@ interface CombinePieceGroupsParams {
 	pieceToTryDiv: HtmlPieceElement;
 	combinedParentDiv: PieceGroupDivElement;
 	droppedPieceGroupDiv: PieceGroupDivElement;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 	boardContainer: HTMLDivElement;
 }
 
@@ -38,7 +39,7 @@ export function combinePieceGroups({
 	pieceToTryDiv,
 	combinedParentDiv,
 	droppedPieceGroupDiv,
-	pieceSize,
+	pieceDimensions,
 	boardContainer,
 }: CombinePieceGroupsParams): ReturnType {
 	const pieceDomRect = pieceToTryDiv.getBoundingClientRect();
@@ -75,7 +76,7 @@ export function combinePieceGroups({
 		...bottomMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]"),
 		...topMostGroupDiv.querySelectorAll<HtmlPieceElement>("div[id^=piece]"),
 	];
-	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceSize);
+	const { newCombinedDiv, id } = createCombinedPieceDiv(pieceDimensions);
 
 	newCombinedDiv.style.left = leftMostGroupDiv.style.left;
 	newCombinedDiv.style.top = topMostGroupDiv.style.top;

@@ -1,7 +1,8 @@
 import { PIECE_DIMENSIONS } from "./pieceDefinitions";
 import type { PieceEntity } from "./makeBoard";
 import { loadImage } from "./utils";
-import { SINGLE_PIECE_ZINDEX, type HtmlPieceElement } from "./constants";
+import type { HtmlPieceElement } from "./constants";
+import type { PieceDimensions } from "./board";
 
 const canvasForCropping = document.createElement("canvas");
 canvasForCropping.width = 300;
@@ -11,47 +12,40 @@ const croppingContext = canvasForCropping.getContext("2d")!;
 let uniqueCounter = 0;
 
 export interface CutPieceParams {
-	pieceSize: number;
-	piece: PieceEntity;
+	pieceDimensions: PieceDimensions;
+	piece: Pick<PieceEntity, "definition" | "coords">;
 	image: HTMLImageElement;
-	boardWidth: number;
-	boardHeight: number;
+	toImageHeight: (_: number) => number;
+	toImageWidth: (_: number) => number;
 }
 const cutPiece = async ({
 	piece,
-	pieceSize,
+	pieceDimensions: { pieceHeight, pieceWidth },
 	image,
-	boardHeight,
-	boardWidth,
+	toImageHeight,
+	toImageWidth,
 }: CutPieceParams) => {
-	const shiftLeftBy =
-		piece.definition.sides.left === "ear"
-			? (15 * pieceSize) / PIECE_DIMENSIONS
-			: 0;
+	const shiftLeftByFactor =
+		piece.definition.sides.left === "ear" ? 15 / PIECE_DIMENSIONS : 0;
 	const shiftTopBy =
-		piece.definition.sides.top === "ear"
-			? (15 * pieceSize) / PIECE_DIMENSIONS
-			: 0;
-	const shiftedLeftX =
-		(Math.max(0, piece.coords.col * pieceSize - shiftLeftBy) * image.width) /
-		boardWidth;
-	const shiftedTopY =
-		(Math.max(0, piece.coords.row * pieceSize - shiftTopBy) * image.height) /
-		boardHeight;
+		piece.definition.sides.top === "ear" ? 15 / PIECE_DIMENSIONS : 0;
+	const shiftedLeftX = toImageWidth(
+		Math.max(0, piece.coords.col - shiftLeftByFactor),
+	);
+	const shiftedTopY = toImageHeight(Math.max(0, piece.coords.row - shiftTopBy));
 
-	const scaledUpWidth =
-		(((piece.definition.width * pieceSize) / PIECE_DIMENSIONS) * image.width) /
-		boardWidth;
-	const scaledUpHeight =
-		(((piece.definition.height * pieceSize) / PIECE_DIMENSIONS) *
-			image.height) /
-		boardHeight;
+	const scaledUpWidth = toImageWidth(piece.definition.width / PIECE_DIMENSIONS);
+	const scaledUpHeight = toImageHeight(
+		piece.definition.height / PIECE_DIMENSIONS,
+	);
 
-	const pieceWidth = (piece.definition.width * pieceSize) / PIECE_DIMENSIONS;
-	const pieceHeight = (piece.definition.height * pieceSize) / PIECE_DIMENSIONS;
+	const boardPieceWidth =
+		(piece.definition.width * pieceWidth) / PIECE_DIMENSIONS;
+	const boardPieceHeight =
+		(piece.definition.height * pieceHeight) / PIECE_DIMENSIONS;
 
-	canvasForCropping.width = pieceWidth;
-	canvasForCropping.height = pieceHeight;
+	canvasForCropping.width = boardPieceWidth;
+	canvasForCropping.height = boardPieceHeight;
 
 	croppingContext.drawImage(
 		image,
@@ -61,8 +55,8 @@ const cutPiece = async ({
 		scaledUpHeight,
 		0,
 		0,
-		pieceWidth,
-		pieceHeight,
+		boardPieceWidth,
+		boardPieceHeight,
 	);
 	const croppedImageDataUrl = canvasForCropping.toDataURL();
 
@@ -70,8 +64,8 @@ const cutPiece = async ({
 
 	const croppedImage = await loadImage(croppedImageDataUrl);
 	const style = `
-        width: ${pieceWidth}px;
-        height: ${pieceHeight}px;
+        width: ${boardPieceWidth}px;
+        height: ${boardPieceHeight}px;
     `;
 
 	const imgStyle = `
@@ -96,8 +90,8 @@ const cutPiece = async ({
 	const pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
 	pathEl.setAttribute("d", piece.definition.path);
 
-	const scaleToFitBoardX = pieceSize / PIECE_DIMENSIONS;
-	const scaleToFitBoardY = pieceSize / PIECE_DIMENSIONS;
+	const scaleToFitBoardX = pieceWidth / PIECE_DIMENSIONS;
+	const scaleToFitBoardY = pieceHeight / PIECE_DIMENSIONS;
 	pathEl.setAttribute(
 		"transform",
 		`scale(${scaleToFitBoardX.toString()} ${scaleToFitBoardY.toString()})`,
@@ -108,31 +102,31 @@ const cutPiece = async ({
 	const newPiece = document.createElement("div");
 	newPiece.appendChild(svgElement);
 	newPiece.appendChild(croppedImage);
-	newPiece.setAttribute("data-piece-id", piece.id.toString());
 	newPiece.setAttribute("style", style);
-	if (shiftLeftBy >= 0) {
-		newPiece.style.marginLeft = `-${shiftLeftBy}px`;
+	if (shiftLeftByFactor >= 0) {
+		newPiece.style.marginLeft = `-${shiftLeftByFactor * pieceWidth}px`;
 	}
 	if (shiftTopBy >= 0) {
-		newPiece.style.marginTop = `-${shiftTopBy}px`;
+		newPiece.style.marginTop = `-${shiftTopBy * pieceHeight}px`;
 	}
-	// TODO: Not needed for pieces in combinedDiv
-	// ----
-	newPiece.classList.add("piece");
-	newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
-	newPiece.style.zIndex = SINGLE_PIECE_ZINDEX;
-	// ----
 
 	return newPiece as HtmlPieceElement;
 };
 
-interface PieceCutterParams {
-	pieceSize: number;
-	image: HTMLImageElement;
-	boardWidth: number;
-	boardHeight: number;
+export interface PuzzleDimensions {
+	widthInPieces: number;
+	heightInPieces: number;
+}
+interface PieceCutterParams
+	extends Omit<CutPieceParams, "piece" | "toImageHeight" | "toImageWidth"> {
+	puzzleDimensions: PuzzleDimensions;
 }
 
-export function PieceCutter(params: PieceCutterParams) {
-	return (piece: PieceEntity) => cutPiece({ piece, ...params });
+export function PieceCutter({ puzzleDimensions, ...rest }: PieceCutterParams) {
+	const toImageWidth = (width: number) =>
+		(width * rest.image.width) / puzzleDimensions.widthInPieces;
+	const toImageHeight = (height: number) =>
+		(height * rest.image.height) / puzzleDimensions.heightInPieces;
+	return (piece: Parameters<typeof cutPiece>[0]["piece"]) =>
+		cutPiece({ piece, toImageHeight, toImageWidth, ...rest });
 }

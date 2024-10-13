@@ -4,6 +4,7 @@ import {
 	addPieceToGroupRightConnection,
 	addPieceToGroupTopConnection,
 } from "./addPieceToGroup";
+import type { PieceDimensions } from "./board";
 import { HIT_OFFSET, type HtmlPieceElement } from "./constants";
 import {
 	combineUsingBottomConnection,
@@ -29,7 +30,7 @@ export enum PlaceAndCombineResult {
 
 export interface ClickIntoPlaceAndCombineParams {
 	piece: PieceEntity;
-	pieceSize: number;
+	pieceDimensions: PieceDimensions;
 }
 
 export type CombinedPieceResult = {
@@ -70,11 +71,11 @@ function findCombinedParent(
 
 export function clickIntoPlaceAndCombineWithGrid({
 	piece,
-	pieceSize,
+	pieceDimensions,
 }: ClickIntoPlaceAndCombineParams): ReturnType {
 	const { pieceDomRect, hitOffsetForEar, pieceDiv } = getCombineParams(
 		piece,
-		pieceSize,
+		pieceDimensions,
 	);
 
 	if (piece.connections.top !== null) {
@@ -96,7 +97,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 				});
 			}
 			return combineUsingTopConnection({
-				pieceSize,
+				pieceDimensions,
 				wantedPiece,
 				pieceDiv,
 				wantedPieceDomRect,
@@ -124,7 +125,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 				});
 			}
 			return combineUsingRightConnection({
-				pieceSize,
+				pieceDimensions,
 				pieceDomRect,
 				pieceDiv,
 				wantedPiece,
@@ -154,7 +155,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 			}
 			return combineUsingBottomConnection({
 				pieceDiv,
-				pieceSize,
+				pieceDimensions,
 				wantedPiece,
 				wantedPieceDomRect,
 				wantedPieceId,
@@ -182,7 +183,7 @@ export function clickIntoPlaceAndCombineWithGrid({
 			}
 			return combineUsingLeftConnection({
 				pieceDiv,
-				pieceSize,
+				pieceDimensions,
 				wantedPiece,
 				wantedPieceDomRect,
 				wantedPieceId,
@@ -219,12 +220,16 @@ export function adjustPiecesAndAddToCombined({
 	newCombinedDiv.appendChild(wantedPiece);
 }
 
-export function getCombineParams(piece: PieceEntity, pieceSize: number) {
+export function getCombineParams(
+	piece: PieceEntity,
+	{ pieceHeight, pieceWidth }: PieceDimensions,
+) {
 	const pieceDiv = document.getElementById(
 		`piece-${piece.id}`,
 	) as HtmlPieceElement;
 
 	const pieceDomRect = pieceDiv.getBoundingClientRect();
-	const hitOffsetForEar = (15 * pieceSize) / PIECE_DIMENSIONS + HIT_OFFSET;
+	const hitOffsetForEar =
+		(15 * Math.min(pieceHeight, pieceWidth)) / PIECE_DIMENSIONS + HIT_OFFSET;
 	return { pieceDomRect, hitOffsetForEar, pieceDiv };
 }

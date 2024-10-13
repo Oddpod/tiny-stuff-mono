@@ -23,23 +23,25 @@ import {
 	PlaceAndCombineResult,
 } from "./clickIntoPlaceAndCombineGridApproach";
 import { PieceGroupCallbackHandler } from "./onPieceGroupMouseUpCallback";
+import { SINGLE_PIECE_ZINDEX } from "./constants";
 
 export const createPuzzleProgram = Effect.gen(function* (_) {
 	yield* Effect.logDebug("Running createPuzzleProgram");
-	const { imageSrc, ...dimensions } = yield* readConfig();
+	const { imageSrc, ...puzzleDimensions } = yield* readConfig();
 	yield* Effect.tryPromise(() => loadChosenImage(imageSrc));
-	savePuzzleDimensions(dimensions);
+	savePuzzleDimensions(puzzleDimensions);
 
 	const image = yield* Effect.tryPromise(() => loadImage(imageSrc));
 	saveImage(imageSrc);
 
-	const { boardHeight, boardWidth, pieceSize } = calculateBoardDimensions({
-		image,
-		...dimensions,
-	});
+	const { boardHeight, boardWidth, ...pieceDimensions } =
+		calculateBoardDimensions({
+			image,
+			...puzzleDimensions,
+		});
 	setBoardDimensions({ boardWidth, boardHeight });
 
-	const board = yield* createBoard(dimensions);
+	const board = yield* createBoard(puzzleDimensions);
 	const savedBoard = saveBoard(board);
 
 	const piecePositions: PiecePositionLookup = new Map();
@@ -50,20 +52,29 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 
 	const combinedPiecesLookup: CombinedPiecePositionLookup = new Map();
 
+	yield* Effect.logDebug(puzzleDimensions);
 	const onPieceGroupMouseUpCallback = PieceGroupCallbackHandler({
 		boardContainer,
 		pieceDragger,
-		pieceSize,
+		pieceDimensions,
 		savedBoard,
 	});
-	const cutPiece = PieceCutter({ image, pieceSize, boardHeight, boardWidth });
+	const cutPiece = PieceCutter({
+		image,
+		pieceDimensions,
+		puzzleDimensions,
+	});
 	for (const row of board) {
 		for (const piece of row) {
 			const newPiece = yield* Effect.promise(() => cutPiece(piece));
-			const placement = getRandomBoardCoordinates(
-				pieceSize,
-				piece.definition.sides,
-			);
+			const placement = getRandomBoardCoordinates({
+				...pieceDimensions,
+				sides: piece.definition.sides,
+			});
+			newPiece.classList.add("piece");
+			newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
+			newPiece.setAttribute("data-piece-id", piece.id.toString());
+			newPiece.style.zIndex = SINGLE_PIECE_ZINDEX;
 			newPiece.style.left = `${placement.left}px`;
 			newPiece.style.top = `${placement.top}px`;
 			newPiece.id = `piece-${piece.id}`;
@@ -74,7 +85,7 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 				onMouseUpCallback: ({ left, top }) => {
 					const res = clickIntoPlaceAndCombineWithGrid({
 						piece,
-						pieceSize,
+						pieceDimensions,
 					});
 
 					if (res.result === PlaceAndCombineResult.Nothing) return;
@@ -88,26 +99,26 @@ export const createPuzzleProgram = Effect.gen(function* (_) {
 					}
 
 					boardContainer.appendChild(res.newCombinedDiv);
-					// combinedPiecesLookup.set(res.id, {
-					// 	pieceIds: new Set([piece.id, res.combinedWithPieceId]),
-					// 	position: { left, top },
-					// });
+					combinedPiecesLookup.set(res.id, {
+						pieceIds: new Set([piece.id, res.combinedWithPieceId]),
+						position: { left, top },
+					});
 
-					// piecePositions.delete(piece.id);
-					// piecePositions.delete(res.combinedWithPieceId);
-					// savePiecePositions(piecePositions, combinedPiecesLookup);
+					piecePositions.delete(piece.id);
+					piecePositions.delete(res.combinedWithPieceId);
+					savePiecePositions(piecePositions, combinedPiecesLookup);
 
-					// pieceDragger.makePieceDraggable({
-					// 	divElement: res.newCombinedDiv,
-					// 	onMouseUpCallback: (p) =>
-					// 		onPieceGroupMouseUpCallback({
-					// 			...p,
-					// 			combinedParentDiv: res.newCombinedDiv,
-					// 			combinedPiecesLookup,
-					// 			groupId: res.id,
-					// 			piecePositions,
-					// 		}),
-					// });
+					pieceDragger.makePieceDraggable({
+						divElement: res.newCombinedDiv,
+						onMouseUpCallback: (p) =>
+							onPieceGroupMouseUpCallback({
+								...p,
+								combinedParentDiv: res.newCombinedDiv,
+								combinedPiecesLookup,
+								groupId: res.id,
+								piecePositions,
+							}),
+					});
 				},
 			});
 		}
