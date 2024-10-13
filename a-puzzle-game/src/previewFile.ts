@@ -2,7 +2,7 @@ import { fileInput } from "./input";
 
 const imageFigureElement = document.getElementById("image-figure");
 const DEFAULT_IMAGE_SRC = Object.freeze(
-	"/zhenyu-luo-4-QpFNeLOpQ-unsplash(2).webp",
+	"/zhenyu-luo-4-QpFNeLOpQ-unsplash.webp",
 );
 
 const previewImageElement = (document.getElementById(
