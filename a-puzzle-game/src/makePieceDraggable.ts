@@ -7,7 +7,7 @@ interface MouseDownParams {
 	boardContainer: HTMLElement;
 }
 
-const mouseDown = ({
+const pointerDown = ({
 	boardContainer,
 	boardElement,
 	divElement,
@@ -15,15 +15,11 @@ const mouseDown = ({
 }: MouseDownParams) => {
 	let left: number;
 	let top: number;
-	return (event: MouseEvent | TouchEvent) => {
+	return (event: PointerEvent) => {
 		event.preventDefault();
 
-		const shiftX =
-			("clientX" in event ? event.clientX : event.touches[0].clientX) -
-			divElement.getBoundingClientRect().left;
-		const shiftY =
-			("clientY" in event ? event.clientY : event.touches[0].clientY) -
-			divElement.getBoundingClientRect().top;
+		const shiftX = event.clientX - divElement.getBoundingClientRect().left;
+		const shiftY = event.clientY - divElement.getBoundingClientRect().top;
 
 		function moveAt(pageX: number, pageY: number) {
 			left = clamp(
@@ -40,39 +36,28 @@ const mouseDown = ({
 			divElement.style.top = `${top}px`;
 		}
 
-		if ("targetTouches" in event) {
-			moveAt(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
-		} else {
+		moveAt(event.pageX, event.pageY);
+
+		function onPointerMove(event: PointerEvent) {
+			event.preventDefault();
+			event.stopPropagation();
 			moveAt(event.pageX, event.pageY);
 		}
 
-		function onMouseMove(event: MouseEvent | TouchEvent) {
-			if ("targetTouches" in event) {
-				moveAt(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
-			} else {
-				moveAt(event.pageX, event.pageY);
-			}
+		boardElement.addEventListener("pointermove", onPointerMove);
+		const onPointerUp = () => {
+			boardElement.removeEventListener("pointermove", onPointerMove);
+			document.onpointerup = null;
+			onMouseUpCallback({ left, top });
 		}
 
-		boardElement.addEventListener("touchmove", onMouseMove);
-		boardElement.addEventListener("mousemove", onMouseMove);
-
-		document.onmouseup = () => {
-			boardElement.removeEventListener("mousemove", onMouseMove);
-			onMouseUpCallback({ left, top });
-			document.onmouseup = null;
-		};
-		divElement.ontouchend = () => {
-			boardElement.removeEventListener("touchmove", onMouseMove);
-			divElement.ontouchend = null;
-			onMouseUpCallback({ left, top });
-		};
+		document.addEventListener("pointerup", onPointerUp)
 	};
 };
 
 export interface MakePieceDraggableParams
 	extends Pick<MouseDownParams, "divElement"> {
-	onMouseUpCallback?: (_: {
+	onMouseUpCallback: (_: {
 		left: number;
 		top: number;
 	}) => void;
@@ -85,19 +70,16 @@ export function PieceDragger({
 		divElement,
 		onMouseUpCallback,
 	}: MakePieceDraggableParams) => {
-		const mouseDownCallback = mouseDown({
+		const onPointerDown = pointerDown({
 			boardContainer,
 			boardElement,
 			divElement,
 			onMouseUpCallback: ({ left, top }) => {
-				if (onMouseUpCallback) {
-					onMouseUpCallback({ left, top });
-				}
+				onMouseUpCallback({ left, top });
 			},
 		});
 		divElement.ondragstart = () => false;
-		divElement.onmousedown = mouseDownCallback;
-		divElement.ontouchstart = mouseDownCallback;
+		divElement.onpointerdown = onPointerDown
 	};
 	return {
 		makePieceDraggable,

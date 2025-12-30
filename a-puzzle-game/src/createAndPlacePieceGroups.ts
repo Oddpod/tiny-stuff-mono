@@ -103,6 +103,8 @@ function* cutPiecesForGroup({
 		);
 		newPiece.id = `piece-${piece.id}`;
 		newPiece.removeAttribute("class");
+		newPiece.setAttribute("data-coords", JSON.stringify(piece.coords));
+		newPiece.setAttribute("data-piece-id", piece.id.toString());
 
 		minCol = Math.min(piece.coords.col, minCol);
 		minRow = Math.min(piece.coords.row, minRow);

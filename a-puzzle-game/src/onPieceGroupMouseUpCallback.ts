@@ -68,8 +68,11 @@ export function PieceGroupCallbackHandler({
 
 			savePiecePositions(piecePositions, combinedPiecesLookup);
 			// TODO: Check if puzzle is finished
-		} else {
-			const combinedPieceData = combinedPiecesLookup.get(groupId)!;
+			return
+		}
+		const combinedPieceData = combinedPiecesLookup.get(groupId)!;
+
+		if (combinedPieceData) {
 			combinedPieceData.position = { left, top };
 			savePiecePositions(piecePositions, combinedPiecesLookup);
 		}
